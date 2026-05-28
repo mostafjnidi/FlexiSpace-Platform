@@ -1,4 +1,4 @@
-import { requireAuth, requireRole } from '../_shared/auth.ts'
+import { requireAuth, requireRole, deriveActorType } from '../_shared/auth.ts'
 import { createServiceClient } from '../_shared/supabase.ts'
 import { FlexiError, errorResponse } from '../_shared/errors.ts'
 import { handlePreflight, addCorsHeaders } from '../_shared/cors.ts'
@@ -89,49 +89,14 @@ async function handleAssignOperator(req: Request): Promise<Response> {
     throw new FlexiError('NOT_FOUND', 'Operator not found or not eligible', 404)
   }
 
-  // Restore soft-deleted row if it exists
-  const { data: softDeleted } = await supabase
-    .from('operator_offices')
-    .select('id')
-    .eq('operator_id', operator_id)
-    .eq('office_id', office_id)
-    .not('deleted_at', 'is', null)
-    .maybeSingle()
-
-  let row
-  if (softDeleted) {
-    const { data: restored, error: restoreErr } = await supabase
-      .from('operator_offices')
-      .update({ deleted_at: null })
-      .eq('id', softDeleted.id)
-      .select('id, operator_id, office_id, created_at')
-      .single()
-    if (restoreErr) throw restoreErr
-    row = restored
-  } else {
-    const { data: inserted, error: insertErr } = await supabase
-      .from('operator_offices')
-      .insert({ operator_id, office_id })
-      .select('id, operator_id, office_id, created_at')
-      .single()
-    if (insertErr) {
-      if (insertErr.code === '23505') {
-        // Already active — return existing row
-        const { data: active } = await supabase
-          .from('operator_offices')
-          .select('id, operator_id, office_id, created_at')
-          .eq('operator_id', operator_id)
-          .eq('office_id', office_id)
-          .is('deleted_at', null)
-          .single()
-        row = active
-      } else {
-        throw insertErr
-      }
-    } else {
-      row = inserted
-    }
-  }
+  const { data: row, error: rpcErr } = await supabase.rpc('assign_operator_office_v1', {
+    p_trusted_actor_id:   profile.id,
+    p_trusted_actor_type: deriveActorType(profile.role),
+    p_request_id:         requestId,
+    p_operator_id:        operator_id,
+    p_office_id:          office_id,
+  })
+  if (rpcErr) throw rpcErr
 
   return new Response(
     JSON.stringify({ data: row, meta: { request_id: requestId } }),
@@ -174,12 +139,13 @@ async function handleUnassignOperator(req: Request, linkId: string): Promise<Res
     }
   }
 
-  const { error: deleteErr } = await supabase
-    .from('operator_offices')
-    .update({ deleted_at: new Date().toISOString() })
-    .eq('id', linkId)
-
-  if (deleteErr) throw deleteErr
+  const { error: rpcErr } = await supabase.rpc('unassign_operator_office_v1', {
+    p_trusted_actor_id:   profile.id,
+    p_trusted_actor_type: deriveActorType(profile.role),
+    p_request_id:         requestId,
+    p_link_id:            linkId,
+  })
+  if (rpcErr) throw rpcErr
 
   return new Response(
     JSON.stringify({ data: { id: linkId }, meta: { request_id: requestId } }),
