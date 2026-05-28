@@ -669,7 +669,7 @@ export default function Checkout() {
             className="no-underline flex items-center"
             aria-label="FlexiSpace home"
           >
-            <BrandLogo variant="mono" iconSize={20} />
+            <BrandLogo variant="colored" iconSize={20} />
           </Link>
           <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 mt-1.5 block">
             {usagePaymentMode ? t('checkout.usageFeePayment') : isPaymentMode ? t('checkout.completePayment') : t('checkout.secureCheckout')}

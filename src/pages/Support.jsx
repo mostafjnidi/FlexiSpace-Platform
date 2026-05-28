@@ -1,8 +1,10 @@
-﻿import { useState } from 'react'
-import { Link } from 'react-router-dom'
+﻿import { useState, useEffect } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
 import { useI18n } from '../i18n'
 import LanguageSwitcher from '../components/LanguageSwitcher'
+import { supabase } from '../lib/supabase'
+import { getRoleHome } from '../lib/authRoles'
 
 function BellIcon() {
   return (
@@ -106,9 +108,13 @@ function AccordionItem({ item, isOpen, onToggle }) {
   )
 }
 
-function SupportForm({ t }) {
-  const [form, setForm] = useState({ name: '', email: '', category: '', summary: '' })
+function SupportForm({ t, prefillName = '', prefillEmail = '' }) {
+  const [form, setForm] = useState({ name: prefillName, email: prefillEmail, category: '', summary: '' })
   const [submitted, setSubmitted] = useState(false)
+
+  useEffect(() => {
+    setForm(prev => ({ ...prev, name: prefillName, email: prefillEmail }))
+  }, [prefillName, prefillEmail])
 
   const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 
@@ -214,9 +220,47 @@ function SupportForm({ t }) {
   )
 }
 
+function BackIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M10 12L6 8l4-4" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 export default function Support() {
   const { t } = useI18n()
+  const navigate = useNavigate()
   const [openItem, setOpenItem] = useState(null)
+  const [userId, setUserId] = useState(null)
+  const [userName, setUserName] = useState('')
+  const [userEmail, setUserEmail] = useState('')
+  const [userRole, setUserRole] = useState(null)
+
+  useEffect(() => {
+    async function loadUser() {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+        setUserId(user.id)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, email, role')
+          .eq('id', user.id)
+          .maybeSingle()
+        if (profile) {
+          setUserName(profile.full_name ?? '')
+          setUserEmail(profile.email ?? user.email ?? '')
+          setUserRole(profile.role ?? null)
+        } else {
+          setUserEmail(user.email ?? '')
+        }
+      } catch {
+        // silent — support page works without auth
+      }
+    }
+    loadUser()
+  }, [])
 
   const kbItems = [
     {
@@ -242,7 +286,16 @@ export default function Support() {
   return (
     <div className="min-h-screen bg-bg flex flex-col">
       <header className="fixed top-0 left-0 right-0 z-50 h-14 bg-bg border-b border-line flex items-center px-6 gap-4">
-        <Link to="/" className="shrink-0 flex items-center"><BrandLogo variant="mono" iconSize={22} /></Link>
+        <Link to="/" className="shrink-0 flex items-center"><BrandLogo variant="colored" iconSize={22} /></Link>
+
+        <button
+          aria-label={t('support.backToDashboard')}
+          onClick={() => userRole ? navigate(getRoleHome(userRole)) : navigate(-1)}
+          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-inter text-[12.5px] text-neutral-2 hover:text-ink hover:bg-bg-3 transition-all duration-200 cursor-pointer bg-transparent border border-line ml-2"
+        >
+          <BackIcon />
+          {t('support.backToDashboard')}
+        </button>
 
         <div className="flex items-center gap-3 ml-auto">
           <LanguageSwitcher compact />
@@ -261,9 +314,8 @@ export default function Support() {
           <div className="pl-3 border-l border-line ml-1">
             <div className="w-11 h-11 rounded-full overflow-hidden border border-line">
               <img
-                src="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80"
-                srcSet="https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=80&q=80 1x, https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=160&q=80 2x"
-                alt="Admin avatar"
+                src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${userId || 'default'}&backgroundColor=1F211D`}
+                alt="User avatar"
                 className="w-full h-full object-cover"
               />
             </div>
@@ -299,7 +351,7 @@ export default function Support() {
             </div>
 
             <div>
-              <SupportForm t={t} />
+              <SupportForm t={t} prefillName={userName} prefillEmail={userEmail} />
             </div>
           </div>
         </section>
