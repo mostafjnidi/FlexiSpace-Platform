@@ -81,7 +81,7 @@ async function handleAssignOperator(req: Request): Promise<Response> {
     .from('profiles')
     .select('id')
     .eq('id', operator_id)
-    .eq('role', 'OPERATOR')
+    .in('role', ['OPERATOR', 'USER'])
     .eq('is_active', true)
     .is('deleted_at', null)
     .maybeSingle()
