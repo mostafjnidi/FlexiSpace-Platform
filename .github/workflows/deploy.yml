@@ -22,7 +22,7 @@ jobs:
 
       - name: Install dependencies and build
         working-directory: repo
-        run: npm ci && npm run build
+        run: npm install && npm run build
 
       - name: Deploy dist to gh-pages branch
         run: |
