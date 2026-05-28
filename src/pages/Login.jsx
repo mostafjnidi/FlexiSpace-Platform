@@ -61,22 +61,22 @@ function AlertIcon() {
 const DEMO_ACCOUNTS = [
   {
     label: 'Owner',
-    email: 'phase18e+owner@local.test',
-    password: 'Phase18e-local-password!',
+    email: 'demo.owner@flexispace.app',
+    password: 'FlexiDemo2026!',
     route: '/workspace-ops',
     color: 'text-amber-400 border-amber-500/30 bg-amber-500/8',
   },
   {
     label: 'Operator',
-    email: 'phase18e+operator@local.test',
-    password: 'Phase18e-local-password!',
+    email: 'demo.operator@flexispace.app',
+    password: 'FlexiDemo2026!',
     route: '/command-center',
     color: 'text-sky-400 border-sky-500/30 bg-sky-500/8',
   },
   {
     label: 'Client',
-    email: 'phase18e+user@local.test',
-    password: 'Phase18e-local-password!',
+    email: 'demo.client@flexispace.app',
+    password: 'FlexiDemo2026!',
     route: '/find-workspace',
     color: 'text-emerald-400 border-emerald-500/30 bg-emerald-500/8',
   },
