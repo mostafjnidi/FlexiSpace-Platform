@@ -252,9 +252,9 @@ function SectionHeading({ icon, title }) {
 
 // ─── Initial state (for dirty detection) ─────────────────────────────────────
 
-const INITIAL_FORM = {
-  fullName: 'Elias Vance',
-  email: 'elias.vance@infrastructure.net',
+const EMPTY_FORM = {
+  fullName: '',
+  email: '',
   phone: '',
   countryCode: '+1',
   currentPassword: '',
@@ -277,7 +277,7 @@ const INVOICES = [
 
 // ─── Account & Security tab ───────────────────────────────────────────────────
 
-function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t }) {
+function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t, userRole, userId }) {
   const [dragOver, setDragOver] = useState(false)
 
   const handleDrop = (e) => {
@@ -298,7 +298,7 @@ function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t }) {
         </p>
         <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-accent/25 bg-accent/[.07]">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-accent">{t('settings.ownerAdmin')}</span>
+          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-accent">{userRole || '—'}</span>
         </div>
       </div>
 
@@ -311,7 +311,7 @@ function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t }) {
               <img src={avatar} alt="Profile" className="w-full h-full object-cover" />
             ) : (
               <img
-                src="https://api.dicebear.com/7.x/adventurer/svg?seed=EliasVance&backgroundColor=1F211D"
+                src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${userId || 'default'}&backgroundColor=1F211D`}
                 alt={t('settings.defaultAvatar')}
                 className="w-full h-full object-cover"
               />
@@ -649,10 +649,38 @@ export default function AccountSettings() {
 
   const [activeSection, setActiveSection] = useState('account')
   const [avatar, setAvatar]               = useState(null)
-  const [form, setForm]                   = useState({ ...INITIAL_FORM })
+  const [form, setForm]                   = useState({ ...EMPTY_FORM })
   const [toggles, setToggles]             = useState({ ...INITIAL_TOGGLES })
-  const [savedSnapshot, setSavedSnapshot] = useState({ form: { ...INITIAL_FORM }, toggles: { ...INITIAL_TOGGLES }, avatar: null })
+  const [savedSnapshot, setSavedSnapshot] = useState({ form: { ...EMPTY_FORM }, toggles: { ...INITIAL_TOGGLES }, avatar: null })
   const [savedToast, setSavedToast]       = useState(false)
+  const [userRole, setUserRole]           = useState('')
+  const [userId, setUserId]               = useState('')
+  const [loading, setLoading]             = useState(true)
+
+  useEffect(() => {
+    async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+      setUserId(user.id)
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('full_name, email, role')
+        .eq('id', user.id)
+        .single()
+      if (profile) {
+        const loaded = {
+          ...EMPTY_FORM,
+          fullName: profile.full_name ?? '',
+          email: profile.email ?? user.email ?? '',
+        }
+        setForm(loaded)
+        setSavedSnapshot({ form: loaded, toggles: { ...INITIAL_TOGGLES }, avatar: null })
+        setUserRole(profile.role ?? '')
+      }
+      setLoading(false)
+    }
+    loadProfile()
+  }, [])
 
   const handleChange = (e) => setForm((p) => ({ ...p, [e.target.name]: e.target.value }))
 
@@ -680,9 +708,9 @@ export default function AccountSettings() {
     }
   }
   const handleDiscard = () => {
-    setForm({ ...INITIAL_FORM })
-    setToggles({ ...INITIAL_TOGGLES })
-    setAvatar(null)
+    setForm({ ...savedSnapshot.form })
+    setToggles({ ...savedSnapshot.toggles })
+    setAvatar(savedSnapshot.avatar)
   }
 
   const scrollToSection = (id) => {
@@ -773,37 +801,49 @@ export default function AccountSettings() {
         {/* Main content — single scrollable column of stacked cards */}
         <main className="flex-1 min-w-0 flex flex-col gap-6">
 
-          {/* Account & Security */}
-          <section id="section-account" className="flex flex-col gap-6">
-            <ProfileCard
-              form={form}
-              onChange={handleChange}
-              avatar={avatar}
-              setAvatar={setAvatar}
-              fileRef={fileRef}
-              t={t}
-            />
-            <SecurityCard
-              form={form}
-              onChange={handleChange}
-              toggles={toggles}
-              setToggles={setToggles}
-              t={t}
-            />
-          </section>
+          {loading && (
+            <div className="flex items-center justify-center py-32">
+              <span className="font-mono text-[12px] uppercase tracking-[.14em] text-neutral animate-pulse">Loading…</span>
+            </div>
+          )}
 
-          {/* Billing */}
-          <section id="section-billing">
-            <BillingCard t={t} />
-          </section>
+          {!loading && (
+            <>
+              {/* Account & Security */}
+              <section id="section-account" className="flex flex-col gap-6">
+                <ProfileCard
+                  form={form}
+                  onChange={handleChange}
+                  avatar={avatar}
+                  setAvatar={setAvatar}
+                  fileRef={fileRef}
+                  t={t}
+                  userRole={userRole}
+                  userId={userId}
+                />
+                <SecurityCard
+                  form={form}
+                  onChange={handleChange}
+                  toggles={toggles}
+                  setToggles={setToggles}
+                  t={t}
+                />
+              </section>
 
-          {/* Notifications */}
-          <section id="section-notifications">
-            <NotificationsCard toggles={toggles} setToggles={setToggles} t={t} />
-          </section>
+              {/* Billing */}
+              <section id="section-billing">
+                <BillingCard t={t} />
+              </section>
 
-          {/* Danger Zone — always at bottom */}
-          <DangerZoneCard t={t} />
+              {/* Notifications */}
+              <section id="section-notifications">
+                <NotificationsCard toggles={toggles} setToggles={setToggles} t={t} />
+              </section>
+
+              {/* Danger Zone — always at bottom */}
+              <DangerZoneCard t={t} />
+            </>
+          )}
         </main>
       </div>
 
