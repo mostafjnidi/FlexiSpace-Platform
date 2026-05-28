@@ -1,0 +1,561 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+*, *::before, *::after { box-sizing: border-box; }
+
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+body {
+  background-color: #070B14;
+  color: #F1F5F9;
+  margin: 0;
+  font-family: 'Inter Tight', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html[dir="rtl"] body {
+  text-align: right;
+}
+
+html[dir="rtl"] input,
+html[dir="rtl"] textarea,
+html[dir="rtl"] select {
+  text-align: right;
+}
+
+html[dir="rtl"] .language-switcher,
+html[dir="rtl"] .brand-text,
+html[dir="rtl"] .font-mono,
+html[dir="rtl"] [class*="tabular-nums"] {
+  direction: ltr;
+}
+
+#root {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ─── Animation delay utility ─────────────────────────────────────────────── */
+.animate-fadeUp {
+  animation-delay: var(--delay, 0ms);
+}
+
+/* ─── Refined dark scrollbar ──────────────────────────────────────────────── */
+* { scrollbar-width: thin; scrollbar-color: rgba(255,255,255,0.08) transparent; }
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 99px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.13); }
+
+/* ─── Global input placeholder ────────────────────────────────────────────── */
+::placeholder { color: #475569; opacity: 1; }
+
+/* ─── App shell — header ──────────────────────────────────────────────────── */
+header.app-header {
+  background-color: #070B14;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+header.app-header input {
+  color: #F1F5F9;
+}
+
+/* ─── App shell — sidebar ─────────────────────────────────────────────────── */
+aside.app-sidebar {
+  background-color: #060A12;
+  border-right: 1px solid rgba(255,255,255,0.05);
+}
+
+html[dir="rtl"] aside.app-sidebar {
+  border-right: 0;
+  border-left: 1px solid rgba(255,255,255,0.05);
+}
+
+/* ─── App shell — mobile nav ──────────────────────────────────────────────── */
+nav.app-mobile-nav {
+  background-color: #060A12;
+  border-top: 1px solid rgba(255,255,255,0.05);
+}
+
+html[dir="rtl"] header.app-header,
+html[dir="rtl"] nav.app-mobile-nav {
+  direction: rtl;
+}
+
+/* ─── Search input inside dark header ─────────────────────────────────────── */
+header.app-header .bg-bg-3 {
+  background-color: rgba(255,255,255,0.04);
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* ─── Glass card surface — reduced blur, subtler gradient ─────────────────── */
+.card-glass {
+  background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, rgba(255,255,255,0.00) 100%);
+  border: 1px solid rgba(255,255,255,0.05);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+/* ─── Premium table row hover ─────────────────────────────────────────────── */
+.table-row-hover:hover {
+  background-color: rgba(255,255,255,0.02);
+}
+
+/* ─── Focus ring global override ─────────────────────────────────────────── */
+:focus-visible {
+  outline: 2px solid rgba(16,185,129,0.9);
+  outline-offset: 2px;
+}
+
+/* ─── Sidebar active — matte, no glow ───────────────────────────────────── */
+aside.app-sidebar button[aria-current="page"],
+aside.app-sidebar a[aria-current="page"] {
+  background: rgba(16,185,129,0.06);
+  color: #10B981;
+  border-left-color: #10B981;
+}
+
+/* ─── Status dot pulse ───────────────────────────────────────────────────── */
+@keyframes pulse-green {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+.pulse-green { animation: pulse-green 2.5s ease-in-out infinite; }
+
+/* ─── Inset top highlight for cards ──────────────────────────────────────── */
+.card-highlight {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.04), 0 1px 3px rgba(0,0,0,0.5);
+}
+
+/* ─── Text selection color ───────────────────────────────────────────────── */
+::selection { background: rgba(16,185,129,0.2); color: #F1F5F9; }
+
+/* ─── Reduced motion — freeze all animations and transitions ─────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   DESIGN SYSTEM — Typography, Cards & Bars
+   Single source of truth for all 22 pages.
+   ══════════════════════════════════════════════════════════════════════════ */
+@layer components {
+
+  /* ── Typography ─────────────────────────────────────────────────────────── */
+
+  .type-display {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: #F1F5F9;
+    line-height: 1.2;
+  }
+
+  .type-h1 {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #F1F5F9;
+    line-height: 1;
+  }
+
+  .type-h2 {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #F1F5F9;
+    line-height: 1.4;
+  }
+
+  .type-h3 {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13.5px;
+    font-weight: 600;
+    color: #F1F5F9;
+    line-height: 1.4;
+  }
+
+  .type-body {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 14px;
+    font-weight: 400;
+    color: #94A3B8;
+    line-height: 1.6;
+  }
+
+  .type-body-sm {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: #94A3B8;
+    line-height: 1.5;
+  }
+
+  .type-label {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: #6C7D91;
+    line-height: 1.4;
+  }
+
+  .type-caption {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    color: #6C7D91;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    line-height: 1.4;
+  }
+
+  .type-stat {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #F1F5F9;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .type-stat-lg {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: #F1F5F9;
+    font-variant-numeric: tabular-nums;
+    line-height: 1;
+  }
+
+  .type-btn {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1;
+  }
+
+  .type-nav {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    color: #6C7D91;
+    line-height: 1.4;
+  }
+
+  /* ── Cards ───────────────────────────────────────────────────────────────
+   *  .card-sm   → p-4  — compact stats, badges
+   *  .card-md   → p-5  — standard panels (default)
+   *  .card-lg   → p-6  — spacious sections, forms
+   *  .card-raised       — elevated bg-3 surface
+   *  .card-row          — full-width list/table wrapper, no inner padding
+   * ─────────────────────────────────────────────────────────────────────── */
+
+  .card-sm,
+  .card-md,
+  .card-lg,
+  .card-row {
+    background-color: #0D1117;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.5), 0 1px 2px rgba(0,0,0,0.3);
+    text-align: left;
+  }
+
+  .card-sm  { padding: 16px; }
+  .card-md  { padding: 20px; }
+  .card-lg  { padding: 24px; }
+  .card-row { overflow: hidden; }
+
+  .card-raised {
+    background-color: #0F172A;
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.25);
+    text-align: left;
+  }
+
+  /* ── Bars — consistent font enforcement ─────────────────────────────────── */
+
+  header.app-header .brand-text {
+    font-family: 'Fraunces', serif;
+    font-size: 17px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  header.app-header .nav-link,
+  aside.app-sidebar .nav-item,
+  nav.app-mobile-nav .nav-item {
+    font-family: 'Inter Tight', sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  aside.app-sidebar .nav-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.14em;
+    color: #6C7D91;
+  }
+
+  /* ── Text alignment — LTR baseline ──────────────────────────────────────── */
+
+  aside.app-sidebar,
+  nav.app-mobile-nav {
+    text-align: left;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   GLOBAL OVERRIDES — Typography, Numeric, Alignment (all 22 pages)
+   All rules use !important to win over inline styles and component classes.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* ── 1. Universal font family — every element, no exceptions ─────────────── */
+*,
+*::before,
+*::after,
+button,
+input,
+select,
+textarea,
+a,
+span,
+li,
+td,
+th,
+label,
+p,
+h1, h2, h3, h4, h5, h6 {
+  font-family: 'Inter Tight', sans-serif !important;
+}
+
+/* Keep brand name in Fraunces */
+.font-fraunces,
+[class*="brand-text"],
+.brand-text {
+  font-family: 'Fraunces', serif !important;
+}
+
+/* Keep mono contexts in JetBrains Mono */
+.font-mono,
+.type-caption,
+.nav-section-label,
+code, pre, kbd {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* ── 2. Numeric rendering — lining figures everywhere ────────────────────── */
+*,
+.type-stat,
+.type-stat-lg,
+[class*="card"],
+[class*="stat"],
+[class*="count"],
+[class*="badge"],
+[class*="metric"],
+[class*="value"],
+[class*="number"],
+[class*="amount"],
+[class*="price"],
+[class*="percent"],
+[class*="score"] {
+  font-variant-numeric: lining-nums tabular-nums !important;
+}
+
+/* ── 3. Sidebar, topbar, nav — locked typography ─────────────────────────── */
+header.app-header,
+header.app-header *,
+aside.app-sidebar,
+aside.app-sidebar *,
+nav.app-mobile-nav,
+nav.app-mobile-nav * {
+  font-family: 'Inter Tight', sans-serif !important;
+  -webkit-font-smoothing: antialiased !important;
+  -moz-osx-font-smoothing: grayscale !important;
+}
+
+header.app-header .brand-text,
+aside.app-sidebar .brand-text {
+  font-family: 'Fraunces', serif !important;
+}
+
+aside.app-sidebar .nav-section-label {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+header.app-header .nav-link,
+header.app-header button,
+header.app-header a,
+aside.app-sidebar button,
+aside.app-sidebar a,
+nav.app-mobile-nav button,
+nav.app-mobile-nav a {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  text-align: left !important;
+}
+
+/* ── 4. Unified text alignment — all interactive and card elements ─────────── */
+button,
+.card-sm,
+.card-md,
+.card-lg,
+.card-row,
+.card-raised,
+input,
+select,
+textarea {
+  text-align: left !important;
+}
+
+/* Card headers and stat numbers always left-aligned */
+[class*="card"] h1,
+[class*="card"] h2,
+[class*="card"] h3,
+[class*="card"] h4,
+[class*="card"] p,
+[class*="card"] span,
+[class*="card"] [class*="stat"],
+[class*="card"] [class*="value"],
+[class*="card"] [class*="count"] {
+  text-align: left !important;
+}
+
+html[dir="rtl"] [class*="card"] h1,
+html[dir="rtl"] [class*="card"] h2,
+html[dir="rtl"] [class*="card"] h3,
+html[dir="rtl"] [class*="card"] h4,
+html[dir="rtl"] [class*="card"] p,
+html[dir="rtl"] [class*="card"] span {
+  text-align: inherit !important;
+}
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   ARABIC RTL — Font, alignment, sidebar active indicator
+   ══════════════════════════════════════════════════════════════════════════ */
+
+/* Arabic body font — Cairo replaces Inter Tight in RTL mode */
+html[dir="rtl"] body,
+html[dir="rtl"] *,
+html[dir="rtl"] *::before,
+html[dir="rtl"] *::after,
+html[dir="rtl"] button,
+html[dir="rtl"] input,
+html[dir="rtl"] select,
+html[dir="rtl"] textarea,
+html[dir="rtl"] a,
+html[dir="rtl"] span,
+html[dir="rtl"] li,
+html[dir="rtl"] td,
+html[dir="rtl"] th,
+html[dir="rtl"] label,
+html[dir="rtl"] p,
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6 {
+  font-family: 'Cairo', 'Inter Tight', sans-serif !important;
+}
+
+/* Preserve mono/brand fonts in RTL */
+html[dir="rtl"] .font-fraunces,
+html[dir="rtl"] [class*="brand-text"],
+html[dir="rtl"] .brand-text {
+  font-family: 'Fraunces', serif !important;
+}
+
+html[dir="rtl"] .font-mono,
+html[dir="rtl"] .type-caption,
+html[dir="rtl"] .nav-section-label,
+html[dir="rtl"] code,
+html[dir="rtl"] pre,
+html[dir="rtl"] kbd {
+  font-family: 'JetBrains Mono', monospace !important;
+}
+
+/* RTL text alignment — override the strong LTR defaults */
+html[dir="rtl"] button,
+html[dir="rtl"] .card-sm,
+html[dir="rtl"] .card-md,
+html[dir="rtl"] .card-lg,
+html[dir="rtl"] .card-row,
+html[dir="rtl"] .card-raised {
+  text-align: right !important;
+}
+
+html[dir="rtl"] header.app-header button,
+html[dir="rtl"] header.app-header a,
+html[dir="rtl"] aside.app-sidebar button,
+html[dir="rtl"] aside.app-sidebar a,
+html[dir="rtl"] nav.app-mobile-nav button,
+html[dir="rtl"] nav.app-mobile-nav a {
+  text-align: right !important;
+}
+
+/* Numeric inputs stay LTR regardless of page direction */
+html[dir="rtl"] input[type="number"],
+html[dir="rtl"] input[inputmode="numeric"],
+html[dir="rtl"] input[data-ltr],
+html[dir="rtl"] .input-ltr {
+  direction: ltr !important;
+  text-align: left !important;
+}
+
+/* Sidebar active indicator: flip from left to right in RTL */
+html[dir="rtl"] aside.app-sidebar button,
+html[dir="rtl"] aside.app-sidebar a {
+  border-left-width: 0 !important;
+  border-right-width: 3px !important;
+}
+
+html[dir="rtl"] aside.app-sidebar button[aria-current="page"],
+html[dir="rtl"] aside.app-sidebar a[aria-current="page"] {
+  border-left-color: transparent !important;
+  border-right-color: #10B981 !important;
+}
+
+/* Arabic line-height — Cairo reads better with slightly more leading */
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] label,
+html[dir="rtl"] li,
+html[dir="rtl"] td,
+html[dir="rtl"] th {
+  line-height: 1.75 !important;
+}
+
+/* Flex row direction for RTL shell bars */
+html[dir="rtl"] header.app-header {
+  flex-direction: row-reverse;
+}
+
+/* Card text alignment reset for RTL */
+html[dir="rtl"] [class*="card"] h1,
+html[dir="rtl"] [class*="card"] h2,
+html[dir="rtl"] [class*="card"] h3,
+html[dir="rtl"] [class*="card"] h4,
+html[dir="rtl"] [class*="card"] p,
+html[dir="rtl"] [class*="card"] span,
+html[dir="rtl"] [class*="card"] [class*="stat"],
+html[dir="rtl"] [class*="card"] [class*="value"],
+html[dir="rtl"] [class*="card"] [class*="count"] {
+  text-align: right !important;
+}

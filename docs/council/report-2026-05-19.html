@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Council Report — Flixe Graduation Project</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: #f8f9fa;
+    color: #1a1a2e;
+    line-height: 1.7;
+    font-size: 15px;
+  }
+  .header {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    color: white;
+    padding: 40px 48px;
+    border-bottom: 4px solid #e94560;
+  }
+  .header-badge {
+    display: inline-block;
+    background: #e94560;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    padding: 4px 12px;
+    border-radius: 3px;
+    margin-bottom: 16px;
+  }
+  .header h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+  .header .question { font-size: 14px; color: #a0aec0; margin-top: 10px; max-width: 780px; }
+  .header .meta { font-size: 12px; color: #718096; margin-top: 8px; }
+
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+
+  /* VERDICT SECTION */
+  .verdict-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.07);
+    margin-bottom: 32px;
+    overflow: hidden;
+  }
+  .verdict-header {
+    background: #1a1a2e;
+    color: white;
+    padding: 20px 28px;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+  .verdict-body { padding: 28px; }
+
+  .verdict-section { margin-bottom: 28px; }
+  .verdict-section:last-child { margin-bottom: 0; }
+  .verdict-section h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid;
+  }
+  .section-agree h3 { color: #2d7d46; border-color: #2d7d46; }
+  .section-clash h3 { color: #b7791f; border-color: #b7791f; }
+  .section-blind h3 { color: #c53030; border-color: #c53030; }
+  .section-rec h3 { color: #2b6cb0; border-color: #2b6cb0; }
+  .section-one h3 { color: #6b46c1; border-color: #6b46c1; }
+
+  .verdict-section p { color: #2d3748; font-size: 15px; line-height: 1.8; }
+  .verdict-section ul { padding-right: 20px; color: #2d3748; }
+  .verdict-section ul li { margin-bottom: 6px; }
+
+  .one-thing {
+    background: linear-gradient(135deg, #6b46c1, #553c9a);
+    color: white;
+    border-radius: 10px;
+    padding: 20px 24px;
+    font-size: 15px;
+    line-height: 1.8;
+  }
+
+  /* AGREEMENT VISUAL */
+  .alignment-card {
+    background: white;
+    border-radius: 12px;
+    border: 1px solid #e2e8f0;
+    padding: 24px 28px;
+    margin-bottom: 32px;
+  }
+  .alignment-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4a5568;
+    margin-bottom: 20px;
+  }
+  .advisor-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .advisor-chip {
+    border-radius: 8px;
+    padding: 12px 8px;
+    text-align: center;
+    font-size: 12px;
+    font-weight: 600;
+    border: 2px solid;
+  }
+  .chip-contrarian { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .chip-principles { background: #ebf8ff; border-color: #63b3ed; color: #2b6cb0; }
+  .chip-expansionist { background: #f0fff4; border-color: #68d391; color: #276749; }
+  .chip-outsider { background: #fffff0; border-color: #f6e05e; color: #744210; }
+  .chip-executor { background: #faf5ff; border-color: #b794f4; color: #553c9a; }
+
+  .consensus-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+    padding: 10px 14px;
+    border-radius: 6px;
+    background: #f7fafc;
+    font-size: 13px;
+  }
+  .consensus-label { font-weight: 700; min-width: 140px; color: #4a5568; }
+  .consensus-value { color: #2d3748; }
+  .consensus-winner { background: #e6fffa; }
+  .consensus-blind { background: #fff5f5; }
+  .consensus-miss { background: #fffaf0; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; margin-left: 8px; }
+  .badge-green { background: #c6f6d5; color: #276749; }
+  .badge-red { background: #fed7d7; color: #c53030; }
+  .badge-orange { background: #feebc8; color: #744210; }
+
+  /* COLLAPSIBLE ADVISORS */
+  .section-title {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    color: #4a5568;
+    margin: 32px 0 16px;
+  }
+
+  details {
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+  summary {
+    padding: 16px 20px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    list-style: none;
+    user-select: none;
+  }
+  summary::-webkit-details-marker { display: none; }
+  summary::after {
+    content: '▼';
+    margin-right: auto;
+    font-size: 11px;
+    color: #a0aec0;
+    transition: transform 0.2s;
+  }
+  details[open] summary::after { transform: rotate(180deg); }
+  .advisor-dot {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .details-body {
+    padding: 0 20px 20px;
+    color: #2d3748;
+    font-size: 14px;
+    line-height: 1.8;
+    border-top: 1px solid #f0f4f8;
+    margin-top: 0;
+    padding-top: 16px;
+    white-space: pre-wrap;
+  }
+
+  .footer {
+    text-align: center;
+    color: #a0aec0;
+    font-size: 12px;
+    padding: 32px 0;
+    border-top: 1px solid #e2e8f0;
+    margin-top: 40px;
+  }
+  .footer strong { color: #718096; }
+
+  @media (max-width: 600px) {
+    .header { padding: 24px 20px; }
+    .verdict-body { padding: 20px; }
+    .advisor-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-badge">LLM Council Report</div>
+  <h1>مشروع Flixe — هل هو جاهز لمجلس المناقشة؟</h1>
+  <div class="question">منصة حجز مساحات عمل مشتركة (Co-working) | Next.js 14 · PostgreSQL · JWT · MQTT IoT | الـ Backend مكتمل والـ Frontend قيد الإنجاز | الموعد النهائي: 30 مايو 2026</div>
+  <div class="meta">تاريخ الجلسة: 19 مايو 2026 &nbsp;·&nbsp; 5 مستشارين · 5 مراجعين · رئيس تحرير واحد</div>
+</div>
+
+<div class="container">
+
+  <!-- VERDICT CARD -->
+  <div class="verdict-card">
+    <div class="verdict-header">حكم المجلس — الرئيس</div>
+    <div class="verdict-body">
+
+      <div class="verdict-section section-agree">
+        <h3>أين اتفق المجلس</h3>
+        <p>الواجهة الأمامية ليست تفصيلاً — هي المشروع أمام اللجنة. كل مستشار أكد هذا بطريقة مختلفة. الاتفاق الثاني: <strong>لا تُضف أي feature جديدة</strong> — كل إضافة جديدة = خطر جديد في وقت أصبح نادراً. الاتفاق الثالث: ما يجب بناؤه هو <strong>demo script لمسار واحد كامل يعمل بشكل موثوق</strong>، لا نظام مكتمل 100%.</p>
+      </div>
+
+      <div class="verdict-section section-clash">
+        <h3>أين اختلف المجلس</h3>
+        <p><strong>الخلاف الوحيد الحقيقي:</strong> كيف تُقدّم المحاكاة (IoT والدفع) أمام اللجنة.</p>
+        <br>
+        <p>المتشائم يقول: استعد للهجوم، اللجنة ستسأل عن الجهاز الحقيقي والدفع الفعلي.</p>
+        <p>المفكر الأساسي يقول: المحاكاة مقبولة إذا كان التبرير الهندسي قوياً ومُعداً مسبقاً.</p>
+        <p>التوسعي يقول: اقلب الطاولة — قدّم المحاكاة كقرار تصميمي استراتيجي لا نقصاً.</p>
+        <br>
+        <p><strong>الحكم:</strong> المفكر الأساسي مصيب. لا أحد يتوقع Stripe حقيقياً في مشروع تخرج. ما تحتاجه هو <em>إجابة واثقة جاهزة مسبقاً</em>، لا اعتذار.</p>
+      </div>
+
+      <div class="verdict-section section-blind">
+        <h3>النقاط العمياء التي كشفها المجلس</h3>
+        <p><strong>التوثيق الأكاديمي — غاب عن جميع المستشارين الخمسة.</strong><br>لا أحد ذكر: SRS، مخطط المعمارية، ER Diagram لـ 12 نموذجاً، أو توثيق قرارات التقنية مكتوبة. اللجنة الأكاديمية لا تقيّم Demo فقط — تقيّم التقرير المكتوب بنفس الثقل أو أكثر. Demo يعمل بشكل مثالي مع تقرير ضعيف = رسوب محتمل. هذا خطر مستقل تماماً عن كل ما ناقشه المستشارون.</p>
+      </div>
+
+      <div class="verdict-section section-rec">
+        <h3>التوصية</h3>
+        <p>نفّذ خطة المنفّذ بالضبط، لكن أضف إليها يومين للتوثيق. الخطة المُعدّلة:</p>
+        <br>
+        <ul>
+          <li><strong>الأيام 1–3:</strong> ربط Login، Register، FindWorkspace بالـ API فعلياً.</li>
+          <li><strong>الأيام 4–6:</strong> Demo مسار كامل: Client يبحث → يحجز → Operator يوافق → دفع → Checkin → Checkout → COMPLETED.</li>
+          <li><strong>الأيام 7–8:</strong> IoT Dashboard — بيانات Telemetry تتحرك على الشاشة عبر MQTT.</li>
+          <li><strong>اليوم 9:</strong> Deploy على Production واختبار كامل. لا localhost يوم العرض.</li>
+          <li><strong>الأيام 10–11:</strong> ER Diagram، مخطط المعمارية، وتوثيق مكتوب لثلاثة قرارات هندسية (لماذا MQTT؟ لماذا JWT مزدوج؟ لماذا هذا الـ Stack؟).</li>
+        </ul>
+        <br>
+        <p><strong>اقطع فوراً:</strong> FinancialReports، BillingHistory، UserManagement، AccessLogs — اتركها static screens. OAuth. أي feature لم تُبدأ بعد.</p>
+      </div>
+
+      <div class="verdict-section section-one">
+        <h3>الشيء الواحد الذي تفعله أولاً</h3>
+        <div class="one-thing">
+          <strong>الآن، قبل أي شيء آخر:</strong> اكتب demo script بالقلم على الورق — مسار واحد من التسجيل حتى Checkout مع IoT — ثم شغّله على localhost وأحصِ كم مرة يكتمل بلا أخطاء. هذا الرقم هو نقطة البداية الحقيقية لكل ما تبقى من 11 يوماً.
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ALIGNMENT VISUAL -->
+  <div class="alignment-card">
+    <div class="alignment-title">خريطة التوافق — أين وقف كل مستشار</div>
+    <div class="advisor-grid">
+      <div class="advisor-chip chip-contrarian">المتشائم<br><small>نقاط فشل تقنية</small></div>
+      <div class="advisor-chip chip-principles">المفكر الأساسي<br><small>ما تقيّمه اللجنة</small></div>
+      <div class="advisor-chip chip-expansionist">التوسعي<br><small>قيمة SaaS كامنة</small></div>
+      <div class="advisor-chip chip-outsider">الغريب<br><small>الواجهة = المشروع</small></div>
+      <div class="advisor-chip chip-executor">المنفّذ<br><small>خطة 11 يوم</small></div>
+    </div>
+
+    <div class="consensus-row consensus-winner">
+      <span class="consensus-label">أقوى إجابة</span>
+      <span class="consensus-value">المنفّذ (Response D) <span class="badge badge-green">إجماع 5/5</span></span>
+    </div>
+    <div class="consensus-row consensus-blind">
+      <span class="consensus-label">أكبر عمى</span>
+      <span class="consensus-value">التوسعي (Response A) <span class="badge badge-red">إجماع 5/5</span> — تأطير كـStartup أمام لجنة أكاديمية خطأ استراتيجي</span>
+    </div>
+    <div class="consensus-row consensus-miss">
+      <span class="consensus-label">ما غاب عن الكل</span>
+      <span class="consensus-value">التوثيق الأكاديمي <span class="badge badge-orange">إجماع 5/5</span> — SRS، Architecture، ER Diagram، تبرير القرارات</span>
+    </div>
+  </div>
+
+  <!-- ADVISOR RESPONSES (COLLAPSIBLE) -->
+  <div class="section-title">آراء المستشارين الخمسة — بالتفصيل</div>
+
+  <details>
+    <summary>
+      <span class="advisor-dot" style="background:#fc8181"></span>
+      المتشائم — نقاط الفشل المحددة
+    </summary>
+    <div class="details-body">المشكلة الحقيقية: الواجهة الأمامية غير مكتملة — وهذا يُفشل كل شيء.
+
+اللجنة الأكاديمية لا تقرأ الكود. تنظر إلى شاشة تعمل. إذا ظهرت واجهة نصف مكتملة أو صفحة بيضاء، انتهى الأمر — بصرف النظر عن جودة الـ API.
+
+نقاط الفشل المحددة:
+1. الدفع "المُحاكى" سيُسأل عنه بشدة. "لماذا لا يوجد بوابة دفع حقيقية؟" — إجابة "هذا للمحاكاة" تُضعف المشروع. يجب تحضير مبرر هندسي قوي، ليس اعتذارًا.
+2. MQTT بدون جهاز حقيقي = عرض مسرحي. اللجنة ستسأل: "أين الجهاز الفعلي؟"
+3. JWT مدة 15 دقيقة + refresh tokens — هل تعمل في بيئة Vercel Serverless؟ هل اختُبر فعليًا في production؟
+4. Vercel + Railway + Neon = ثلاث نقاط فشل في يوم العرض. أي منها يتعطل يُوقف كل شيء.
+5. 12 نموذج بيانات بدون seed data واضح. هل قاعدة البيانات ستظهر فارغة أمام اللجنة؟
+
+الأولوية القصوى في 11 يوم: اعمل demo script ثابت لمسار واحد كامل: تسجيل → حجز → موافقة → دفع → دخول → فاتورة. هذا فقط. وتأكد أنه يعمل 10 مرات متتالية بدون خطأ.
+
+الخطر ليس في ما بُني — بل في ما لم يُختبر.</div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot" style="background:#63b3ed"></span>
+      المفكر الأساسي — ماذا تقيّم اللجنة فعلاً؟
+    </summary>
+    <div class="details-body">ما الذي تحاول إثباته فعلاً؟
+
+السؤال الحقيقي ليس "هل المشروع مكتمل؟" — بل: ماذا تقيّم اللجنة الأكاديمية؟
+
+اللجنة لا تشتري نظاماً. هي تقيّم ثلاثة أشياء فقط:
+1. هل الطالب يفهم ما بناه؟
+2. هل القرارات الهندسية مبررة؟
+3. هل هناك إثبات تشغيلي حقيقي؟
+
+المشكلة الأساسية:
+أنت بنيت backend متكاملاً وفرونت-إند غير مكتمل. هذا يعني أن عرضك التقديمي سيكون على Postman أو Swagger — وهذا ليس مشكلة تقنية، بل مشكلة تواصل وإقناع.
+
+اللجنة لن تقرأ الكود. هي ستشاهد شاشة.
+
+ما يجب أن تفعله الآن:
+- لا تضف features جديدة. كل feature جديدة = خطر جديد.
+- اصنع demo script محكم: سيناريو واحد كامل من التسجيل حتى الـ checkout مع IoT.
+- وثّق قراراً هندسياً صعباً اتخذته (لماذا JWT مزدوج؟ لماذا MQTT وليس WebSocket؟) — هذا ما يثبت الفهم العميق.
+- الفرونت-إند الناقص: اصنع صفحتين فقط تُظهران الـ workflow بصرياً. لا تحتاج أكثر.
+
+الخلاصة:
+مشروعك تقنياً أقوى من 80% مما تراه اللجنة. خطرك الوحيد هو عدم قدرتك على إيصال العمق في 20 دقيقة. ركّز على العرض، لا على الكود.</div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot" style="background:#68d391"></span>
+      التوسعي — الفرصة المخفية (قرأ التحذير أولاً)
+    </summary>
+    <div class="details-body">تحذير من الرئيس: هذه الإجابة رصدت قيمة حقيقية في المشروع، لكنها خطرة إذا اتُّبعت حرفياً. تأطير المشروع كـStartup أمام لجنة أكاديمية قد يضر أكثر مما ينفع. استخدم الثقة، لا الـ pitch التسويقي.
+
+---
+
+هذا المشروع أكبر مما يظنه صاحبه. دعني أفتح عينيه.
+
+ما يملكه فعلاً يساوي ذهباً:
+RBAC ثلاثي الطبقات + IoT + حساب الكهرباء اللحظي + Audit Logs + MQTT — هذا ليس مشروع تخرج، هذا MVP حقيقي لشركة ناشئة. معظم اللجان لن ترى هذا المستوى إلا مرة كل خمس سنوات.
+
+الفرصة المخفية التي لا يراها أحد:
+احسبها كـ"SaaS للمساحات المرنة" — لا مجرد نظام حجز. قدّمها أمام اللجنة بهذه الرؤية: كل Office هو "tenant"، كل Owner يدير إمبراطوريته، والنظام قابل للتوسع لمئات المساحات.
+
+ما يجب إضافته الآن لرفع السقف:
+- Dashboard بمؤشر واحد فقط: استهلاك الكهرباء الحي عبر MQTT — هذا يُبهر بصرياً أي لجنة.
+- جملة واحدة في العرض: "النظام وفّر X% من الهدر في الطاقة عبر البيانات اللحظية."
+- Screenshot للـ Audit Log: يُظهر نضج المشروع أمنياً بدون كلام.
+
+الرسالة الكبيرة:
+هذا المشروع يستحق أن يُحوّل لشركة بعد التخرج مباشرة. قل ذلك أمام اللجنة — الثقة بالمنتج تُقنع أكثر من أي Slide.</div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot" style="background:#f6e05e"></span>
+      الغريب — ما يراه من لا يعيش في هذا العالم
+    </summary>
+    <div class="details-body">ما الذي يراه الغريب عن هذا المشروع؟
+
+أول سؤال سيطرحه أي عضو في اللجنة لا يعرف هذا المجال: "أين الواجهة؟" أنت تقدم نظاماً لا يمكن لأحد أن يلمسه أو يراه يعمل. "الواجهة قيد التطوير" ليست إجابة مقبولة في يوم التقديم — هذه جملة تقول بوضوح: المشروع لم يكتمل.
+
+ثانياً، IoT والمحاكاة: حين تقول "محاكاة" لعضو لجنة غير تقني، يسمع "تمثيلية". لا يوجد جهاز حقيقي، لا توجد غرفة حقيقية، لا يوجد مستخدم حقيقي. كل شيء افتراضي. ما الذي يُثبت أن هذا يعمل في الواقع؟
+
+ثالثاً، الدفع المُحاكى: نظام حجز بدون دفع حقيقي يشبه سيارة بدون محرك. ستُسأل: "هل جرّب أحد هذا فعلاً ودفع فعلاً؟" والجواب: لا.
+
+رابعاً، الوصف يبدو وكأنه قائمة بقالة لا مشروعاً. 30 endpoint، 12 نموذج، 3 أدوار — هذه أرقام، ليست قيمة. السؤال الحقيقي: ما المشكلة التي يحلها هذا بالضبط؟ من يحتاجه؟ هل استخدمه أحد؟
+
+خامساً، JWT مع 15 دقيقة و7 أيام — هذا تفصيل تقني لا يعني شيئاً لأعضاء اللجنة، لكنه يأخذ مساحة من التقديم بدلاً من إبراز الفكرة الجوهرية.
+
+الخلاصة الصريحة: ما لديك هو بنية تحتية ممتازة بلا وجه. في يوم التقديم، الواجهة ليست اختيارية — هي المشروع.</div>
+  </details>
+
+  <details>
+    <summary>
+      <span class="advisor-dot" style="background:#b794f4"></span>
+      المنفّذ — خطة 11 يوم (الأقوى بإجماع)
+    </summary>
+    <div class="details-body">خطة التنفيذ — 11 يوم، لا وقت للنظريات
+
+الأيام 1-3: اربط الفرونت بالباك فعلياً
+الأولوية الأولى: تسجيل الدخول، تسجيل مستخدم جديد، وعرض المكاتب — هذا هو الحد الأدنى. بدونه لا يوجد عرض. اربط صفحات Login وRegister بـ JWT endpoints. اربط FindWorkspace بـ API البحث والفلترة. هذا فقط.
+
+الأيام 4-6: سيناريو الـ Demo كاملاً بدون انقطاع
+ارسم مسار واحد يعمل بدون أخطاء:
+CLIENT يبحث → يحجز → OPERATOR يوافق → CLIENT يدفع → Checkin → Checkout مع حساب الكهرباء → COMPLETED.
+هذا المسار يجب أن يعمل 100% أمام اللجنة. لا تكمل أي صفحة أخرى قبل تثبيت هذا.
+
+الأيام 7-8: ربط IoT Dashboard فقط للعرض
+اعرض الأجهزة وبيانات التيليمتري الحية عبر MQTT. لجنة الأكاديميا تحب رؤية IoT يعمل بصرياً. 5 ثوانٍ من البيانات تتحرك على الشاشة = انطباع قوي.
+
+الأيام 9-10: Deploy + اختبار نهائي
+ارفع كل شيء على Vercel وRailway/Neon. اختبر المسار الكامل على البيئة الحقيقية وليس localhost. أي endpoint يفشل في Production يُصلح الآن.
+
+اليوم 11: جهّز السيناريو، لا تلمس الكود
+
+ما يُقطع الآن بلا رحمة:
+- FinancialReports، BillingHistory، UserManagement، AccessLogs — اتركها كـ static screens بدون ربط حقيقي.
+- أي ميزة جديدة لم تبدأها بعد.
+- المصادقة بـ OAuth أو أي Provider خارجي.
+
+الهدف: Demo يعمل، لا مشروع كامل.</div>
+  </details>
+
+  <!-- PEER REVIEW HIGHLIGHTS -->
+  <div class="section-title" style="margin-top:32px">أبرز ما كشفته جولة المراجعة</div>
+
+  <details>
+    <summary>
+      <span class="advisor-dot" style="background:#e94560"></span>
+      نتائج المراجعة الجماعية — الإجماع والخلافات
+    </summary>
+    <div class="details-body">النتيجة الأبرز — إجماع 5 من 5 على الأقوى:
+المستشار D (المنفّذ) اختاره جميع المراجعين الخمسة كأقوى إجابة، لأنه الوحيد الذي ترجم التحليل إلى خطة زمنية قابلة للتطبيق فعلاً.
+
+النتيجة الثانية — إجماع 5 من 5 على الأعمى:
+المستشار A (التوسعي) اختاره جميع المراجعين الخمسة كأكثر إجابة خطورة إذا اتُّبعت حرفياً. التوصية بتقديم المشروع كـStartup pitch أمام لجنة أكاديمية خطأ استراتيجي — اللجنة لا تقيّم طموح المؤسس.
+
+النتيجة الثالثة — الأهم — إجماع 5 من 5 على ما غاب عن الجميع:
+التوثيق الأكاديمي المكتوب: SRS، Architecture Diagram، ER Diagram لـ 12 نموذجاً، وتبرير القرارات التقنية. لم يذكر أي مستشار هذا المحور رغم أنه قد يكون شرطاً للنجاح مستقلاً عن الكود والعرض.</div>
+  </details>
+
+  <div class="footer">
+    <strong>Council Session:</strong> مشروع Flixe — التقييم الأكاديمي · 19 مايو 2026<br>
+    منهجية: LLM Council بإلهام من Andrej Karpathy · تشغيل: Claude Code
+  </div>
+
+</div>
+</body>
+</html>

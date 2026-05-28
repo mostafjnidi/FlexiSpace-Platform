@@ -1,0 +1,371 @@
+### FlexiSpace_Backend_Blueprint.docx
+FlexiSpace
+Backend Logic Blueprint
+Architectural Decision Records — Supabase Refactor
+Senior Systems Architect Review
+Context & Core Constraints
+The system runs on Supabase: managed Postgres 15+, Edge Functions (Deno), Realtime via logical replication, pg_cron, pg_net, and built-in auth.users. No Redis. No Kafka.
+The architectural philosophy: push logic into Postgres, treat Edge Functions as the orchestration layer, never depend on external coordination services.
+Three Non-Negotiable Invariants
+No two confirmed bookings can overlap for the same office — ever, under any concurrent load.
+Every state change is traceable to an actor, a timestamp, and a before/after snapshot.
+The payment gateway is the source of truth for money; our DB is a projection that must converge.
+ADR-001: Booking Overlap Prevention
+via Exclusion Constraint (GIST)
+Enforce non-overlapping bookings using a Postgres EXCLUDE USING GIST constraint on tstzrange, scoped by office_id, with a partial predicate that excludes terminal states.
+SQL Logic
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+ALTER TABLE bookings
+ADD CONSTRAINT no_overlapping_bookings
+EXCLUDE USING GIST (
+office_id WITH =,
+tstzrange(start_time, end_time, '[)') WITH &&
+)
+WHERE (status NOT IN (
+'REJECTED', 'CANCELLED', 'EXPIRED', 'NO_SHOW'
+));
+Approach Comparison
+Critical Design Notes
+[)  half-open interval: back-to-back bookings (10:00–12:00 and 12:00–14:00) must NOT conflict.
+Partial WHERE clause: cancelled bookings stop blocking new ones without it a rejected booking permanently occupies a slot.
+btree_gist extension is required to combine equality on office_id with range overlap in a single GIST index.
+The constraint is not a check — it is a physical impossibility.
+ADR-002: Immutable Audit Logging
+via Triggers + Session Variable
+A single append-only audit_log table populated by AFTER triggers on every tracked table. Actor identity flows from Edge Function to trigger via SET LOCAL app.current_user_id at the start of each transaction.
+Schema (Logical)
+Immutability Enforcement
+REVOKE UPDATE, DELETE ON audit_log
+FROM authenticated, anon, service_role;
+-- Only SECURITY DEFINER trigger functions can INSERT.
+Why Triggers, Not Application Code
+If audit logging lives in Edge Functions, one code path that forgets to log creates an undetectable gap. Triggers run on every write regardless of source: RPC, direct SQL, dashboard, or RLS-permitted query. This is defense in depth for accountability.
+The SET LOCAL pattern scopes the actor identity to the transaction, preventing cross-connection leaks in a pooled environment.
+ADR-003: Row Level Security (RLS)
+Multi-Tenant Access Control
+Every tenant-scoped table has RLS enabled with policies expressed via SECURITY DEFINER STABLE helper functions. Edge Functions validate authorization explicitly; RLS exists as the second line of defense.
+Per-Table Policy Matrix
+Helper Function Pattern
+-- Lives in private schema, SECURITY DEFINER + STABLE
+CREATE FUNCTION private.is_owner_of_office(p_office_id uuid)
+RETURNS boolean AS $$
+SELECT EXISTS (
+SELECT 1 FROM offices
+WHERE id = p_office_id AND owner_id = auth.uid()
+);
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+Why RLS is the Second Line, Not the First
+Edge Functions perform authorization first: clean 403 responses, no DB query needed for denied requests.
+RLS catches bugs: a buggy function that forgets ownership checks cannot return another tenant's data.
+SECURITY DEFINER + STABLE: avoids infinite recursion on lookup tables and caches within a single query.
+ADR-004: Booking Creation Concurrency
+RPC (PL/pgSQL) inside Edge Function
+The atomic database work lives in a single PL/pgSQL function called as an RPC. The Edge Function is the orchestrator: authenticate, validate, call RPC, then call the payment gateway.
+Request Flow
+Client
+└─▶ Edge Function: POST /api/bookings
+├─ Verify JWT (Supabase auth)
+├─ Validate input (zod schema)
+├─ Generate idempotency_key
+├─ Call RPC: create_booking_v1(...)
+│    └─ Postgres Transaction:
+│       ├─ Check idempotency_key (return existing if found)
+│       ├─ INSERT booking (exclusion constraint fires if overlap)
+│       ├─ INSERT payment (status: PENDING)
+│       ├─ INSERT audit_log (via trigger)
+│       ├─ INSERT job (EXPIRE_BOOKING, run_at: NOW + 4h)
+│       └─ COMMIT
+├─ Call payment gateway → create intent
+└─ Return { booking_id, client_secret } to client
+Why This Split
+Idempotency
+The client supplies an idempotency_key (UUID generated once per attempt). The RPC checks for an existing booking with that key first — if found, return it unchanged. This makes the entire flow safe to retry on network failure, the most common class of bug in mobile clients.
+ADR-005: Payment Reconciliation
+Webhook Idempotency + Reconciliation Job
+Treat the payment gateway as the source of truth. Every incoming webhook is recorded in a webhook_events table with a UNIQUE constraint on (gateway, event_id). A periodic reconciliation job catches missed webhooks by polling the gateway directly.
+webhook_events Schema
+Webhook Processing Logic
+Step 1: Verify HMAC signature — reject 401 if invalid.
+Step 2: INSERT INTO webhook_events ON CONFLICT (gateway, event_id) DO NOTHING RETURNING id.
+Step 3: If no row returned → already processed → return 200 immediately.
+Step 4: In a transaction: apply state change, cancel related jobs, set processed_at = NOW(), COMMIT.
+Step 5: Return 200 to gateway.
+Dual-Write Failure Scenarios
+ADR-006: Formal Booking State Machine
+Table-Driven Transitions + Trigger Enforcement
+Valid transitions are defined in a booking_status_transitions lookup table. A trigger validates every status change against this table. Invalid transitions raise an exception at the database level.
+State Diagram
+┌─────────────────┐
+│ PENDING_APPROVAL │  ◄── (initial state)
+└────────┬────────┘
+┌──────────────┼──────────────┐
+▼              ▼              ▼
+APPROVED       REJECTED       CANCELLED
+│          (terminal)     (terminal)
+┌─────┼──────────┐
+▼     ▼          ▼
+CONFIRMED  EXPIRED  CANCELLED
+│     (terminal)
+├─────────────────┐
+▼                 ▼
+CHECKED_IN          NO_SHOW
+│               (terminal)
+├─────────────────┐
+▼                 ▼
+CHECKED_OUT        OVERSTAY
+│                 │
+└────────┬────────┘
+▼
+COMPLETED  ──▶  REFUNDED
+(terminal)       (terminal)
+Trigger Enforcement Logic
+CREATE OR REPLACE FUNCTION validate_booking_transition()
+RETURNS TRIGGER AS $$
+BEGIN
+IF NEW.status IS DISTINCT FROM OLD.status THEN
+IF NOT EXISTS (
+SELECT 1 FROM booking_status_transitions
+WHERE from_status = OLD.status
+AND to_status   = NEW.status
+) THEN
+RAISE EXCEPTION 'invalid_transition: % → %',
+OLD.status, NEW.status;
+END IF;
+END IF;
+RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+Why Table-Driven
+Auditable: anyone can SELECT from booking_status_transitions to see the legal graph.
+Modifiable without code deploy: adding a new valid transition is a single INSERT.
+Self-documenting: the schema IS the documentation.
+Catches bugs at DB level: a buggy Edge Function that attempts CONFIRMED → PENDING_APPROVAL fails immediately.
+ADR-007: Background Task Queue
+jobs Table + pg_cron (No Redis Required)
+A single jobs table holds all asynchronous work. pg_cron runs a dispatcher every minute. Workers consume jobs using FOR UPDATE SKIP LOCKED, enabling safe concurrency without Redis.
+jobs Table Schema
+Indexes
+CREATE INDEX idx_jobs_due
+ON jobs (status, run_at)
+WHERE status = 'PENDING';
+CREATE INDEX idx_jobs_type ON jobs (type);
+TTL: PENDING → EXPIRED after 4 Hours
+On booking APPROVAL: INSERT INTO jobs (type, payload, run_at) with run_at = NOW() + INTERVAL '4 hours'.
+On payment success: UPDATE jobs SET status='CANCELLED' WHERE type='EXPIRE_BOOKING' AND payload->>'booking_id' = <id>.
+pg_cron fires every minute, calls the dispatcher function.
+Dispatcher: SELECT FROM jobs WHERE status='PENDING' AND run_at <= NOW() LIMIT 10 FOR UPDATE SKIP LOCKED.
+If booking still PENDING_PAYMENT: transition to EXPIRED, update job to COMPLETED.
+Why FOR UPDATE SKIP LOCKED is the Key
+Multiple workers can run the same query and each gets a different non-conflicting batch of rows. No Redis required. No race conditions. No stolen jobs. This is the Postgres-native queue pattern used in production by large-scale systems.
+ADR-008: IoT Intent vs. Reality
+Three-Layer State Model + Fallback Protocol
+The Three Layers
+Reconciliation Scenarios
+Fallback: Unlock Without ACK
+T+0s   Send unlock command → create AccessEvent (status: PENDING_ACK, attempt: 1)
+T+5s   No ACK → retry attempt 2, reset timer
+T+10s  No ACK → retry attempt 3, reset timer
+T+15s  No ACK → retry attempt 4, reset timer
+T+20s  ── Still no ACK: ESCALATION ──────────────────────────
+• AccessEvent.status = FAILED_NO_ACK
+• Create incident (type: UNLOCK_FAILURE, severity: HIGH)
+• Push notification to assigned operator
+• Set booking.degraded_mode = true
+• Show 'Manual Unlock' UI on operator dashboard
+• Log diagnostic snapshot
+T+?    Operator clicks Manual Override:
+• AccessEvent (status: MANUAL_OVERRIDE, actor: operator)
+• Booking continues under degraded mode
+• Full audit trail preserved
+Every retry and escalation produces a row. 'Loop and pray' is the worst pattern in distributed systems. If a post-mortem can't reconstruct an incident from queries, the system is not production-ready.
+ADR-009: Read vs. Write Path Separation
+Materialized Views + Non-Contending Reads
+Critical writes take short, focused transactions. Reports and dashboards read from materialized views or pre-aggregated tables refreshed on schedule. They never share locks with the write path.
+Path Classification
+Materialized View Pattern
+CREATE MATERIALIZED VIEW office_revenue_monthly AS
+SELECT
+office_id,
+date_trunc('month', paid_at) AS month,
+SUM(amount)                  AS revenue,
+COUNT(*)                     AS total_bookings
+FROM payments
+WHERE status = 'PAID'
+GROUP BY office_id, month;
+-- pg_cron: refresh nightly at 02:00
+SELECT cron.schedule(
+'refresh-revenue',
+'0 2 * * *',
+'REFRESH MATERIALIZED VIEW CONCURRENTLY office_revenue_monthly'
+);
+Why CONCURRENTLY Matters
+Without CONCURRENTLY, refresh locks the view against reads during the entire operation. CONCURRENTLY allows reads during refresh, at the cost of requiring a UNIQUE index on the view. Always use it for views read by live dashboards.
+Telemetry Archival Strategy
+Raw telemetry: keep 30 days in hot storage (telemetry table).
+Hourly rollups: computed by a nightly job into telemetry_hourly.
+After 30 days: archive raw data to Supabase Storage as compressed JSONL.
+Charts always read from rollup tables, never from raw data.
+Closing Architectural Principles
+The first migration to write is the bookings table with the exclusion constraint and the state-machine trigger. Everything else assumes those exist. They deliver the largest correctness guarantee from the smallest amount of code.
+TABLES 15
+TABLE 1
+Stack: Supabase PostgreSQL 15+ · Edge Functions (Deno) · pg_cron · pg_net · Realtime / Roles: Owner · Operator · Client / Date: May 2026
+TABLE 2
+Approach | Verdict | Reason
+App-level check (SELECT → INSERT) | ❌ Rejected | Race condition is structural; no code review fixes it
+SELECT FOR UPDATE + manual check | ⚠️ Partial | Invariant lives in code, not schema — one forgotten call = bug
+Serializable isolation level | ⚠️ Expensive | Most ORMs default to Read Committed; fragile setup
+Exclusion Constraint (GIST) | ✅ Chosen | Database physically refuses overlapping rows under any concurrency
+TABLE 3
+Column | Type | Purpose
+id | uuid pk | Unique record identifier
+occurred_at | timestamptz | When the event happened (default: now())
+actor_id | uuid nullable | null = system event
+actor_type | enum | USER | SYSTEM | WEBHOOK | JOB
+entity_type | text | BOOKING | PAYMENT | DEVICE | ...
+entity_id | uuid | The affected record
+action | text | INSERT | UPDATE | DELETE | TRANSITION
+before_state | jsonb | Row snapshot before change
+after_state | jsonb | Row snapshot after change
+metadata | jsonb | request_id, ip, user_agent, source
+TABLE 4
+Table | CLIENT | OPERATOR | OWNER
+offices | SELECT available | SELECT assigned | ALL own
+bookings | SELECT/INSERT own | SELECT/UPDATE assigned | SELECT all own-office
+payments | SELECT own | SELECT assigned offices | SELECT own offices
+devices | None | SELECT assigned + telemetry | ALL own
+audit_log | SELECT own entities | SELECT assigned | SELECT own entities
+jobs | None | None | None (service role only)
+TABLE 5
+⚠️  Critical Pitfall / Avoid policies that subquery the same table they protect — this is the #1 source of infinite recursion errors in Supabase. Always factor such logic into private-schema helper functions.
+TABLE 6
+Layer | Responsibility | Why Here
+Edge Function | Auth, validation, gateway calls, response shaping | External calls must never hold DB transactions open
+PL/pgSQL RPC | Overlap check, INSERT, audit, job scheduling | Single round-trip; constraint enforces atomically
+TABLE 7
+Column | Type | Purpose
+id | uuid pk | Internal identifier
+gateway | text | STRIPE | PAYTABS | ...
+event_id | text | Gateway's event identifier
+event_type | text | payment.succeeded, refund.created, ...
+payload | jsonb | Full webhook body
+signature_verified | boolean | HMAC check result
+received_at | timestamptz | When we got it
+processed_at | timestamptz nullable | null = not yet processed
+processing_error | text nullable | Error message if failed
+UNIQUE | (gateway, event_id) | The idempotency guarantee
+TABLE 8
+Scenario | Resolution Strategy
+Webhook arrives twice | ON CONFLICT DO NOTHING ensures only first one processes
+Webhook delayed; booking expired | Do NOT auto-revive. Flag for review, auto-refund, notify client
+Webhook never arrives | Reconciliation job polls gateway every 15 min for PENDING payments
+Out-of-order webhooks | Reject older events over newer (compare event timestamps)
+Processing fails mid-way | processed_at stays NULL; retry job picks it up safely
+TABLE 9
+Column | Type | Purpose
+id | uuid pk | Job identifier
+type | text | EXPIRE_BOOKING | SEND_REMINDER | RECONCILE_PAYMENT | ...
+payload | jsonb | Job parameters (e.g. booking_id)
+run_at | timestamptz | When job becomes eligible for execution
+status | text | PENDING | RUNNING | COMPLETED | FAILED | CANCELLED
+attempts | int | Current retry count
+max_attempts | int default 3 | Maximum retries before marking FAILED
+last_error | text | Error message from last failure
+locked_by | text | Worker identifier holding the lock
+locked_at | timestamptz | When it was locked
+TABLE 10
+Why Not Stateless Cron Scan? / A cron job like 'every minute find bookings older than 4 hours and expire them' has no record of what was done, no retry logic, and no way to cancel scheduled work when payment arrives. The jobs table makes async work first-class queryable data.
+TABLE 11
+Layer | Source of Truth | Stored In | Latency
+Intent | Database (bookings + access_tokens) | PostgreSQL | Instant
+Last Observed Reality | Device telemetry | device_state_snapshots | Seconds–Minutes
+Ground Truth | The physical device | (unobservable directly) | Now
+TABLE 12
+Scenario | Detection | Resolution
+Office occupied past end_time | Job scans CHECKED_IN where end_time < NOW()-5min | → OVERSTAY state, charge overtime, alert operator after 30min
+Booking CONFIRMED, no entry at start | 15min past start_time, no ACK AccessEvent | → LATE_ARRIVAL (15min), NO_SHOW (30min), release slot (60min)
+Device offline at booking start | No heartbeat in 90s (OFFLINE status) | Alert operator + client, offer reassignment or full refund
+TABLE 13
+Operation | Path | Target Latency | Mechanism
+Booking creation | Write | < 100ms | Single RPC transaction
+Payment webhook | Write | < 50ms | Idempotent transaction
+State transition | Write | < 30ms | Trigger-validated UPDATE
+Operator dashboard (today) | Read | < 50ms | Indexed query on (operator_id, date)
+Owner financial report | Read | < 200ms | Materialized view (nightly refresh)
+Telemetry charts | Read | < 100ms | Hourly rollup table
+TABLE 14
+On Caching / Supabase does not include Redis. Use: HTTP Cache-Control headers for idempotent GETs, Materialized views as the in-DB cache layer, and Cloudflare edge caching in front of Edge Functions. Add Upstash Redis only when you can prove a specific bottleneck that requires sub-millisecond KV access.
+TABLE 15
+Rule 1: Push Invariants Into the Schema / Exclusion constraints, foreign keys, check constraints, RLS, state-machine triggers. Anything the database can enforce is one less class of bug the application can introduce. Application code expresses policy; the database expresses reality.
+Rule 2: Every State Change Is Observable / audit_log for what, webhook_events for external causes, jobs for deferred work, access_events for physical actions. If a post-mortem cannot reconstruct an incident from queries, the system is not ready for production.
+Rule 3: Distinguish Intent from Reality / The gateway and the device tell us reality; the database holds intent. Never invert this. When they disagree, the disagreement is a visible incident — not a silent correction.
+### FlexiSpace_Professional_Backend_Blueprint.docx
+FlexiSpace – Professional Backend Implementation Blueprint
+Comprehensive Senior-Level Backend Architecture & Implementation Guide for “FlexiSpace – Smart Office Booking Platform with IoT Integration”.
+1. Executive Overview
+FlexiSpace is a smart office booking platform integrating office reservations, payments, IoT-enabled smart doors, realtime updates, and role-based access control.
+2. High-Level Architecture
+Frontend (Web/Mobile) → API Layer → Service Layer → PostgreSQL/Supabase → MQTT Broker → Smart Devices
+3. System Components
+Authentication Service
+Booking Service
+Payment Service
+IoT Device Service
+Realtime Notification Service
+Audit Logging Service
+Background Job Scheduler
+4. Complete REST API Design
+POST /auth/login
+POST /auth/register
+POST /auth/refresh
+POST /bookings
+GET /bookings/me
+PATCH /bookings/:id/cancel
+POST /payments/create-intent
+POST /payments/webhook
+POST /devices/unlock
+GET /devices/status
+5. DTOs and Request/Response Contracts
+CreateBookingDto → officeId, startTime, endTime
+UnlockDoorDto → deviceId, bookingId
+PaymentWebhookDto → eventId, paymentStatus
+6. Database Schema Design
+User
+Office
+Booking
+Payment
+AuditLog
+JobQueue
+WebhookEvent
+IoTDevice
+AccessEvent
+7. Authentication & JWT Flow
+Login → JWT Access Token → Request Authorization → Refresh Token → Token Renewal
+8. Booking Sequence Flow
+Client selects office → validation → overlap prevention → booking creation → payment intent → confirmation
+9. Payment Lifecycle
+Payment created → Webhook received → verification → booking confirmation → reconciliation
+10. IoT Door Unlock Flow
+Booking confirmed → unlock request → MQTT message → smart lock response → access log
+11. WebSocket / Realtime Events
+booking_confirmed
+payment_success
+door_opened
+device_offline
+12. Background Jobs Architecture
+Scheduled jobs using pg_cron: booking expiry, payment reconciliation, reminders.
+13. Security Architecture
+RLS policies, JWT validation, role-based permissions, audit logs, encrypted secrets.
+14. Deployment Architecture
+Frontend: Vercel | Backend: Supabase Edge Functions | Database: PostgreSQL | MQTT Broker: EMQX | Monitoring: Grafana + Sentry | CDN: Cloudflare
+15. Architectural Principles
+Push critical logic into PostgreSQL
+Event-driven architecture
+Idempotent APIs
+Auditability
+Scalability
+16. Senior-Level Recommendations
+Implement CQRS-lite, event versioning, retries for IoT failures, webhook deduplication, and centralized observability.
+Conclusion
+This document serves as a complete professional implementation blueprint for building FlexiSpace in a production-ready architecture.
+TABLES 0

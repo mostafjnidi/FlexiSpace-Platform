@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" role="img" aria-label="FlexiSpace icon">
+  <title>FlexiSpace</title>
+  <defs>
+    <linearGradient id="fsg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#34D399"/>
+      <stop offset="55%" stop-color="#10B981"/>
+      <stop offset="100%" stop-color="#059669"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="8" height="26" rx="1.5" fill="url(#fsg)"/>
+  <polygon points="10,3 29,3 27,11 10,11" fill="url(#fsg)"/>
+  <polygon points="10,17 22,17 20,24 10,24" fill="url(#fsg)"/>
+</svg>
