@@ -7,28 +7,30 @@ on:
 permissions:
   contents: write
 
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repo
+        run: git clone "https://github-actions:${{ github.token }}@github.com/${{ github.repository }}.git" repo
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 24
-          cache: npm
+      - name: Install Node.js 24
+        run: |
+          curl -fsSL https://deb.nodesource.com/setup_24.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          node --version
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Install dependencies and build
+        working-directory: repo
+        run: npm ci && npm run build
 
-      - name: Build
-        run: npm run build
-
-      - name: Deploy
-        uses: JamesIves/github-pages-deploy-action@v4
-        with:
-          folder: dist
-          branch: gh-pages
+      - name: Deploy dist to gh-pages branch
+        run: |
+          cp -r repo/dist /tmp/dist
+          cd /tmp/dist
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git commit -m "Deploy to GitHub Pages"
+          git push --force "https://github-actions:${{ github.token }}@github.com/${{ github.repository }}.git" HEAD:gh-pages

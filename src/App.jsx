@@ -133,7 +133,7 @@ export default function App() {
   const ownerPages = ['OWNER', 'ADMIN']
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename="/FlexiSpace-Platform">
       <Routes>
         <Route path="/" element={<FlexiSpaceHome />} />
         <Route path="/find-workspace" element={protect(<FindWorkspace />, { allowedRoles: userOnly })} />
