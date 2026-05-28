@@ -25,6 +25,28 @@ async function parseJsonBody(req: Request): Promise<Record<string, unknown>> {
   }
 }
 
+async function handleListOperators(req: Request): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:admin:list-operators')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['OWNER', 'ADMIN'])
+
+  const supabase = createServiceClient()
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .eq('role', 'OPERATOR')
+    .eq('is_active', true)
+    .is('deleted_at', null)
+    .order('full_name')
+
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({ data: data ?? [], meta: { request_id: requestId } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
 async function handleAssignOperator(req: Request): Promise<Response> {
   const requestId = getOrGenerateRequestId(req, 'edge:admin:assign-operator')
   const { profile } = await requireAuth(req)
@@ -172,16 +194,19 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const pathname = new URL(req.url).pathname
 
   try {
+    const isListOperatorsRoute = /\/admin\/operators\/?$/.test(pathname)
     const isAssignRoute = /\/admin\/operator-offices\/?$/.test(pathname)
     const unassignMatch = pathname.match(/\/admin\/operator-offices\/([^/]+)$/)
 
-    if (isAssignRoute && req.method === 'POST') {
+    if (isListOperatorsRoute && req.method === 'GET') {
+      return addCorsHeaders(await handleListOperators(req))
+    } else if (isAssignRoute && req.method === 'POST') {
       return addCorsHeaders(await handleAssignOperator(req))
     } else if (unassignMatch && req.method === 'DELETE') {
       return addCorsHeaders(await handleUnassignOperator(req, unassignMatch[1]))
     } else if (req.method === 'OPTIONS') {
       return addCorsHeaders(new Response(null, { status: 200 }))
-    } else if (!isAssignRoute && !unassignMatch) {
+    } else if (!isListOperatorsRoute && !isAssignRoute && !unassignMatch) {
       throw new FlexiError('NOT_FOUND', 'Route not found', 404)
     } else {
       throw new FlexiError('METHOD_NOT_ALLOWED', 'Method not allowed', 405)

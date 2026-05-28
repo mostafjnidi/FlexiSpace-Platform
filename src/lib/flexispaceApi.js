@@ -228,6 +228,29 @@ export function createOffice({
   })
 }
 
+async function callFlexiGet(path, { signal } = {}) {
+  const token = await getAccessToken()
+  const normalizedPath = path.replace(/^\/+/, '')
+  const response = await fetch(`${functionsBaseUrl}/${normalizedPath}`, {
+    method: 'GET',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'X-Request-ID': makeRequestId(`web:${normalizedPath.replaceAll('/', ':')}`),
+    },
+    signal,
+  })
+  const payload = await parseJsonResponse(response)
+  if (!response.ok) {
+    const err = payload.error ?? {}
+    throw new FlexiApiError(err.message || 'The request could not be completed.', {
+      code: err.code,
+      status: response.status,
+      requestId: err.request_id,
+    })
+  }
+  return payload
+}
+
 async function callFlexiDelete(path, { signal } = {}) {
   const token = await getAccessToken()
   const normalizedPath = path.replace(/^\/+/, '')
@@ -262,16 +285,9 @@ export async function fetchOperatorsForOffice(officeId) {
   return data ?? []
 }
 
-export async function fetchAllOperators() {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id, full_name, email')
-    .eq('role', 'OPERATOR')
-    .eq('is_active', true)
-    .is('deleted_at', null)
-    .order('full_name')
-  if (error) throw error
-  return data ?? []
+export async function fetchAllOperators({ signal } = {}) {
+  const payload = await callFlexiGet('admin/operators', { signal })
+  return payload.data ?? []
 }
 
 export function assignOperator(operatorId, officeId, { signal } = {}) {
