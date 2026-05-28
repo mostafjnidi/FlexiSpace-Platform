@@ -694,7 +694,7 @@ export default function Checkout() {
       <main className="flex-1 px-6 md:px-16 pb-12">
         <div className="grid md:grid-cols-[1fr_420px] gap-6 max-w-5xl">
           <div className="flex flex-col gap-4">
-            {!isPaymentMode && (
+            {!isPaymentMode && !usagePaymentMode && (
               <div className="bg-bg-2 border border-line rounded-2xl p-5 flex flex-col gap-4">
                 <h3 className="font-inter text-[13px] font-semibold text-ink">{t('checkout.bookingSchedule')}</h3>
                 <div className="flex flex-col gap-1.5">

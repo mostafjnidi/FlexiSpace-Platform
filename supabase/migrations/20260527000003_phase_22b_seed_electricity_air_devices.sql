@@ -5,6 +5,13 @@
 -- Uses md5(office_id::text || ':DEVICE_TYPE') to match Phase 9e3 read-model IDs.
 -- Only inserts for offices with NO existing device of that type.
 
+-- Actor context required by audit trigger on iot_devices.
+select private.set_actor_context(
+  null,
+  'SYSTEM'::public.actor_type,
+  'phase-22b-seed-electricity-air-devices'
+);
+
 -- ── ELECTRICITY_METER ─────────────────────────────────────────────────────────
 
 with offices_needing_elec as (
@@ -100,3 +107,5 @@ select
   'v1.0.0-demo',
   now()
 from air_ids;
+
+select private.clear_actor_context();

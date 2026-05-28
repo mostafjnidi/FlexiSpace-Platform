@@ -52,11 +52,21 @@ const CONFLICT_PREFIXES = new Set([
   'ACCESS_WINDOW_VIOLATION',
   'DEVICE_NOT_IN_OFFICE',
   'PAYMENT_ALREADY_FINAL',
+  'BOOKING_OVERLAP',
+])
+
+const VALIDATION_PREFIXES = new Set([
+  'OFFICE_NOT_ACTIVE',
+  'INVALID_TIME_RANGE',
+  'BOOKING_TOO_SHORT',
+  'BOOKING_TOO_LONG',
+  'REASON_REQUIRED',
 ])
 
 const INTERNAL_PREFIXES = new Set([
   'INVALID_ACTOR_CONTEXT',
   'ENCRYPTION_CONFIG_ERROR',
+  'INTERNAL_ERROR',
 ])
 
 function mapP0001Message(rawMessage: string): FlexiError {
@@ -79,6 +89,9 @@ function mapP0001Message(rawMessage: string): FlexiError {
   }
   if (CONFLICT_PREFIXES.has(prefix)) {
     return new FlexiError('CONFLICT', detail || 'Conflict', 409)
+  }
+  if (VALIDATION_PREFIXES.has(prefix)) {
+    return new FlexiError('VALIDATION_ERROR', detail || 'Validation failed', 422)
   }
   if (INTERNAL_PREFIXES.has(prefix)) {
     return new FlexiError('INTERNAL_ERROR', 'An unexpected error occurred', 500)
