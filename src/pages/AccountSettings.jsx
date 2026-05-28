@@ -659,25 +659,35 @@ export default function AccountSettings() {
 
   useEffect(() => {
     async function loadProfile() {
-      const { data: { user } } = await supabase.auth.getUser()
-      if (!user) return
-      setUserId(user.id)
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('full_name, email, role')
-        .eq('id', user.id)
-        .single()
-      if (profile) {
-        const loaded = {
-          ...EMPTY_FORM,
-          fullName: profile.full_name ?? '',
-          email: profile.email ?? user.email ?? '',
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) { setLoading(false); return }
+        setUserId(user.id)
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('full_name, email, role')
+          .eq('id', user.id)
+          .single()
+        if (profile) {
+          const loaded = {
+            ...EMPTY_FORM,
+            fullName: profile.full_name ?? '',
+            email: profile.email ?? user.email ?? '',
+          }
+          setForm(loaded)
+          setSavedSnapshot({ form: loaded, toggles: { ...INITIAL_TOGGLES }, avatar: null })
+          setUserRole(profile.role ?? '')
+        } else {
+          // profile doesn't exist yet — fall back to auth email
+          const loaded = { ...EMPTY_FORM, email: user.email ?? '' }
+          setForm(loaded)
+          setSavedSnapshot({ form: loaded, toggles: { ...INITIAL_TOGGLES }, avatar: null })
         }
-        setForm(loaded)
-        setSavedSnapshot({ form: loaded, toggles: { ...INITIAL_TOGGLES }, avatar: null })
-        setUserRole(profile.role ?? '')
+      } catch {
+        // silent — show empty form
+      } finally {
+        setLoading(false)
       }
-      setLoading(false)
     }
     loadProfile()
   }, [])
