@@ -33,8 +33,8 @@ async function handleListOperators(req: Request): Promise<Response> {
   const supabase = createServiceClient()
   const { data, error } = await supabase
     .from('profiles')
-    .select('id, full_name, email')
-    .eq('role', 'OPERATOR')
+    .select('id, full_name, email, role')
+    .in('role', ['OPERATOR', 'USER'])
     .eq('is_active', true)
     .is('deleted_at', null)
     .order('full_name')
