@@ -1,7 +1,13 @@
 import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { createOffice } from '../lib/flexispaceApi'
+import {
+  createOffice,
+  fetchOperatorsForOffice,
+  fetchAllOperators,
+  assignOperator,
+  unassignOperator,
+} from '../lib/flexispaceApi'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
@@ -317,7 +323,87 @@ function QueueItem({ item }) {
   )
 }
 
-function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, onViewBookings, onEdit }) {
+function OperatorPanel({ office, links, allOperators, loading, error, selectedId, assigning, unassigningId, onSelectOperator, onAssign, onUnassign }) {
+  const assignedIds = new Set(links.map((l) => l.operator_id))
+  const available = allOperators.filter((op) => !assignedIds.has(op.id))
+
+  return (
+    <div className="mt-2 bg-bg-2 border border-accent/20 rounded-2xl p-4 animate-fadeUp" style={{ '--delay': '0ms' }}>
+      <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">
+        Operators — {office.name}
+      </p>
+
+      {loading && (
+        <div className="flex items-center gap-2 py-2 text-neutral font-inter text-[12px]">
+          <svg className="animate-spin" width="14" height="14" viewBox="0 0 24 24" fill="none">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="2" opacity=".25" />
+            <path d="M12 2a10 10 0 0 1 10 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+          </svg>
+          Loading…
+        </div>
+      )}
+
+      {error && (
+        <p className="font-inter text-[12px] text-red-400 mb-3">{error}</p>
+      )}
+
+      {!loading && links.length === 0 && (
+        <p className="font-inter text-[12px] text-neutral mb-3">No operators assigned yet.</p>
+      )}
+
+      {!loading && links.length > 0 && (
+        <div className="mb-3 flex flex-col gap-1.5">
+          {links.map((link) => {
+            const prof = link.profiles
+            return (
+              <div key={link.id} className="flex items-center justify-between gap-3 px-3 py-2 bg-bg-3 rounded-xl border border-line">
+                <div className="min-w-0">
+                  <p className="font-inter text-[13px] text-ink truncate">{prof?.full_name || 'Unnamed'}</p>
+                  <p className="font-mono text-[11px] text-neutral truncate">{prof?.email || ''}</p>
+                </div>
+                <button
+                  onClick={() => onUnassign(link.id)}
+                  disabled={unassigningId === link.id}
+                  className="shrink-0 px-2.5 py-1 rounded-lg border border-red-400/30 text-red-400 font-mono text-[11px] uppercase tracking-[.14em] hover:bg-red-400/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {unassigningId === link.id ? '…' : 'Unassign'}
+                </button>
+              </div>
+            )
+          })}
+        </div>
+      )}
+
+      {!loading && (
+        <div className="flex items-center gap-2">
+          <select
+            value={selectedId}
+            onChange={(e) => onSelectOperator(e.target.value)}
+            className="flex-1 min-w-0 bg-bg-3 border border-line rounded-xl px-3 py-2 text-ink font-inter text-[13px] outline-none focus:border-accent/50 transition-colors cursor-pointer"
+          >
+            <option value="">
+              {available.length === 0 ? 'No operators available' : 'Select operator…'}
+            </option>
+            {available.map((op) => (
+              <option key={op.id} value={op.id}>
+                {op.full_name || op.email}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={onAssign}
+            disabled={!selectedId || assigning || available.length === 0}
+            className="shrink-0 px-3 py-2 rounded-xl bg-accent/10 border border-accent/30 text-accent font-mono text-[11px] uppercase tracking-[.14em] hover:bg-accent/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            {assigning ? '…' : 'Assign'}
+          </button>
+        </div>
+      )}
+    </div>
+  )
+}
+
+function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, onViewBookings, onEdit, onManageOperators, operatorPanelOpen }) {
   const { t } = useI18n()
   return (
     <div className={`bg-bg-2 border border-line rounded-2xl shadow-card overflow-hidden
@@ -454,10 +540,25 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
           {office.status === 'Maint' ? t('assets.viewMaintenance') : t('assets.quickControls')}
         </button>
 
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-2 gap-2 mb-2">
           <button onClick={() => onEdit(office)} className="py-2 rounded-xl bg-bg-3 border border-line text-ink-2 font-inter text-[13px] hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer">{t('common.edit')}</button>
           <button onClick={onViewBookings} className="py-2 rounded-xl bg-bg-3 border border-line text-ink-2 font-inter text-[13px] hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer">{t('nav.bookings')}</button>
         </div>
+        <button
+          onClick={onManageOperators}
+          className={`w-full flex items-center justify-center gap-2 py-2 rounded-xl border font-inter text-[13px] transition-all duration-200 cursor-pointer ${
+            operatorPanelOpen
+              ? 'bg-accent/10 border-accent/40 text-accent'
+              : 'bg-bg-3 border-line text-ink-2 hover:text-ink hover:border-accent/40'
+          }`}
+        >
+          <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
+            <circle cx="5" cy="4" r="2.2" stroke="currentColor" strokeWidth="1.2" />
+            <path d="M1 11c0-2 1.8-3.5 4-3.5s4 1.5 4 3.5" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+            <path d="M9.5 5.5v3M11 7H8" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+          </svg>
+          Manage Operators
+        </button>
       </div>
     </div>
   )
@@ -850,6 +951,73 @@ export default function AssetCommand() {
     setOffices((prev) => prev.map((o) => (o.id === id ? { ...o, enabled: !o.enabled } : o)))
   }
 
+  // ── Operator panel state ──────────────────────────────────────────────────
+  const [operatorPanelOpenId, setOperatorPanelOpenId] = useState(null)
+  const [operatorLinks, setOperatorLinks] = useState({})
+  const [allOperators, setAllOperators] = useState([])
+  const [operatorPanelLoading, setOperatorPanelLoading] = useState({})
+  const [operatorPanelError, setOperatorPanelError] = useState({})
+  const [selectedOperatorId, setSelectedOperatorId] = useState({})
+  const [assigning, setAssigning] = useState({})
+  const [unassigningId, setUnassigningId] = useState(null)
+
+  async function loadOperatorPanel(officeId) {
+    setOperatorPanelLoading((prev) => ({ ...prev, [officeId]: true }))
+    setOperatorPanelError((prev) => ({ ...prev, [officeId]: null }))
+    try {
+      const [links, operators] = await Promise.all([
+        fetchOperatorsForOffice(officeId),
+        allOperators.length > 0 ? Promise.resolve(allOperators) : fetchAllOperators(),
+      ])
+      setOperatorLinks((prev) => ({ ...prev, [officeId]: links }))
+      if (allOperators.length === 0) setAllOperators(operators)
+    } catch (err) {
+      setOperatorPanelError((prev) => ({ ...prev, [officeId]: err.message || 'Failed to load operators.' }))
+    } finally {
+      setOperatorPanelLoading((prev) => ({ ...prev, [officeId]: false }))
+    }
+  }
+
+  function handleToggleOperatorPanel(officeId) {
+    if (operatorPanelOpenId === officeId) {
+      setOperatorPanelOpenId(null)
+      return
+    }
+    setOperatorPanelOpenId(officeId)
+    loadOperatorPanel(officeId)
+  }
+
+  async function handleAssignOperator(officeId) {
+    const operatorId = selectedOperatorId[officeId]
+    if (!operatorId) return
+    setAssigning((prev) => ({ ...prev, [officeId]: true }))
+    setOperatorPanelError((prev) => ({ ...prev, [officeId]: null }))
+    try {
+      await assignOperator(operatorId, officeId)
+      setSelectedOperatorId((prev) => ({ ...prev, [officeId]: '' }))
+      const links = await fetchOperatorsForOffice(officeId)
+      setOperatorLinks((prev) => ({ ...prev, [officeId]: links }))
+    } catch (err) {
+      setOperatorPanelError((prev) => ({ ...prev, [officeId]: err.message || 'Failed to assign operator.' }))
+    } finally {
+      setAssigning((prev) => ({ ...prev, [officeId]: false }))
+    }
+  }
+
+  async function handleUnassignOperator(officeId, linkId) {
+    setUnassigningId(linkId)
+    setOperatorPanelError((prev) => ({ ...prev, [officeId]: null }))
+    try {
+      await unassignOperator(linkId)
+      const links = await fetchOperatorsForOffice(officeId)
+      setOperatorLinks((prev) => ({ ...prev, [officeId]: links }))
+    } catch (err) {
+      setOperatorPanelError((prev) => ({ ...prev, [officeId]: err.message || 'Failed to unassign operator.' }))
+    } finally {
+      setUnassigningId(null)
+    }
+  }
+
   const maxRevenue = offices.reduce((max, o) => Math.max(max, o.revenue), 0)
   const topPerformerId = maxRevenue > 0
     ? offices.reduce(
@@ -1101,7 +1269,24 @@ export default function AssetCommand() {
                         onQuickControls={setQuickControlsId}
                         onViewBookings={() => navigate(`/bookings-command-center?office=${office.id}`)}
                         onEdit={openEditModal}
+                        onManageOperators={() => handleToggleOperatorPanel(office.id)}
+                        operatorPanelOpen={operatorPanelOpenId === office.id}
                       />
+                      {operatorPanelOpenId === office.id && (
+                        <OperatorPanel
+                          office={office}
+                          links={operatorLinks[office.id] ?? []}
+                          allOperators={allOperators}
+                          loading={operatorPanelLoading[office.id] ?? false}
+                          error={operatorPanelError[office.id] ?? null}
+                          selectedId={selectedOperatorId[office.id] ?? ''}
+                          assigning={assigning[office.id] ?? false}
+                          unassigningId={unassigningId}
+                          onSelectOperator={(id) => setSelectedOperatorId((prev) => ({ ...prev, [office.id]: id }))}
+                          onAssign={() => handleAssignOperator(office.id)}
+                          onUnassign={(linkId) => handleUnassignOperator(office.id, linkId)}
+                        />
+                      )}
                     </div>
                   ))
                 )}

@@ -227,3 +227,60 @@ export function createOffice({
     },
   })
 }
+
+async function callFlexiDelete(path, { signal } = {}) {
+  const token = await getAccessToken()
+  const normalizedPath = path.replace(/^\/+/, '')
+  const response = await fetch(`${functionsBaseUrl}/${normalizedPath}`, {
+    method: 'DELETE',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'X-Request-ID': makeRequestId(`web:${normalizedPath.replaceAll('/', ':')}`),
+    },
+    signal,
+  })
+  const payload = await parseJsonResponse(response)
+  if (!response.ok) {
+    const err = payload.error ?? {}
+    throw new FlexiApiError(err.message || 'The request could not be completed.', {
+      code: err.code,
+      status: response.status,
+      requestId: err.request_id,
+    })
+  }
+  return payload
+}
+
+export async function fetchOperatorsForOffice(officeId) {
+  const { data, error } = await supabase
+    .from('operator_offices')
+    .select('id, operator_id, profiles!operator_id(id, full_name, email)')
+    .eq('office_id', officeId)
+    .is('deleted_at', null)
+  if (error) throw error
+  return data ?? []
+}
+
+export async function fetchAllOperators() {
+  const { data, error } = await supabase
+    .from('profiles')
+    .select('id, full_name, email')
+    .eq('role', 'OPERATOR')
+    .eq('is_active', true)
+    .is('deleted_at', null)
+    .order('full_name')
+  if (error) throw error
+  return data ?? []
+}
+
+export function assignOperator(operatorId, officeId, { signal } = {}) {
+  return callFlexiFunction('admin/operator-offices', {
+    signal,
+    body: { operator_id: operatorId, office_id: officeId },
+  })
+}
+
+export function unassignOperator(linkId, { signal } = {}) {
+  return callFlexiDelete(`admin/operator-offices/${linkId}`, { signal })
+}
