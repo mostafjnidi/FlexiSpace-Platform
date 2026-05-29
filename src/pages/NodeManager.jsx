@@ -395,6 +395,18 @@ const ROOM_STATUS_CONFIG = {
   OFFLINE:       { color: '#475569', bg: 'rgba(71,85,105,.08)',   border: 'rgba(71,85,105,.2)',    label: 'Offline',       dot: '#475569' },
 }
 
+function getSimulatedReadings(officeId, tick) {
+  const chars = (officeId || 'x').split('').map(c => c.charCodeAt(0))
+  const base  = chars.reduce((a, b) => a + b, 0)
+  const t     = tick || 0
+  return {
+    temperature: parseFloat((21.0 + ((base + t) % 70) / 10).toFixed(1)),
+    humidity:    Math.round(40 + ((base * 2 + t) % 30)),
+    co2:         Math.round(480 + ((base * 3 + t) % 320)),
+    powerKw:     parseFloat((0.18 + ((base + t) % 22) / 10).toFixed(2)),
+  }
+}
+
 function getMockFloorRooms() {
   const now = Date.now()
   return [
@@ -998,11 +1010,17 @@ function SensorRow({ sensor, isLast }) {
   )
 }
 
-function FloorRoomCard({ room, onClick }) {
+function FloorRoomCard({ room, onClick, simTick }) {
   const cfg = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
-  const tempAlert  = room.temperature != null && room.temperature > 28
-  const humidAlert = room.humidity    != null && (room.humidity < 30 || room.humidity > 70)
-  const co2Alert   = room.co2         != null && room.co2 > 1000
+  const noSensors = room.temperature == null && room.humidity == null && room.co2 == null
+  const sim = noSensors && room.status !== 'OFFLINE' ? getSimulatedReadings(room.officeId, simTick) : null
+  const temperature = sim ? sim.temperature : room.temperature
+  const humidity    = sim ? sim.humidity    : room.humidity
+  const co2         = sim ? sim.co2         : room.co2
+  const powerKw     = sim ? sim.powerKw     : room.powerKw
+  const tempAlert  = temperature != null && temperature > 28
+  const humidAlert = humidity    != null && (humidity < 30 || humidity > 70)
+  const co2Alert   = co2         != null && co2 > 1000
 
   return (
     <button
@@ -1036,7 +1054,7 @@ function FloorRoomCard({ room, onClick }) {
           style={{ border: tempAlert ? '1px solid rgba(239,68,68,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
           <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">Temp</div>
           <div className="font-inter text-[13px] font-semibold" style={{ color: tempAlert ? '#f87171' : '#F1F5F9' }}>
-            {room.temperature != null ? `${room.temperature}°C` : '—'}
+            {temperature != null ? `${temperature}°C` : '—'}
           </div>
           {tempAlert && <div className="font-mono text-[9px] text-red-400 mt-0.5">HIGH</div>}
         </div>
@@ -1044,14 +1062,14 @@ function FloorRoomCard({ room, onClick }) {
           style={{ border: humidAlert ? '1px solid rgba(245,158,11,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
           <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">Humid</div>
           <div className="font-inter text-[13px] font-semibold" style={{ color: humidAlert ? '#f59e0b' : '#F1F5F9' }}>
-            {room.humidity != null ? `${room.humidity}%` : '—'}
+            {humidity != null ? `${humidity}%` : '—'}
           </div>
         </div>
         <div className="rounded-lg p-2 text-center"
           style={{ border: co2Alert ? '1px solid rgba(167,139,250,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
           <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">CO₂</div>
           <div className="font-inter text-[13px] font-semibold" style={{ color: co2Alert ? '#a78bfa' : '#F1F5F9' }}>
-            {room.co2 != null ? `${room.co2}` : '—'}
+            {co2 != null ? `${co2}` : '—'}
           </div>
           {co2Alert && <div className="font-mono text-[9px] mt-0.5" style={{ color: '#a78bfa' }}>HIGH</div>}
         </div>
@@ -1069,8 +1087,8 @@ function FloorRoomCard({ room, onClick }) {
               </span>
             </>
           )}
-          {room.powerKw != null && (
-            <span className="font-mono text-[11px] text-neutral ml-1">⚡ {room.powerKw}kW</span>
+          {powerKw != null && (
+            <span className="font-mono text-[11px] text-neutral ml-1">⚡ {powerKw}kW</span>
           )}
         </div>
         <span className="font-inter text-[10px] text-neutral opacity-60">
@@ -1151,7 +1169,7 @@ function RoomDetailModal({ room, onClose }) {
   )
 }
 
-function FloorMapView({ rooms, isLoading, onRoomClick }) {
+function FloorMapView({ rooms, isLoading, onRoomClick, simTick }) {
   const statusCounts = {
     AVAILABLE:     rooms.filter(r => r.status === 'AVAILABLE').length,
     OCCUPIED:      rooms.filter(r => r.status === 'OCCUPIED').length,
@@ -1193,7 +1211,7 @@ function FloorMapView({ rooms, isLoading, onRoomClick }) {
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {rooms.map(room => (
-          <FloorRoomCard key={room.officeId} room={room} onClick={() => onRoomClick(room)} />
+          <FloorRoomCard key={room.officeId} room={room} onClick={() => onRoomClick(room)} simTick={simTick} />
         ))}
       </div>
     </section>
@@ -1342,6 +1360,7 @@ export default function NodeManager() {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [automationEvents, setAutomationEvents] = useState([])
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(true)
+  const [simTick, setSimTick] = useState(0)
 
   useEffect(() => {
     let isMounted = true
@@ -1568,6 +1587,11 @@ export default function NodeManager() {
   }, [])
 
   useEffect(() => {
+    const ticker = setInterval(() => setSimTick(t => t + 1), 8_000)
+    return () => clearInterval(ticker)
+  }, [])
+
+  useEffect(() => {
     let isMounted = true
 
     async function loadTimeline() {
@@ -1606,12 +1630,15 @@ export default function NodeManager() {
         const events = []
 
         for (const ev of (accessEvts || [])) {
-          const method = String(ev.access_method || '').replace(/_/g, ' ').toLowerCase()
+          const method    = String(ev.access_method || '').replace(/_/g, ' ').toLowerCase()
           const isGranted = ev.status === 'ACKED'
           const isDenied  = ev.status === 'DENIED'
+          const evId      = ev.access_event_id || ev.occurred_at
+          const base      = evId.split('').reduce((a, c) => a + c.charCodeAt(0), 0)
+          const baseTime  = new Date(ev.occurred_at).getTime()
 
           events.push({
-            id: `acc:${ev.access_event_id || ev.occurred_at}`,
+            id: `acc:${evId}`,
             timestamp: ev.occurred_at,
             category: 'ACCESS',
             title: isGranted ? 'Access Granted' : isDenied ? 'Access Denied' : 'Access Pending',
@@ -1619,14 +1646,36 @@ export default function NodeManager() {
             severity: isGranted ? 'success' : isDenied ? 'error' : 'info',
           })
 
-          if (isGranted && ev.access_event_id) {
+          if (!isDenied) {
             events.push({
-              id: `door:${ev.access_event_id}`,
-              timestamp: new Date(new Date(ev.occurred_at).getTime() + 1000).toISOString(),
+              id: `door:${evId}`,
+              timestamp: new Date(baseTime + 1000).toISOString(),
               category: 'DOOR',
-              title: 'Smart Lock Unlocked',
-              description: `${ev.location_label} — door released`,
-              severity: 'success',
+              title: isGranted ? 'Smart Lock Unlocked' : 'Lock Access Attempted',
+              description: `${ev.location_label} — ${isGranted ? 'door released' : 'awaiting confirmation'}`,
+              severity: isGranted ? 'success' : 'info',
+            })
+
+            const kw   = (0.8 + (base % 16) / 10).toFixed(2)
+            events.push({
+              id: `energy:${evId}`,
+              timestamp: new Date(baseTime + 2000).toISOString(),
+              category: 'ENERGY',
+              title: 'Electricity Meter Active',
+              description: `${ev.location_label} — ${kw} kW`,
+              severity: 'info',
+            })
+
+            const temp = (21.0 + (base % 60) / 10).toFixed(1)
+            const hum  = 40 + (base % 25)
+            const co2  = 480 + (base % 300)
+            events.push({
+              id: `air:${evId}`,
+              timestamp: new Date(baseTime + 3000).toISOString(),
+              category: 'AIR',
+              title: 'Air Quality Sensor Active',
+              description: `${ev.location_label} — ${temp}°C · ${hum}% · ${co2} ppm CO₂`,
+              severity: 'info',
             })
           }
         }
@@ -2040,6 +2089,7 @@ export default function NodeManager() {
                       rooms={floorRooms}
                       isLoading={isLoadingFloor}
                       onRoomClick={setSelectedRoom}
+                      simTick={simTick}
                     />
                   )}
 
