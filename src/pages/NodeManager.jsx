@@ -388,6 +388,69 @@ function CheckSmIcon() {
   )
 }
 
+const ROOM_STATUS_CONFIG = {
+  AVAILABLE:     { color: '#10B981', bg: 'rgba(16,185,129,.08)',  border: 'rgba(16,185,129,.25)',  label: 'Available',     dot: '#10B981' },
+  OCCUPIED:      { color: '#f87171', bg: 'rgba(239,68,68,.08)',   border: 'rgba(239,68,68,.3)',    label: 'Occupied',      dot: '#ef4444' },
+  RESERVED_SOON: { color: '#f59e0b', bg: 'rgba(245,158,11,.08)',  border: 'rgba(245,158,11,.25)',  label: 'Reserved Soon', dot: '#f59e0b' },
+  OFFLINE:       { color: '#475569', bg: 'rgba(71,85,105,.08)',   border: 'rgba(71,85,105,.2)',    label: 'Offline',       dot: '#475569' },
+}
+
+function getMockFloorRooms() {
+  const now = Date.now()
+  return [
+    { officeId: 'mock-1', officeName: 'Executive Suite A', status: 'OCCUPIED',      temperature: 23.4, humidity: 44,   co2: 612,  powerKw: 1.24, lockState: 'UNLOCKED', deviceCount: 3, onlineDevices: 3, lastUpdated: new Date(now - 5000).toISOString(),  booking: { status: 'CHECKED_IN' } },
+    { officeId: 'mock-2', officeName: 'Meeting Room B',    status: 'RESERVED_SOON', temperature: 21.8, humidity: 52,   co2: 480,  powerKw: null,  lockState: 'LOCKED',   deviceCount: 2, onlineDevices: 2, lastUpdated: new Date(now - 30000).toISOString(), booking: { status: 'CONFIRMED' } },
+    { officeId: 'mock-3', officeName: 'Hot Desk Zone C',   status: 'AVAILABLE',     temperature: 22.1, humidity: 48,   co2: 510,  powerKw: 0.18,  lockState: 'LOCKED',   deviceCount: 2, onlineDevices: 2, lastUpdated: new Date(now - 15000).toISOString(), booking: null },
+    { officeId: 'mock-4', officeName: 'Innovation Lab D',  status: 'AVAILABLE',     temperature: 24.2, humidity: 41,   co2: 595,  powerKw: 0.32,  lockState: 'LOCKED',   deviceCount: 3, onlineDevices: 3, lastUpdated: new Date(now - 20000).toISOString(), booking: null },
+    { officeId: 'mock-5', officeName: 'Focus Room E',      status: 'OFFLINE',       temperature: null,  humidity: null, co2: null, powerKw: null,  lockState: null,       deviceCount: 2, onlineDevices: 0, lastUpdated: null,                               booking: null },
+    { officeId: 'mock-6', officeName: 'Board Room F',      status: 'AVAILABLE',     temperature: 20.9, humidity: 55,   co2: 445,  powerKw: 0.45,  lockState: 'LOCKED',   deviceCount: 4, onlineDevices: 4, lastUpdated: new Date(now - 8000).toISOString(),  booking: null },
+  ]
+}
+
+const TIMELINE_CATEGORY_CONFIG = {
+  ACCESS:     { color: '#60a5fa', bg: 'rgba(96,165,250,.12)',  border: 'rgba(96,165,250,.25)',  label: 'Access' },
+  DOOR:       { color: '#10B981', bg: 'rgba(16,185,129,.12)',  border: 'rgba(16,185,129,.25)',  label: 'Door' },
+  ENERGY:     { color: '#facc15', bg: 'rgba(234,179,8,.12)',   border: 'rgba(234,179,8,.25)',   label: 'Energy' },
+  AIR:        { color: '#a78bfa', bg: 'rgba(167,139,250,.12)', border: 'rgba(167,139,250,.25)', label: 'Air' },
+  AUTOMATION: { color: '#f59e0b', bg: 'rgba(245,158,11,.12)',  border: 'rgba(245,158,11,.25)',  label: 'Auto' },
+}
+
+function getMockTimelineEvents() {
+  const now = Date.now()
+  return [
+    { id: 'mock:acc:1',    timestamp: new Date(now - 4000).toISOString(),    category: 'ACCESS',     title: 'Access Granted',        description: 'Demo User · Executive Suite A · QR Scan',         severity: 'success' },
+    { id: 'mock:door:1',   timestamp: new Date(now - 3000).toISOString(),    category: 'DOOR',       title: 'Smart Lock Unlocked',   description: 'Executive Suite A — door released',               severity: 'success' },
+    { id: 'mock:energy:1', timestamp: new Date(now - 2000).toISOString(),    category: 'ENERGY',     title: 'Power Reading',         description: 'Executive Suite A — 1.24 kW',                     severity: 'info' },
+    { id: 'mock:air:1',    timestamp: new Date(now - 1500).toISOString(),    category: 'AIR',        title: 'Air Quality Reading',   description: 'Executive Suite A — 23.4°C · 44% · 612 ppm CO₂', severity: 'info' },
+    { id: 'mock:auto:1',   timestamp: new Date(now - 1000).toISOString(),    category: 'AUTOMATION', title: 'Climate Control Active', description: 'Target 22°C — auto schedule engaged',             severity: 'info' },
+    { id: 'mock:air:2',    timestamp: new Date(now - 90000).toISOString(),   category: 'AIR',        title: 'Air Quality Reading',   description: 'Meeting Room B — 21.8°C · 52% · 480 ppm CO₂',    severity: 'info' },
+    { id: 'mock:energy:2', timestamp: new Date(now - 95000).toISOString(),   category: 'ENERGY',     title: 'Power Reading',         description: 'Hot Desk Zone C — 0.18 kW',                       severity: 'info' },
+    { id: 'mock:acc:2',    timestamp: new Date(now - 180000).toISOString(),  category: 'ACCESS',     title: 'Access Denied',         description: 'Unknown · Meeting Room B · QR Scan',              severity: 'error' },
+    { id: 'mock:door:2',   timestamp: new Date(now - 3600000).toISOString(), category: 'DOOR',       title: 'Smart Lock Locked',     description: 'Executive Suite A — auto-locked after checkout',  severity: 'info' },
+    { id: 'mock:energy:3', timestamp: new Date(now - 3650000).toISOString(), category: 'ENERGY',     title: 'Power Reading',         description: 'Board Room F — 0.45 kW',                          severity: 'info' },
+  ]
+}
+
+function FloorMapIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <rect x="1.5" y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="9"   y="1.5" width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="1.5" y="9"   width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+      <rect x="9"   y="9"   width="5.5" height="5.5" rx="1" stroke="currentColor" strokeWidth="1.2" />
+    </svg>
+  )
+}
+
+function AutomationIcon() {
+  return (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+      <path d="M2 9l2.5-4 2.5 3.5 2.5-5L12 9l2-2"
+        stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 // Nav Data
 const NAV_GROUPS = [
   {
@@ -935,6 +998,299 @@ function SensorRow({ sensor, isLast }) {
   )
 }
 
+function FloorRoomCard({ room, onClick }) {
+  const cfg = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
+  const tempAlert  = room.temperature != null && room.temperature > 28
+  const humidAlert = room.humidity    != null && (room.humidity < 30 || room.humidity > 70)
+  const co2Alert   = room.co2         != null && room.co2 > 1000
+
+  return (
+    <button
+      onClick={onClick}
+      className="bg-bg-2 rounded-xl p-4 flex flex-col gap-3 text-left w-full cursor-pointer border-0 transition-all duration-200 hover:bg-bg-3 focus:ring-2 focus:ring-accent/40"
+      style={{ border: `1px solid ${cfg.border}`, borderTop: `2px solid ${cfg.color}` }}
+    >
+      <div className="flex items-start justify-between gap-2">
+        <div className="flex-1 min-w-0">
+          <h3 className="font-inter text-[13px] font-semibold text-ink truncate leading-tight">{room.officeName}</h3>
+          <p className="font-mono text-[10px] text-neutral uppercase tracking-[.12em] mt-0.5">
+            {room.deviceCount} devices · {room.onlineDevices} online
+          </p>
+        </div>
+        <div
+          className="flex items-center gap-1.5 px-2 py-1 rounded-full shrink-0"
+          style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.border}` }}
+        >
+          <span
+            className={`w-1.5 h-1.5 rounded-full shrink-0${room.status === 'OCCUPIED' ? ' animate-pulse' : ''}`}
+            style={{ backgroundColor: cfg.dot }}
+          />
+          <span className="font-mono text-[10px] uppercase tracking-[.12em]" style={{ color: cfg.color }}>
+            {cfg.label}
+          </span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-3 gap-2">
+        <div className="rounded-lg p-2 text-center"
+          style={{ border: tempAlert ? '1px solid rgba(239,68,68,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">Temp</div>
+          <div className="font-inter text-[13px] font-semibold" style={{ color: tempAlert ? '#f87171' : '#F1F5F9' }}>
+            {room.temperature != null ? `${room.temperature}°C` : '—'}
+          </div>
+          {tempAlert && <div className="font-mono text-[9px] text-red-400 mt-0.5">HIGH</div>}
+        </div>
+        <div className="rounded-lg p-2 text-center"
+          style={{ border: humidAlert ? '1px solid rgba(245,158,11,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">Humid</div>
+          <div className="font-inter text-[13px] font-semibold" style={{ color: humidAlert ? '#f59e0b' : '#F1F5F9' }}>
+            {room.humidity != null ? `${room.humidity}%` : '—'}
+          </div>
+        </div>
+        <div className="rounded-lg p-2 text-center"
+          style={{ border: co2Alert ? '1px solid rgba(167,139,250,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
+          <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">CO₂</div>
+          <div className="font-inter text-[13px] font-semibold" style={{ color: co2Alert ? '#a78bfa' : '#F1F5F9' }}>
+            {room.co2 != null ? `${room.co2}` : '—'}
+          </div>
+          {co2Alert && <div className="font-mono text-[9px] mt-0.5" style={{ color: '#a78bfa' }}>HIGH</div>}
+        </div>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-line">
+        <div className="flex items-center gap-1.5">
+          {room.lockState && (
+            <>
+              <span style={{ color: room.lockState === 'UNLOCKED' ? '#f87171' : '#10B981' }}>
+                <LockSensorIcon />
+              </span>
+              <span className="font-inter text-[11px]" style={{ color: room.lockState === 'UNLOCKED' ? '#f87171' : '#10B981' }}>
+                {room.lockState === 'UNLOCKED' ? 'Unlocked' : 'Locked'}
+              </span>
+            </>
+          )}
+          {room.powerKw != null && (
+            <span className="font-mono text-[11px] text-neutral ml-1">⚡ {room.powerKw}kW</span>
+          )}
+        </div>
+        <span className="font-inter text-[10px] text-neutral opacity-60">
+          {room.lastUpdated ? formatRelativeTime(room.lastUpdated) : 'No data'}
+        </span>
+      </div>
+    </button>
+  )
+}
+
+function RoomDetailModal({ room, onClose }) {
+  const cfg = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
+  const details = [
+    ['Temperature', room.temperature != null ? `${room.temperature}°C`  : '—'],
+    ['Humidity',    room.humidity    != null ? `${room.humidity}%`      : '—'],
+    ['CO₂ Level',   room.co2         != null ? `${room.co2} ppm`        : '—'],
+    ['Power Draw',  room.powerKw     != null ? `${room.powerKw} kW`     : '—'],
+    ['Door Lock',   room.lockState ?? '—'],
+    ['Devices',     `${room.onlineDevices} / ${room.deviceCount} online`],
+  ]
+
+  return (
+    <>
+      <div className="fixed inset-0 bg-bg/70 z-40" onClick={onClose} aria-hidden="true" />
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-label={room.officeName}
+        className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-[480px] max-w-[90vw] bg-bg-2 rounded-2xl overflow-hidden animate-fadeUp shadow-elevated"
+        style={{ border: `1px solid ${cfg.border}` }}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-line">
+          <div>
+            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-0.5">Room Detail</p>
+            <h3 className="font-inter text-[15px] font-semibold text-ink">{room.officeName}</h3>
+          </div>
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="w-7 h-7 rounded-full flex items-center justify-center text-neutral-2 hover:text-ink hover:bg-bg-3 transition-colors cursor-pointer bg-transparent border-0 focus:ring-2 focus:ring-accent/40"
+          >
+            <XCircleIcon />
+          </button>
+        </div>
+
+        <div className="px-5 pt-4">
+          <div
+            className="flex items-center gap-3 p-3 rounded-xl"
+            style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.border}` }}
+          >
+            <span
+              className={`w-2.5 h-2.5 rounded-full shrink-0${room.status === 'OCCUPIED' ? ' animate-pulse' : ''}`}
+              style={{ backgroundColor: cfg.dot }}
+            />
+            <span className="font-inter text-[13px] font-semibold" style={{ color: cfg.color }}>{cfg.label}</span>
+            {room.booking && (
+              <span className="font-mono text-[11px] text-neutral ml-auto capitalize">
+                {room.booking.status.toLowerCase().replace(/_/g, ' ')}
+              </span>
+            )}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 px-5 py-4">
+          {details.map(([label, val]) => (
+            <div key={label} className="bg-bg-3 rounded-lg p-3">
+              <p className="font-mono text-[10px] uppercase tracking-[.12em] text-neutral mb-1">{label}</p>
+              <p className="font-inter text-[14px] font-semibold text-ink">{val}</p>
+            </div>
+          ))}
+        </div>
+
+        <p className="font-inter text-[11px] text-neutral opacity-60 text-center pb-4">
+          Last sensor update: {formatRelativeTime(room.lastUpdated)}
+        </p>
+      </div>
+    </>
+  )
+}
+
+function FloorMapView({ rooms, isLoading, onRoomClick }) {
+  const statusCounts = {
+    AVAILABLE:     rooms.filter(r => r.status === 'AVAILABLE').length,
+    OCCUPIED:      rooms.filter(r => r.status === 'OCCUPIED').length,
+    RESERVED_SOON: rooms.filter(r => r.status === 'RESERVED_SOON').length,
+    OFFLINE:       rooms.filter(r => r.status === 'OFFLINE').length,
+  }
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center gap-3 py-16">
+        <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+        <span className="font-inter text-[13px] text-neutral">Loading floor data…</span>
+      </div>
+    )
+  }
+
+  if (!rooms.length) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <span className="font-inter text-[13px] text-neutral opacity-60">No office data available</span>
+      </div>
+    )
+  }
+
+  return (
+    <section className="animate-fadeUp" aria-label="Live Floor Map">
+      <div className="flex items-center gap-4 mb-4 flex-wrap">
+        {Object.entries(ROOM_STATUS_CONFIG).map(([status, cfg]) => (
+          <div key={status} className="flex items-center gap-1.5">
+            <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cfg.dot }} />
+            <span className="font-inter text-[12px] text-neutral-2">{cfg.label}</span>
+            <span className="font-mono text-[11px] text-neutral opacity-60">({statusCounts[status] ?? 0})</span>
+          </div>
+        ))}
+        <div className="ml-auto flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <span className="font-mono text-[11px] uppercase tracking-[.12em] text-accent">Live</span>
+        </div>
+      </div>
+      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {rooms.map(room => (
+          <FloorRoomCard key={room.officeId} room={room} onClick={() => onRoomClick(room)} />
+        ))}
+      </div>
+    </section>
+  )
+}
+
+function AutomationTimeline({ events, isLoading }) {
+  const [filter, setFilter] = useState('all')
+  const CATEGORIES = ['all', 'ACCESS', 'DOOR', 'ENERGY', 'AIR', 'AUTOMATION']
+  const filtered = filter === 'all' ? events : events.filter(e => e.category === filter)
+
+  return (
+    <section className="animate-fadeUp" aria-label="IoT Automation Timeline">
+      <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
+        <h2 className="font-inter text-[16px] font-semibold text-ink">IoT Automation Timeline</h2>
+        <div className="flex items-center gap-1.5">
+          <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+          <span className="font-mono text-[11px] uppercase tracking-[.12em] text-accent">Live</span>
+        </div>
+      </div>
+
+      <div className="flex items-center gap-1.5 flex-wrap mb-3">
+        {CATEGORIES.map(cat => {
+          const cfg = cat !== 'all' ? TIMELINE_CATEGORY_CONFIG[cat] : null
+          const isActive = filter === cat
+          return (
+            <button
+              key={cat}
+              onClick={() => setFilter(cat)}
+              aria-pressed={isActive}
+              className={`px-2.5 py-1 rounded-lg font-inter text-[11px] font-medium border transition-all duration-150 cursor-pointer focus:ring-2 focus:ring-accent/40 ${
+                isActive && !cfg ? 'bg-accent/[.09] border-accent/40 text-accent' :
+                !isActive       ? 'border-line text-neutral-2 hover:text-ink hover:bg-bg-3' : ''
+              }`}
+              style={isActive && cfg ? { backgroundColor: cfg.bg, borderColor: cfg.border, color: cfg.color } : {}}
+            >
+              {cat === 'all' ? 'All' : cfg?.label}
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="bg-bg-2 border border-line rounded-xl overflow-hidden">
+        {isLoading && (
+          <div className="flex items-center justify-center gap-3 py-12">
+            <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
+            <span className="font-inter text-[13px] text-neutral">Loading IoT events…</span>
+          </div>
+        )}
+
+        {!isLoading && filtered.length === 0 && (
+          <div className="py-12 text-center">
+            <p className="font-inter text-[13px] text-neutral opacity-60">Waiting for IoT events…</p>
+          </div>
+        )}
+
+        {!isLoading && filtered.length > 0 && (
+          <div className="flex flex-col divide-y divide-[rgba(255,255,255,0.05)]">
+            {filtered.map(event => {
+              const cfg = TIMELINE_CATEGORY_CONFIG[event.category] || TIMELINE_CATEGORY_CONFIG.ACCESS
+              const timeStr = new Date(event.timestamp).toLocaleTimeString('en-US', {
+                hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit',
+              })
+              return (
+                <div key={event.id} className="flex items-start gap-3 px-4 py-3 hover:bg-bg-3 transition-colors duration-150">
+                  <span className="w-2 h-2 rounded-full shrink-0 mt-1.5" style={{ backgroundColor: cfg.color }} />
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2 mb-0.5 flex-wrap">
+                      <span className="font-inter text-[13px] font-semibold text-ink">{event.title}</span>
+                      <span
+                        className="px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-[.12em]"
+                        style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
+                      >
+                        {cfg.label}
+                      </span>
+                      {event.severity === 'error' && (
+                        <span
+                          className="px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-[.12em]"
+                          style={{ backgroundColor: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', color: '#f87171' }}
+                        >
+                          Alert
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-inter text-[12px] text-neutral truncate">{event.description}</p>
+                  </div>
+                  <span className="font-mono text-[11px] text-neutral-2 shrink-0 mt-0.5">{timeStr}</span>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </div>
+    </section>
+  )
+}
+
 // Page
 export default function NodeManager() {
   const location = useLocation()
@@ -979,6 +1335,13 @@ export default function NodeManager() {
   const [iotMetrics, setIotMetrics] = useState(null)
   const [liveLogs, setLiveLogs] = useState([])
   const [sensors, setSensors] = useState([])
+
+  const [activeTab, setActiveTab] = useState('nodes')
+  const [floorRooms, setFloorRooms] = useState([])
+  const [isLoadingFloor, setIsLoadingFloor] = useState(true)
+  const [selectedRoom, setSelectedRoom] = useState(null)
+  const [automationEvents, setAutomationEvents] = useState([])
+  const [isLoadingTimeline, setIsLoadingTimeline] = useState(true)
 
   useEffect(() => {
     let isMounted = true
@@ -1092,6 +1455,243 @@ export default function NodeManager() {
     loadSensors()
     const timer = setInterval(loadSensors, 30_000)
     return () => { isMounted = false; clearInterval(timer) }
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadFloor() {
+      try {
+        const { data: inventory, error: invErr } = await supabase
+          .from('device_inventory_read_model')
+          .select('id, office_id, office_name, device_type, status, last_seen_at, latest_snapshot_observed_at')
+
+        if (!isMounted) return
+
+        if (invErr || !inventory?.length) {
+          if (isMounted) { setFloorRooms(getMockFloorRooms()); setIsLoadingFloor(false) }
+          return
+        }
+
+        const deviceIds = inventory.map(d => d.id)
+        const officeIds = [...new Set(inventory.map(d => d.office_id))]
+
+        const [{ data: snaps }, { data: bookings }] = await Promise.all([
+          supabase
+            .from('device_state_snapshots')
+            .select('device_id, state, observed_at')
+            .in('device_id', deviceIds),
+          supabase
+            .from('bookings')
+            .select('office_id, status, starts_at, ends_at')
+            .in('office_id', officeIds)
+            .in('status', ['CONFIRMED', 'CHECKED_IN'])
+            .gt('ends_at', new Date().toISOString()),
+        ])
+
+        if (!isMounted) return
+
+        const snapMap = Object.fromEntries((snaps || []).map(s => [s.device_id, s]))
+        const bookingMap = {}
+        for (const b of (bookings || [])) {
+          if (!bookingMap[b.office_id] || b.status === 'CHECKED_IN') bookingMap[b.office_id] = b
+        }
+
+        const officeMap = {}
+        for (const dev of inventory) {
+          if (!officeMap[dev.office_id]) {
+            officeMap[dev.office_id] = { officeId: dev.office_id, officeName: dev.office_name, devices: [] }
+          }
+          officeMap[dev.office_id].devices.push(dev)
+        }
+
+        const rooms = Object.values(officeMap).map(office => {
+          const { devices } = office
+          const onlineDevices = devices.filter(d => d.status === 'ONLINE').length
+          let temperature = null, humidity = null, co2 = null
+          let powerKw = null, lockState = null, lastUpdated = null
+
+          for (const dev of devices) {
+            const snap = snapMap[dev.id]
+            if (!snap?.state) continue
+            const st = snap.state
+            if (dev.device_type === 'AIR_QUALITY_SENSOR') {
+              if (st.temperature_c    != null) temperature = parseFloat(Number(st.temperature_c).toFixed(1))
+              if (st.humidity_percent != null) humidity    = Math.round(st.humidity_percent)
+              if (st.co2_ppm          != null) co2         = Math.round(st.co2_ppm)
+              if (!lastUpdated || new Date(snap.observed_at) > new Date(lastUpdated)) lastUpdated = snap.observed_at
+            } else if (dev.device_type === 'ELECTRICITY_METER') {
+              if (st.current_kw != null) powerKw = parseFloat(Number(st.current_kw).toFixed(2))
+            } else if (dev.device_type === 'SMART_LOCK') {
+              lockState = st.lock_state ?? null
+            }
+          }
+
+          const booking = bookingMap[office.officeId]
+          let status = 'AVAILABLE'
+          if (devices.length > 0 && onlineDevices === 0) {
+            status = 'OFFLINE'
+          } else if (booking?.status === 'CHECKED_IN') {
+            status = 'OCCUPIED'
+          } else if (booking?.status === 'CONFIRMED') {
+            const diffMin = (new Date(booking.starts_at) - Date.now()) / 60000
+            if (diffMin <= 120) status = 'RESERVED_SOON'
+          }
+
+          return {
+            officeId: office.officeId, officeName: office.officeName,
+            status, temperature, humidity, co2, powerKw, lockState,
+            deviceCount: devices.length, onlineDevices, lastUpdated, booking,
+          }
+        })
+
+        if (isMounted) {
+          setFloorRooms(rooms.length > 0 ? rooms : getMockFloorRooms())
+          setIsLoadingFloor(false)
+        }
+      } catch {
+        if (isMounted) { setFloorRooms(getMockFloorRooms()); setIsLoadingFloor(false) }
+      }
+    }
+
+    loadFloor()
+
+    const channel = supabase.channel('node-floor-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'device_inventory_read_model' },
+        () => { if (isMounted) loadFloor() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'device_state_snapshots' },
+        () => { if (isMounted) loadFloor() })
+      .subscribe()
+
+    const floorTimer = setInterval(loadFloor, 30_000)
+    return () => { isMounted = false; clearInterval(floorTimer); supabase.removeChannel(channel) }
+  }, [])
+
+  useEffect(() => {
+    let isMounted = true
+
+    async function loadTimeline() {
+      try {
+        const { data: accessEvts } = await supabase
+          .from('access_events_read_model')
+          .select('access_event_id, occurred_at, actor_display_name, location_label, access_method, status')
+          .order('occurred_at', { ascending: false })
+          .limit(20)
+
+        const { data: inventory } = await supabase
+          .from('device_inventory_read_model')
+          .select('id, office_name, device_type')
+
+        if (!isMounted) return
+
+        const allDeviceIds = (inventory || []).map(d => d.id)
+        const deviceOfficeMap = Object.fromEntries(
+          (inventory || []).map(d => [d.id, d.office_name])
+        )
+
+        let telemetryEvts = []
+        if (allDeviceIds.length > 0) {
+          const { data: tel } = await supabase
+            .from('telemetry_events')
+            .select('id, device_id, event_type, payload, observed_at')
+            .in('device_id', allDeviceIds)
+            .in('event_type', ['AIR_QUALITY_READING', 'ELECTRICITY_READING'])
+            .order('observed_at', { ascending: false })
+            .limit(40)
+          telemetryEvts = tel || []
+        }
+
+        if (!isMounted) return
+
+        const events = []
+
+        for (const ev of (accessEvts || [])) {
+          const method = String(ev.access_method || '').replace(/_/g, ' ').toLowerCase()
+          const isGranted = ev.status === 'ACKED'
+          const isDenied  = ev.status === 'DENIED'
+
+          events.push({
+            id: `acc:${ev.access_event_id || ev.occurred_at}`,
+            timestamp: ev.occurred_at,
+            category: 'ACCESS',
+            title: isGranted ? 'Access Granted' : isDenied ? 'Access Denied' : 'Access Pending',
+            description: `${ev.actor_display_name} · ${ev.location_label} · ${method}`,
+            severity: isGranted ? 'success' : isDenied ? 'error' : 'info',
+          })
+
+          if (isGranted && ev.access_event_id) {
+            events.push({
+              id: `door:${ev.access_event_id}`,
+              timestamp: new Date(new Date(ev.occurred_at).getTime() + 1000).toISOString(),
+              category: 'DOOR',
+              title: 'Smart Lock Unlocked',
+              description: `${ev.location_label} — door released`,
+              severity: 'success',
+            })
+          }
+        }
+
+        for (const tel of telemetryEvts) {
+          const officeName = deviceOfficeMap[tel.device_id] || 'Office'
+          const p = tel.payload || {}
+
+          if (tel.event_type === 'ELECTRICITY_READING') {
+            const kw = p.current_kw != null ? `${Number(p.current_kw).toFixed(2)} kW` : '? kW'
+            events.push({
+              id: `energy:${tel.id}`,
+              timestamp: tel.observed_at,
+              category: 'ENERGY',
+              title: 'Power Reading',
+              description: `${officeName} — ${kw}`,
+              severity: 'info',
+            })
+          } else if (tel.event_type === 'AIR_QUALITY_READING') {
+            const temp  = p.temperature_c    != null ? `${Number(p.temperature_c).toFixed(1)}°C` : null
+            const hum   = p.humidity_percent != null ? `${Math.round(p.humidity_percent)}%`       : null
+            const co2   = p.co2_ppm          != null ? `${Math.round(p.co2_ppm)} ppm CO₂`         : null
+            const parts = [temp, hum, co2].filter(Boolean).join(' · ')
+            events.push({
+              id: `air:${tel.id}`,
+              timestamp: tel.observed_at,
+              category: 'AIR',
+              title: 'Air Quality Reading',
+              description: `${officeName} — ${parts || 'no data'}`,
+              severity: (p.co2_ppm != null && p.co2_ppm > 1000) ? 'error' : 'info',
+            })
+          }
+        }
+
+        if (!isMounted) return
+
+        const sorted = events
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))
+          .slice(0, 50)
+
+        if (isMounted) {
+          setAutomationEvents(sorted.length > 0 ? sorted : getMockTimelineEvents())
+          setIsLoadingTimeline(false)
+        }
+      } catch {
+        if (isMounted) {
+          setAutomationEvents(getMockTimelineEvents())
+          setIsLoadingTimeline(false)
+        }
+      }
+    }
+
+    loadTimeline()
+
+    const channel = supabase.channel('node-timeline-rt')
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'access_events_read_model' },
+        () => { if (isMounted) loadTimeline() })
+      .on('postgres_changes',
+        { event: 'INSERT', schema: 'public', table: 'telemetry_events' },
+        () => { if (isMounted) loadTimeline() })
+      .subscribe()
+
+    const timelineTimer = setInterval(loadTimeline, 15_000)
+    return () => { isMounted = false; clearInterval(timelineTimer); supabase.removeChannel(channel) }
   }, [])
 
   const toggleNode = (id, val) => setNodeStates((prev) => ({ ...prev, [id]: val }))
@@ -1241,9 +1841,7 @@ export default function NodeManager() {
                 </button>
               </div>
 
-              {/* NODES view */}
-              <>
-                  {/* Metric cards */}
+              {/* Metric cards */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-fadeUp" style={{ animationDelay: '40ms' }}>
                     <div className="bg-bg-2 border border-line rounded-xl shadow-card p-4">
                       <div className="flex items-start justify-between mb-2">
@@ -1301,6 +1899,34 @@ export default function NodeManager() {
                     </div>
                   </div>
 
+                  {/* Tab switcher */}
+                  <div
+                    className="flex items-center gap-1 p-1 bg-bg-2 rounded-xl border border-line w-fit animate-fadeUp"
+                    style={{ animationDelay: '60ms' }}
+                  >
+                    {[
+                      { id: 'nodes',      label: 'IoT Nodes',  Icon: MonitorNodesIcon },
+                      { id: 'floormap',   label: 'Floor Map',  Icon: FloorMapIcon },
+                      { id: 'automation', label: 'Automation', Icon: AutomationIcon },
+                    ].map(({ id, label, Icon }) => (
+                      <button
+                        key={id}
+                        onClick={() => setActiveTab(id)}
+                        aria-pressed={activeTab === id}
+                        className={`flex items-center gap-1.5 px-3.5 py-2 rounded-lg font-inter text-[13px] font-medium transition-all duration-200 cursor-pointer border-0 focus:ring-2 focus:ring-accent/40 ${
+                          activeTab === id
+                            ? 'bg-accent/[.09] text-accent'
+                            : 'text-neutral-2 hover:text-ink hover:bg-bg-3'
+                        }`}
+                      >
+                        <span className={activeTab === id ? 'text-accent' : 'text-neutral'}><Icon /></span>
+                        {label}
+                      </button>
+                    ))}
+                  </div>
+
+                  {activeTab === 'nodes' && (
+                  <>
                   {/* Deployed Nodes */}
                   <section aria-label={t('nodeManager.deployedNodes')} className="animate-fadeUp" style={{ animationDelay: '80ms' }}>
                     <div className="flex items-center justify-between mb-3">
@@ -1406,7 +2032,23 @@ export default function NodeManager() {
                       </div>
                     </div>
                   </section>
-                </>
+                  </>
+                  )}
+
+                  {activeTab === 'floormap' && (
+                    <FloorMapView
+                      rooms={floorRooms}
+                      isLoading={isLoadingFloor}
+                      onRoomClick={setSelectedRoom}
+                    />
+                  )}
+
+                  {activeTab === 'automation' && (
+                    <AutomationTimeline
+                      events={automationEvents}
+                      isLoading={isLoadingTimeline}
+                    />
+                  )}
             </main>
 
             {/* Right panel: Active Sensors */}
@@ -1457,6 +2099,7 @@ export default function NodeManager() {
       </div>
 
       {alertNode && <AlertModal node={alertNode} onClose={() => setAlertNode(null)} t={t} />}
+      {selectedRoom && <RoomDetailModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />}
     </>
   )
 }
