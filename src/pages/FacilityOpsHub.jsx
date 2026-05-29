@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { fetchMaintenanceTasks, createMaintenanceTask, advanceTaskStatus, FlexiApiError } from '../lib/flexispaceApi'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
@@ -315,7 +316,7 @@ const NAV_GROUPS = [
 
 const TEAM_OPTIONS = ['Cleaning Crew A', 'Cleaning Crew B', 'HVAC Team Alpha', 'HVAC Team Beta', 'IT Tech Squad', 'Security Team']
 
-const TASK_STEPS = ['Detected', 'Assigned', 'In Progress', 'Done']
+
 const STATUS_TO_STEP = { open: 0, assigned: 1, in_progress: 2, done: 3 }
 
 const NOTIFICATION_FIELDS = [
@@ -382,46 +383,50 @@ function mapNotificationRow(row) {
     unread: row.read_at === null,
   }
 }
-const TEAM_METRICS = [
-  { name: 'Cleaning Crew A', avgMin: 28, done: 14 },
-  { name: 'HVAC Team Alpha', avgMin: 47, done: 9 },
-  { name: 'IT Tech Squad', avgMin: 22, done: 18 },
-  { name: 'Security Team', avgMin: 12, done: 31 },
-  { name: 'Cleaning Crew B', avgMin: 35, done: 11 },
-  { name: 'HVAC Team Beta', avgMin: 61, done: 6 },
-]
+function getTaskIcon(taskType) {
+  if (taskType === 'cleaning') return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
+    </svg>
+  )
+  if (taskType === 'hvac') return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="12" y1="2" x2="12" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+    </svg>
+  )
+  if (taskType === 'security') return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <line x1="1" y1="1" x2="23" y2="23" /><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
+      <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" /><path d="M10.71 5.05A16 16 0 0 1 22.56 9" />
+      <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" /><path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
+      <circle cx="12" cy="20" r="1" fill="currentColor" />
+    </svg>
+  )
+  return (
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+      <rect x="2" y="14" width="20" height="8" rx="2" /><path d="M6 18h.01M10 18h.01" />
+      <path d="M12 14V8" /><path d="M8 8l4-4 4 4" />
+    </svg>
+  )
+}
 
-const CLEANING_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
-  </svg>
-)
-const HVAC_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="12" y1="2" x2="12" y2="22" /><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-  </svg>
-)
-const SENSOR_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <line x1="1" y1="1" x2="23" y2="23" /><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55" />
-    <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39" /><path d="M10.71 5.05A16 16 0 0 1 22.56 9" />
-    <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88" /><path d="M8.53 16.11a6 6 0 0 1 6.95 0" />
-    <circle cx="12" cy="20" r="1" fill="currentColor" />
-  </svg>
-)
-const ROUTER_ICON = (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-    <rect x="2" y="14" width="20" height="8" rx="2" /><path d="M6 18h.01M10 18h.01" />
-    <path d="M12 14V8" /><path d="M8 8l4-4 4 4" />
-  </svg>
-)
-
-const INITIAL_TASKS = [
-  { id: 1, location: 'Nexus Alpha', priority: 'HIGH PRIORITY', title: 'Post-Event Deep Clean', ago: '15m ago', team: 'Cleaning Crew A', icon: CLEANING_ICON, status: 'in_progress' },
-  { id: 2, location: 'Sector 4, Room B', priority: 'NORMAL', title: 'HVAC Unit Rattling', ago: '2h ago', team: 'HVAC Team Alpha', icon: HVAC_ICON, status: 'assigned' },
-  { id: 3, location: 'Lobby Main', priority: 'HIGH PRIORITY', title: 'Occupancy Sensor Offline', ago: '45m ago', team: 'IT Tech Squad', icon: SENSOR_ICON, status: 'open' },
-  { id: 4, location: 'Server Room 2', priority: 'NORMAL', title: 'Gateway Router Reboot', ago: '3h ago', team: 'IT Tech Squad', icon: ROUTER_ICON, status: 'open' },
-]
+function mapTaskRow(row) {
+  const createdAt = new Date(row.created_at)
+  const diffMs = Date.now() - createdAt.getTime()
+  const diffMin = Math.floor(diffMs / 60000)
+  const ago = diffMin < 60 ? `${diffMin}m ago` : `${Math.floor(diffMin / 60)}h ago`
+  return {
+    id:       row.id,
+    location: row.location || '—',
+    priority: row.priority === 'high' ? 'HIGH PRIORITY' : 'NORMAL',
+    title:    row.title,
+    ago,
+    team:     row.assigned_to || '',
+    taskType: row.task_type || 'other',
+    icon:     getTaskIcon(row.task_type),
+    status:   row.status,
+  }
+}
 
 function TeamDropdown({ value, onChange }) {
   const [open, setOpen] = useState(false)
@@ -454,7 +459,7 @@ function TeamDropdown({ value, onChange }) {
   )
 }
 
-function TaskCard({ task, onAdvance, t }) {
+function TaskCard({ task, onAdvance, advanceInFlight, t }) {
   const [team, setTeam] = useState(task.team)
   const isHigh = task.priority === 'HIGH PRIORITY'
   const currentStep = STATUS_TO_STEP[task.status]
@@ -489,7 +494,8 @@ function TaskCard({ task, onAdvance, t }) {
         {task.status !== 'done' ? (
           <button
             onClick={onAdvance}
-            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-inter text-[13px] font-medium transition-all duration-200 cursor-pointer border ${
+            disabled={advanceInFlight?.has(task.id)}
+            className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-inter text-[13px] font-medium transition-all duration-200 cursor-pointer border disabled:opacity-60 disabled:cursor-not-allowed ${
               currentStep === 2
                 ? 'bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/20'
                 : 'bg-bg-3 border-line text-ink hover:bg-ink/[.06]'
@@ -499,7 +505,7 @@ function TaskCard({ task, onAdvance, t }) {
               <polyline points="2 6 5 9 10 3" stroke="currentColor" strokeWidth="1.5"
                 strokeLinecap="round" strokeLinejoin="round" />
             </svg>
-            {actionLabel}
+            {advanceInFlight?.has(task.id) ? '...' : actionLabel}
           </button>
         ) : (
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 font-mono text-[11px] uppercase tracking-[.14em] text-[#10B981]">
@@ -554,11 +560,49 @@ export default function FacilityOpsHub({ operatorMode = false }) {
   const isOperator = operatorMode || searchParams.get('ctx') === 'operator'
 
   const [search, setSearch] = useState('')
-  const [tasks, setTasks] = useState(INITIAL_TASKS)
+  const [tasks, setTasks] = useState([])
+  const [tasksLoading, setTasksLoading] = useState(true)
+  const [tasksError, setTasksError] = useState('')
+  const [taskReloadTick, setTaskReloadTick] = useState(0)
+  const [advanceInFlight, setAdvanceInFlight] = useState(new Set())
   const [typeFilter, setTypeFilter] = useState('all')
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [notifOpen, setNotifOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
+  const [newTaskModal, setNewTaskModal] = useState(false)
+  const [newTaskForm, setNewTaskForm] = useState({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '' })
+  const [newTaskError, setNewTaskError] = useState('')
+  const [newTaskSubmitting, setNewTaskSubmitting] = useState(false)
+
+  // Load tasks from API
+  useEffect(() => {
+    let mounted = true
+    async function load() {
+      setTasksLoading(true)
+      setTasksError('')
+      try {
+        const rows = await fetchMaintenanceTasks()
+        if (mounted) { setTasks(rows.map(mapTaskRow)); setTasksLoading(false) }
+      } catch (err) {
+        if (mounted) {
+          setTasksError(err instanceof FlexiApiError ? err.message : 'Failed to load tasks.')
+          setTasksLoading(false)
+        }
+      }
+    }
+    load()
+    return () => { mounted = false }
+  }, [taskReloadTick])
+
+  // Realtime: reload tasks on INSERT/UPDATE
+  useEffect(() => {
+    const channel = supabase
+      .channel('facility-ops-tasks-live')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'maintenance_tasks' }, () => setTaskReloadTick((v) => v + 1))
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'maintenance_tasks' }, () => setTaskReloadTick((v) => v + 1))
+      .subscribe()
+    return () => { supabase.removeChannel(channel) }
+  }, [])
 
   useEffect(() => {
     let isMounted = true
@@ -601,15 +645,52 @@ export default function FacilityOpsHub({ operatorMode = false }) {
   })
   const toggleGroup = (id) => setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }))
 
-  const advanceStatus = (id) => {
-    setTasks((prev) =>
-      prev.map((t) => {
-        if (t.id !== id) return t
-        const steps = ['open', 'assigned', 'in_progress', 'done']
-        const next = steps[steps.indexOf(t.status) + 1]
-        return next ? { ...t, status: next } : t
+  const advanceStatus = async (task) => {
+    const steps = ['open', 'assigned', 'in_progress', 'done']
+    const next = steps[steps.indexOf(task.status) + 1]
+    if (!next) return
+    setAdvanceInFlight((prev) => new Set([...prev, task.id]))
+    try {
+      await advanceTaskStatus({ taskId: task.id, newStatus: next, assignedTo: task.team || null })
+      setTaskReloadTick((v) => v + 1)
+    } catch {
+      // silently ignore — task list will not change
+    } finally {
+      setAdvanceInFlight((prev) => { const n = new Set(prev); n.delete(task.id); return n })
+    }
+  }
+
+  const handleCreateTask = async (e) => {
+    e.preventDefault()
+    if (!newTaskForm.title.trim()) { setNewTaskError('Title is required.'); return }
+    setNewTaskSubmitting(true)
+    setNewTaskError('')
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      const { data: officeRows } = await supabase
+        .from('offices')
+        .select('id')
+        .eq('owner_id', user?.id)
+        .is('deleted_at', null)
+        .limit(1)
+      const officeId = officeRows?.[0]?.id ?? null
+      if (!officeId) { setNewTaskError('No office found for your account.'); setNewTaskSubmitting(false); return }
+      await createMaintenanceTask({
+        officeId,
+        title:      newTaskForm.title.trim(),
+        taskType:   newTaskForm.taskType,
+        priority:   newTaskForm.priority,
+        location:   newTaskForm.location.trim() || null,
+        assignedTo: newTaskForm.assignedTo.trim() || null,
       })
-    )
+      setNewTaskModal(false)
+      setNewTaskForm({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '' })
+      setTaskReloadTick((v) => v + 1)
+    } catch (err) {
+      setNewTaskError(err instanceof FlexiApiError ? err.message : 'Failed to create task.')
+    } finally {
+      setNewTaskSubmitting(false)
+    }
   }
 
   const filteredTasks = tasks.filter((t) => {
@@ -617,11 +698,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
       t.title.toLowerCase().includes(search.toLowerCase()) ||
       t.location.toLowerCase().includes(search.toLowerCase())
     const matchType =
-      typeFilter === 'all' ||
-      (typeFilter === 'cleaning' && t.team.toLowerCase().includes('cleaning')) ||
-      (typeFilter === 'hvac' && t.team.toLowerCase().includes('hvac')) ||
-      (typeFilter === 'it' && t.team.toLowerCase().includes('it')) ||
-      (typeFilter === 'security' && t.team.toLowerCase().includes('security'))
+      typeFilter === 'all' || t.taskType === typeFilter
     const matchPriority =
       priorityFilter === 'all' ||
       (priorityFilter === 'high' && t.priority === 'HIGH PRIORITY') ||
@@ -770,6 +847,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
             </div>
             <button
               aria-label={t('facility.requestMaintenance')}
+              onClick={() => { setNewTaskModal(true); setNewTaskError('') }}
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-inter text-[13px] font-semibold hover:bg-accent-2 transition-all duration-200 cursor-pointer border-0 shrink-0 ml-auto mt-1"
             >
               <svg width="13" height="13" viewBox="0 0 13 13" fill="none">
@@ -850,7 +928,15 @@ export default function FacilityOpsHub({ operatorMode = false }) {
           </div>
 
           {/* Task grid */}
-          {filteredTasks.length === 0 ? (
+          {tasksLoading ? (
+            <div className="py-20 text-center">
+              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('common.loading')}</p>
+            </div>
+          ) : tasksError ? (
+            <div className="py-12 text-center">
+              <p className="font-inter text-[13px] text-red-400">{tasksError}</p>
+            </div>
+          ) : filteredTasks.length === 0 ? (
             <div className="py-20 text-center">
               <div className="font-inter text-[13px] font-semibold text-ink">{t('facility.noTasks')}</div>
               <div className="font-inter text-[13px] text-neutral mt-1">
@@ -861,63 +947,119 @@ export default function FacilityOpsHub({ operatorMode = false }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {filteredTasks.map((task, i) => (
                 <div key={task.id} className="animate-fadeUp" style={{ '--delay': `${i * 80 + 200}ms` }}>
-                  <TaskCard task={task} onAdvance={() => advanceStatus(task.id)} t={t} />
+                  <TaskCard task={task} onAdvance={() => advanceStatus(task)} advanceInFlight={advanceInFlight} t={t} />
                 </div>
               ))}
             </div>
           )}
-
-          {/* Team Efficiency */}
-          <div className="mt-10 animate-fadeUp" style={{ '--delay': '300ms' }}>
-            <div className="mb-4">
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-0.5">
-                {t('facility.performanceLabel')}
-              </p>
-              <h2 className="font-inter text-[16px] font-semibold text-ink">{t('facility.teamEfficiency')}</h2>
-            </div>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-              {TEAM_METRICS.map((team) => {
-                const maxMin = Math.max(...TEAM_METRICS.map((t) => t.avgMin))
-                const barPct = (team.avgMin / maxMin) * 100
-                const isFast = team.avgMin <= 30
-                return (
-                  <div key={team.name} className="bg-bg-2 border border-line rounded-2xl p-4">
-                    <div className="font-inter text-[13px] font-semibold text-ink mb-1 leading-snug">
-                      {team.name}
-                    </div>
-                    <div className="flex items-end justify-between mb-2">
-                      <div>
-                        <span className={`font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums ${
-                          team.avgMin <= 20 ? 'text-[#10B981]'
-                            : team.avgMin <= 40 ? 'text-ink'
-                            : 'text-red-400'
-                        }`}>{team.avgMin}</span>
-                        <span className="font-mono text-[11px] text-neutral ml-1">{t('facility.minAvg')}</span>
-                      </div>
-                      <span className="font-mono text-[11px] text-neutral-2 mb-1">
-                        {team.done} {t('facility.doneSuffix')}
-                      </span>
-                    </div>
-                    <div className="h-1 bg-bg-3 rounded-full overflow-hidden">
-                      <div
-                        className={`h-full rounded-full transition-all duration-500 ${
-                          team.avgMin <= 20 ? 'bg-[#10B981]'
-                            : team.avgMin <= 40 ? 'bg-accent'
-                            : 'bg-red-400'
-                        }`}
-                        style={{ width: `${barPct}%` }}
-                      />
-                    </div>
-                    <div className={`font-mono text-[11px] mt-1.5 ${isFast ? 'text-[#10B981]' : 'text-neutral'}`}>
-                      {isFast ? t('facility.fastResponder') : team.avgMin > 50 ? t('facility.needsImprovement') : t('facility.onTrack')}
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
         </main>
       </div>
+
+      {/* New Task Modal */}
+      {newTaskModal && (
+        <>
+          <div
+            onClick={() => setNewTaskModal(false)}
+            className="fixed inset-0 bg-black/40 backdrop-blur-sm z-40"
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Request Maintenance"
+            className="fixed inset-0 flex items-center justify-center z-50 px-4"
+          >
+            <div className="bg-bg-2 border border-line rounded-2xl shadow-xl w-full max-w-md p-6">
+              <div className="flex items-center justify-between mb-5">
+                <h2 className="font-inter text-[16px] font-semibold text-ink">{t('facility.requestMaintenance')}</h2>
+                <button
+                  onClick={() => setNewTaskModal(false)}
+                  className="w-8 h-8 flex items-center justify-center text-neutral-2 hover:text-ink transition-colors cursor-pointer bg-transparent border-0"
+                >
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><path d="M2 2l10 10M12 2L2 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" /></svg>
+                </button>
+              </div>
+              <form onSubmit={handleCreateTask} className="flex flex-col gap-4">
+                <div>
+                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Title *</label>
+                  <input
+                    type="text"
+                    value={newTaskForm.title}
+                    onChange={(e) => setNewTaskForm((f) => ({ ...f, title: e.target.value }))}
+                    placeholder="e.g. HVAC Unit Rattling"
+                    className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink placeholder:text-neutral outline-none focus:border-accent"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Type</label>
+                    <select
+                      value={newTaskForm.taskType}
+                      onChange={(e) => setNewTaskForm((f) => ({ ...f, taskType: e.target.value }))}
+                      className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink outline-none focus:border-accent"
+                    >
+                      <option value="cleaning">Cleaning</option>
+                      <option value="hvac">HVAC</option>
+                      <option value="it">IT</option>
+                      <option value="security">Security</option>
+                      <option value="other">Other</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Priority</label>
+                    <select
+                      value={newTaskForm.priority}
+                      onChange={(e) => setNewTaskForm((f) => ({ ...f, priority: e.target.value }))}
+                      className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink outline-none focus:border-accent"
+                    >
+                      <option value="normal">Normal</option>
+                      <option value="high">High</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Location</label>
+                  <input
+                    type="text"
+                    value={newTaskForm.location}
+                    onChange={(e) => setNewTaskForm((f) => ({ ...f, location: e.target.value }))}
+                    placeholder="e.g. Floor 2, Room B"
+                    className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink placeholder:text-neutral outline-none focus:border-accent"
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Assign To</label>
+                  <input
+                    type="text"
+                    value={newTaskForm.assignedTo}
+                    onChange={(e) => setNewTaskForm((f) => ({ ...f, assignedTo: e.target.value }))}
+                    placeholder="e.g. Cleaning Crew A"
+                    className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink placeholder:text-neutral outline-none focus:border-accent"
+                  />
+                </div>
+                {newTaskError && (
+                  <p className="font-inter text-[13px] text-red-400">{newTaskError}</p>
+                )}
+                <div className="flex items-center gap-3 pt-1">
+                  <button
+                    type="submit"
+                    disabled={newTaskSubmitting}
+                    className="flex-1 bg-accent text-white rounded-full font-inter text-[13px] font-medium px-5 py-2.5 hover:bg-accent-2 transition-all duration-200 border-0 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {newTaskSubmitting ? '...' : 'Create Task'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setNewTaskModal(false)}
+                    className="flex-1 border border-line text-neutral-2 rounded-full font-inter text-[13px] px-5 py-2.5 hover:text-ink hover:bg-ink/[.06] transition-all duration-200 cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Notification Drawer */}
       {notifOpen && (

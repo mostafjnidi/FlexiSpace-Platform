@@ -153,6 +153,141 @@ async function handleUnassignOperator(req: Request, linkId: string): Promise<Res
   )
 }
 
+// ── Maintenance Tasks ─────────────────────────────────────────────────────────
+
+async function handleListMaintenanceTasks(req: Request): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:admin:list-maintenance-tasks')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['OWNER', 'OPERATOR', 'ADMIN'])
+
+  const supabase = createServiceClient()
+
+  // Collect all office IDs the caller can manage (owner + operator)
+  const [{ data: ownedOffices }, { data: operatedLinks }] = await Promise.all([
+    supabase
+      .from('offices')
+      .select('id')
+      .eq('owner_id', profile.id)
+      .is('deleted_at', null),
+    supabase
+      .from('operator_offices')
+      .select('office_id')
+      .eq('operator_id', profile.id)
+      .is('deleted_at', null),
+  ])
+
+  if (profile.role === 'ADMIN') {
+    // ADMIN sees all tasks
+    const { data, error } = await supabase
+      .from('maintenance_tasks')
+      .select('*')
+      .is('deleted_at', null)
+      .order('created_at', { ascending: false })
+    if (error) throw error
+    return new Response(
+      JSON.stringify({ data: data ?? [], meta: { request_id: requestId } }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  const ownedIds = new Set((ownedOffices ?? []).map((o: { id: string }) => o.id))
+  const operatedIds = (operatedLinks ?? [])
+    .map((o: { office_id: string }) => o.office_id)
+    .filter((id: string) => !ownedIds.has(id))
+  const allOfficeIds = [...ownedIds, ...operatedIds]
+
+  if (allOfficeIds.length === 0) {
+    return new Response(
+      JSON.stringify({ data: [], meta: { request_id: requestId } }),
+      { status: 200, headers: { 'Content-Type': 'application/json' } },
+    )
+  }
+
+  const { data, error } = await supabase
+    .from('maintenance_tasks')
+    .select('*')
+    .in('office_id', allOfficeIds)
+    .is('deleted_at', null)
+    .order('created_at', { ascending: false })
+
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({ data: data ?? [], meta: { request_id: requestId } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
+async function handleCreateMaintenanceTask(req: Request): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:admin:create-maintenance-task')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['OWNER', 'OPERATOR', 'ADMIN'])
+
+  const body = await parseJsonBody(req)
+  const { office_id, title, task_type, priority, location, assigned_to } = body
+
+  if (typeof office_id !== 'string' || !isValidUuid(office_id)) {
+    throw new FlexiError('BAD_REQUEST', 'office_id must be a valid UUID', 400)
+  }
+  if (typeof title !== 'string' || !title.trim()) {
+    throw new FlexiError('BAD_REQUEST', 'title is required', 400)
+  }
+
+  const supabase = createServiceClient()
+  const { data, error } = await supabase.rpc('create_maintenance_task_v1', {
+    p_trusted_actor_id:   profile.id,
+    p_trusted_actor_type: deriveActorType(profile.role),
+    p_request_id:         requestId,
+    p_office_id:          office_id,
+    p_title:              (title as string).trim(),
+    p_task_type:          typeof task_type === 'string' ? task_type : 'other',
+    p_priority:           typeof priority === 'string' ? priority : 'normal',
+    p_location:           typeof location === 'string' ? location : null,
+    p_assigned_to:        typeof assigned_to === 'string' ? assigned_to : null,
+  })
+
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({ data, meta: { request_id: requestId } }),
+    { status: 201, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
+async function handleAdvanceTaskStatus(req: Request, taskId: string): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:admin:advance-task-status')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['OWNER', 'OPERATOR', 'ADMIN'])
+
+  if (!isValidUuid(taskId)) {
+    throw new FlexiError('BAD_REQUEST', 'task ID must be a valid UUID', 400)
+  }
+
+  const body = await parseJsonBody(req)
+  const { new_status, assigned_to } = body
+
+  if (typeof new_status !== 'string') {
+    throw new FlexiError('BAD_REQUEST', 'new_status is required', 400)
+  }
+
+  const supabase = createServiceClient()
+  const { data, error } = await supabase.rpc('advance_task_status_v1', {
+    p_trusted_actor_id:   profile.id,
+    p_trusted_actor_type: deriveActorType(profile.role),
+    p_request_id:         requestId,
+    p_task_id:            taskId,
+    p_new_status:         new_status,
+    p_assigned_to:        typeof assigned_to === 'string' ? assigned_to : null,
+  })
+
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({ data, meta: { request_id: requestId } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
 Deno.serve(async (req: Request): Promise<Response> => {
   const preflight = handlePreflight(req)
   if (preflight) return preflight
@@ -160,22 +295,28 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const pathname = new URL(req.url).pathname
 
   try {
-    const isListOperatorsRoute = /\/admin\/operators\/?$/.test(pathname)
-    const isAssignRoute = /\/admin\/operator-offices\/?$/.test(pathname)
-    const unassignMatch = pathname.match(/\/admin\/operator-offices\/([^/]+)$/)
+    const isListOperatorsRoute    = /\/admin\/operators\/?$/.test(pathname)
+    const isAssignRoute           = /\/admin\/operator-offices\/?$/.test(pathname)
+    const unassignMatch           = pathname.match(/\/admin\/operator-offices\/([^/]+)$/)
+    const isMaintenanceTasksRoute = /\/admin\/maintenance\/tasks\/?$/.test(pathname)
+    const maintenanceTaskMatch    = pathname.match(/\/admin\/maintenance\/tasks\/([^/]+)$/)
 
-    if (isListOperatorsRoute && req.method === 'GET') {
+    if (req.method === 'OPTIONS') {
+      return addCorsHeaders(new Response(null, { status: 200 }))
+    } else if (isListOperatorsRoute && req.method === 'GET') {
       return addCorsHeaders(await handleListOperators(req))
     } else if (isAssignRoute && req.method === 'POST') {
       return addCorsHeaders(await handleAssignOperator(req))
     } else if (unassignMatch && req.method === 'DELETE') {
       return addCorsHeaders(await handleUnassignOperator(req, unassignMatch[1]))
-    } else if (req.method === 'OPTIONS') {
-      return addCorsHeaders(new Response(null, { status: 200 }))
-    } else if (!isListOperatorsRoute && !isAssignRoute && !unassignMatch) {
-      throw new FlexiError('NOT_FOUND', 'Route not found', 404)
+    } else if (isMaintenanceTasksRoute && req.method === 'GET') {
+      return addCorsHeaders(await handleListMaintenanceTasks(req))
+    } else if (isMaintenanceTasksRoute && req.method === 'POST') {
+      return addCorsHeaders(await handleCreateMaintenanceTask(req))
+    } else if (maintenanceTaskMatch && req.method === 'PATCH') {
+      return addCorsHeaders(await handleAdvanceTaskStatus(req, maintenanceTaskMatch[1]))
     } else {
-      throw new FlexiError('METHOD_NOT_ALLOWED', 'Method not allowed', 405)
+      throw new FlexiError('NOT_FOUND', 'Route not found', 404)
     }
   } catch (err) {
     return addCorsHeaders(errorResponse(err, req.headers.get('X-Request-ID')))

@@ -193,6 +193,10 @@ export function checkOutBooking({ bookingId, signal }) {
   return callFlexiFunction(`bookings/${bookingId}/checkout`, { signal, body: {} })
 }
 
+export function manualCheckinBooking({ bookingId, signal }) {
+  return callFlexiFunction(`bookings/${bookingId}/checkin`, { signal, body: {} })
+}
+
 export function confirmUsagePayment({ bookingId, idempotencyKey, simulateSuccess = true, signal }) {
   return callFlexiFunction('payments/mock/confirm-usage', {
     signal,
@@ -237,6 +241,31 @@ async function callFlexiGet(path, { signal } = {}) {
       Authorization: `Bearer ${token}`,
       'X-Request-ID': makeRequestId(`web:${normalizedPath.replaceAll('/', ':')}`),
     },
+    signal,
+  })
+  const payload = await parseJsonResponse(response)
+  if (!response.ok) {
+    const err = payload.error ?? {}
+    throw new FlexiApiError(err.message || 'The request could not be completed.', {
+      code: err.code,
+      status: response.status,
+      requestId: err.request_id,
+    })
+  }
+  return payload
+}
+
+async function callFlexiPatch(path, { body, signal } = {}) {
+  const token = await getAccessToken()
+  const normalizedPath = path.replace(/^\/+/, '')
+  const response = await fetch(`${functionsBaseUrl}/${normalizedPath}`, {
+    method: 'PATCH',
+    headers: {
+      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
+      'X-Request-ID': makeRequestId(`web:${normalizedPath.replaceAll('/', ':')}`),
+    },
+    body: JSON.stringify(body ?? {}),
     signal,
   })
   const payload = await parseJsonResponse(response)
@@ -299,4 +328,31 @@ export function assignOperator(operatorId, officeId, { signal } = {}) {
 
 export function unassignOperator(linkId, { signal } = {}) {
   return callFlexiDelete(`admin/operator-offices/${linkId}`, { signal })
+}
+
+export async function fetchMaintenanceTasks({ signal } = {}) {
+  const payload = await callFlexiGet('admin/maintenance/tasks', { signal })
+  return payload.data ?? []
+}
+
+export function createMaintenanceTask({ officeId, title, taskType, priority, location, assignedTo } = {}) {
+  return callFlexiFunction('admin/maintenance/tasks', {
+    body: {
+      office_id:   officeId,
+      title,
+      task_type:   taskType ?? 'other',
+      priority:    priority ?? 'normal',
+      location:    location ?? null,
+      assigned_to: assignedTo ?? null,
+    },
+  })
+}
+
+export function advanceTaskStatus({ taskId, newStatus, assignedTo } = {}) {
+  return callFlexiPatch(`admin/maintenance/tasks/${taskId}`, {
+    body: {
+      new_status:  newStatus,
+      assigned_to: assignedTo ?? null,
+    },
+  })
 }

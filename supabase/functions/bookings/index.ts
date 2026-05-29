@@ -159,6 +159,30 @@ async function handleRejectBooking(req: Request, bookingId: string): Promise<Res
   )
 }
 
+async function handleCheckinBooking(req: Request, bookingId: string): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:bookings:checkin')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['USER', 'OWNER', 'OPERATOR', 'ADMIN'])
+
+  const supabase = createServiceClient()
+  const { data, error } = await supabase.rpc('manual_checkin_booking_v1', {
+    p_trusted_actor_id: profile.id,
+    p_trusted_actor_type: deriveActorType(profile.role),
+    p_request_id: requestId,
+    p_booking_id: bookingId,
+  })
+
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({
+      data,
+      meta: { request_id: requestId },
+    }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
 async function handleCheckoutBooking(req: Request, bookingId: string): Promise<Response> {
   const requestId = getOrGenerateRequestId(req, 'edge:bookings:checkout')
   const { profile } = await requireAuth(req)
@@ -234,7 +258,7 @@ Deno.serve(async (req: Request): Promise<Response> => {
     }
 
     const createMatch = /\/bookings\/?$/.test(pathname)
-    const actionMatch = pathname.match(/\/bookings\/([^/]+)\/(approve|reject|cancel|checkout)$/)
+    const actionMatch = pathname.match(/\/bookings\/([^/]+)\/(approve|reject|cancel|checkout|checkin)$/)
 
     let response: Response
 
@@ -254,6 +278,8 @@ Deno.serve(async (req: Request): Promise<Response> => {
         response = await handleRejectBooking(req, bookingId)
       } else if (action === 'cancel') {
         response = await handleCancelBooking(req, bookingId)
+      } else if (action === 'checkin') {
+        response = await handleCheckinBooking(req, bookingId)
       } else {
         response = await handleCheckoutBooking(req, bookingId)
       }

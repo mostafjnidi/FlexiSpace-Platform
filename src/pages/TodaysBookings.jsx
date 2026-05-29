@@ -1,6 +1,7 @@
 ﻿import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { manualCheckinBooking, FlexiApiError } from '../lib/flexispaceApi'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
@@ -315,7 +316,7 @@ const NAV_GROUPS = [
 
 /* ─── BookingRow ──────────────────────────────────────────────────────── */
 
-function BookingRow({ booking, onMarkArrived, t }) {
+function BookingRow({ booking, onMarkArrived, checkinInFlight, t }) {
   const isActive = booking.status === 'IN-SESSION'
   const isWaiting = booking.status === 'WAITING'
   const isCompleted = booking.status === 'COMPLETED'
@@ -386,10 +387,11 @@ function BookingRow({ booking, onMarkArrived, t }) {
               <button
                 aria-label="Mark as arrived"
                 onClick={() => onMarkArrived(booking.id)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-white font-inter text-[13.5px] font-medium hover:bg-accent-2 hover:-translate-y-px transition-all duration-200 cursor-pointer border-0"
+                disabled={checkinInFlight?.has(booking.id)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent text-white font-inter text-[13.5px] font-medium hover:bg-accent-2 hover:-translate-y-px transition-all duration-200 cursor-pointer border-0 disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-                {t('todaysBookings.markArrived')}
+                {checkinInFlight?.has(booking.id) ? '...' : t('todaysBookings.markArrived')}
               </button>
             </>
           )}
@@ -440,6 +442,9 @@ export default function TodaysBookings({ operatorMode = false }) {
   const [headerSearch, setHeaderSearch] = useState('')
   const [bookings, setBookings] = useState([])
   const [loading, setLoading] = useState(true)
+  const [checkinInFlight, setCheckinInFlight] = useState(new Set())
+  const [checkinError, setCheckinError] = useState('')
+  const [reloadTick, setReloadTick] = useState(0)
 
   const [openGroups, setOpenGroups] = useState(() => {
     const defaults = {}
@@ -454,19 +459,45 @@ export default function TodaysBookings({ operatorMode = false }) {
   useEffect(() => {
     let mounted = true
     async function load() {
+      setLoading(true)
       const { data: { user } } = await supabase.auth.getUser()
       if (!mounted) return
       const userId = user?.id
       if (!userId) { setLoading(false); return }
 
-      const { data: myOffices } = await supabase
-        .from('offices')
-        .select('id, name, image_url, capacity, floor, building, room')
-        .eq('owner_id', userId)
-        .is('deleted_at', null)
+      const [{ data: ownedOffices }, { data: operatedLinks }] = await Promise.all([
+        supabase
+          .from('offices')
+          .select('id, name, image_url, capacity, floor, building, room')
+          .eq('owner_id', userId)
+          .is('deleted_at', null),
+        supabase
+          .from('operator_offices')
+          .select('office_id')
+          .eq('operator_id', userId)
+          .is('deleted_at', null),
+      ])
       if (!mounted) return
-      const officeIds = (myOffices ?? []).map((o) => o.id)
-      if (officeIds.length === 0) { setLoading(false); return }
+
+      const ownedIds = new Set((ownedOffices ?? []).map((o) => o.id))
+      const operatedIds = (operatedLinks ?? []).map((o) => o.office_id).filter((id) => !ownedIds.has(id))
+
+      let extraOffices = []
+      if (operatedIds.length > 0) {
+        const { data: extra } = await supabase
+          .from('offices')
+          .select('id, name, image_url, capacity, floor, building, room')
+          .in('id', operatedIds)
+          .is('deleted_at', null)
+        if (!mounted) return
+        extraOffices = extra ?? []
+      }
+
+      const allOffices = [...(ownedOffices ?? []), ...extraOffices]
+      const officesById = Object.fromEntries(allOffices.map((o) => [o.id, o]))
+      const officeIds = allOffices.map((o) => o.id)
+
+      if (officeIds.length === 0) { if (mounted) { setBookings([]); setLoading(false) } return }
 
       const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0)
       const todayEnd = new Date(); todayEnd.setHours(23, 59, 59, 999)
@@ -483,7 +514,7 @@ export default function TodaysBookings({ operatorMode = false }) {
       if (!mounted) return
 
       const bookingRows = rows ?? []
-      if (bookingRows.length === 0) { setBookings([]); setLoading(false); return }
+      if (bookingRows.length === 0) { if (mounted) { setBookings([]); setLoading(false) } return }
 
       const userIds = [...new Set(bookingRows.map((b) => b.user_id).filter(Boolean))]
       const { data: profiles } = await supabase
@@ -492,7 +523,6 @@ export default function TodaysBookings({ operatorMode = false }) {
         .in('id', userIds)
       if (!mounted) return
 
-      const officesById = Object.fromEntries((myOffices ?? []).map((o) => [o.id, o]))
       const profilesById = Object.fromEntries((profiles ?? []).map((p) => [p.id, p]))
 
       const mapped = bookingRows.map((row, i) => {
@@ -516,10 +546,19 @@ export default function TodaysBookings({ operatorMode = false }) {
     }
     load()
     return () => { mounted = false }
-  }, [])
+  }, [reloadTick])
 
-  const handleMarkArrived = (id) => {
-    setBookings((prev) => prev.map((b) => b.id === id ? { ...b, status: 'IN-SESSION' } : b))
+  const handleMarkArrived = async (id) => {
+    setCheckinInFlight((prev) => new Set([...prev, id]))
+    setCheckinError('')
+    try {
+      await manualCheckinBooking({ bookingId: id })
+      setReloadTick((v) => v + 1)
+    } catch (err) {
+      setCheckinError(err instanceof FlexiApiError ? err.message : 'Check-in failed. Please try again.')
+    } finally {
+      setCheckinInFlight((prev) => { const next = new Set(prev); next.delete(id); return next })
+    }
   }
 
   const visibleBookings = officeFilter
@@ -692,6 +731,11 @@ export default function TodaysBookings({ operatorMode = false }) {
           </div>
 
           {/* Booking Rows */}
+          {checkinError && (
+            <div role="alert" className="mb-4 rounded-xl border border-red-400/25 bg-red-400/[.08] px-4 py-3">
+              <p className="font-inter text-[13px] text-red-400">{checkinError}</p>
+            </div>
+          )}
           <div className="flex flex-col gap-3">
             {loading ? (
               <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral py-8 text-center">{t('common.loading')}</p>
@@ -703,6 +747,7 @@ export default function TodaysBookings({ operatorMode = false }) {
                   key={booking.id}
                   booking={booking}
                   onMarkArrived={handleMarkArrived}
+                  checkinInFlight={checkinInFlight}
                   t={t}
                 />
               ))
