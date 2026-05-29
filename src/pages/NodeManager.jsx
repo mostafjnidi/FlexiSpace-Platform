@@ -398,12 +398,13 @@ const ROOM_STATUS_CONFIG = {
 function getSimulatedReadings(officeId, tick) {
   const chars = (officeId || 'x').split('').map(c => c.charCodeAt(0))
   const base  = chars.reduce((a, b) => a + b, 0)
-  const t     = tick || 0
+  const phase = (base % 100) / 100
+  const t     = ((tick || 0) * 0.12) + phase * Math.PI * 2
   return {
-    temperature: parseFloat((21.0 + ((base + t) % 70) / 10).toFixed(1)),
-    humidity:    Math.round(40 + ((base * 2 + t) % 30)),
-    co2:         Math.round(480 + ((base * 3 + t) % 320)),
-    powerKw:     parseFloat((0.18 + ((base + t) % 22) / 10).toFixed(2)),
+    temperature: parseFloat((22.5 + Math.sin(t) * 1.8 + Math.sin(t * 0.7 + 1) * 0.6).toFixed(1)),
+    humidity:    Math.round(47  + Math.sin(t * 0.8 + 1) * 9  + Math.sin(t * 1.3 + 0.5) * 3),
+    co2:         Math.round(590 + Math.sin(t * 0.6 + 2) * 90 + Math.sin(t * 1.1 + 1) * 35),
+    powerKw:     parseFloat((1.20 + Math.sin(t * 0.9 + 0.5) * 0.45 + Math.sin(t * 1.5) * 0.15).toFixed(2)),
   }
 }
 
@@ -1099,13 +1100,19 @@ function FloorRoomCard({ room, onClick, simTick }) {
   )
 }
 
-function RoomDetailModal({ room, onClose }) {
-  const cfg = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
+function RoomDetailModal({ room, onClose, simTick }) {
+  const cfg     = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
+  const noSensors = room.temperature == null && room.humidity == null && room.co2 == null
+  const sim     = noSensors && room.status !== 'OFFLINE' ? getSimulatedReadings(room.officeId, simTick) : null
+  const temperature = sim ? sim.temperature : room.temperature
+  const humidity    = sim ? sim.humidity    : room.humidity
+  const co2         = sim ? sim.co2         : room.co2
+  const powerKw     = sim ? sim.powerKw     : room.powerKw
   const details = [
-    ['Temperature', room.temperature != null ? `${room.temperature}°C`  : '—'],
-    ['Humidity',    room.humidity    != null ? `${room.humidity}%`      : '—'],
-    ['CO₂ Level',   room.co2         != null ? `${room.co2} ppm`        : '—'],
-    ['Power Draw',  room.powerKw     != null ? `${room.powerKw} kW`     : '—'],
+    ['Temperature', temperature != null ? `${temperature}°C` : '—'],
+    ['Humidity',    humidity    != null ? `${humidity}%`     : '—'],
+    ['CO₂ Level',   co2         != null ? `${co2} ppm`       : '—'],
+    ['Power Draw',  powerKw     != null ? `${powerKw} kW`    : '—'],
     ['Door Lock',   room.lockState ?? '—'],
     ['Devices',     `${room.onlineDevices} / ${room.deviceCount} online`],
   ]
@@ -1587,7 +1594,7 @@ export default function NodeManager() {
   }, [])
 
   useEffect(() => {
-    const ticker = setInterval(() => setSimTick(t => t + 1), 8_000)
+    const ticker = setInterval(() => setSimTick(t => t + 1), 2_000)
     return () => clearInterval(ticker)
   }, [])
 
@@ -2149,7 +2156,7 @@ export default function NodeManager() {
       </div>
 
       {alertNode && <AlertModal node={alertNode} onClose={() => setAlertNode(null)} t={t} />}
-      {selectedRoom && <RoomDetailModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />}
+      {selectedRoom && <RoomDetailModal room={selectedRoom} onClose={() => setSelectedRoom(null)} simTick={simTick} />}
     </>
   )
 }
