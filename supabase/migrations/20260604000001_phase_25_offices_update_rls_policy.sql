@@ -7,6 +7,6 @@ using (
   or (select private.auth_user_is_admin())
 )
 with check (
-  private.auth_is_owner_of_office(id)
+  (auth.uid() = owner_id)
   or (select private.auth_user_is_admin())
 );
