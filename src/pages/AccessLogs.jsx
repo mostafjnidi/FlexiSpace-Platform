@@ -753,7 +753,7 @@ export default function AccessLogs({ operatorMode = false }) {
                       onClick={() => toggleGroup(group.id)}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                     >
-                      <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                      <span className="font-inter text-[11px] font-semibold uppercase tracking-[.1em] text-neutral">
                         {group.label}
                       </span>
                       <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -1064,7 +1064,7 @@ export default function AccessLogs({ operatorMode = false }) {
                 onClick={() => navigate(item.path)}
                 className={`flex flex-col items-center gap-0.5 px-2 py-1 cursor-pointer bg-transparent border-0 transition-colors duration-200 ${isActive ? 'text-accent' : 'text-neutral-2'}`}>
                 <NavIcon type={item.icon} />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{item.shortLabel}</span>
+                <span className="font-inter text-[10px] font-semibold uppercase tracking-[.1em]">{item.shortLabel}</span>
               </button>
             )
           })

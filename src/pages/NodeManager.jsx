@@ -2109,7 +2109,7 @@ export default function NodeManager() {
             </main>
 
             {/* Right panel: Active Sensors */}
-            <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-l border-line bg-bg-2 sticky top-14 h-[calc(100vh-3.5rem)] overflow-y-auto">
+            <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-l border-line bg-bg-2 sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto">
               <div className="flex items-center justify-between px-5 py-4 border-b border-line">
                 <h2 className="font-inter text-[16px] font-semibold text-ink">{t('nodeManager.activeSensors')}</h2>
                 <button aria-label={t('nodeManager.activeSensors')}

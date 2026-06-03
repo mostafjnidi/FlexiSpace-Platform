@@ -149,7 +149,7 @@ export function OperatorMobileNav() {
             }`}
           >
             <NavIcon type={item.icon} />
-            <span className="font-mono text-[11px] uppercase tracking-[.14em]">{item.shortLabel}</span>
+            <span className="font-inter text-[10px] font-semibold uppercase tracking-[.1em]">{item.shortLabel}</span>
           </button>
         )
       })}

@@ -35,7 +35,8 @@ export default {
       },
       fontFamily: {
         fraunces: ['Fraunces', 'serif'],
-        inter:    ['Inter Tight', 'sans-serif'],
+        inter:    ['IBM Plex Sans', 'IBM Plex Sans Arabic', 'system-ui', 'sans-serif'],
+        arabic:   ['IBM Plex Sans Arabic', 'IBM Plex Sans', 'system-ui', 'sans-serif'],
         mono:     ['JetBrains Mono', 'monospace'],
       },
       keyframes: {

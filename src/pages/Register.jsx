@@ -490,7 +490,7 @@ export default function Register() {
     <div className="min-h-screen bg-bg flex flex-col">
       <TopNav />
       <main className="flex-1 flex flex-col">
-        <section className="flex-1 grid md:grid-cols-2 min-h-[calc(100vh-56px)] mt-14">
+        <section className="flex-1 grid md:grid-cols-2 min-h-[calc(100dvh-56px)] mt-14">
           <div className="relative hidden md:block">
             <img
               src="https://images.unsplash.com/photo-1497366811353-6870744d04b2?auto=format&fit=crop&w=1200&q=80"

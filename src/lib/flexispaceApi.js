@@ -232,6 +232,28 @@ export function createOffice({
   })
 }
 
+export function updateOffice({ officeId, name, description, building, floor, room, capacity, hourlyRateCents, currency, status, imageUrl, signal }) {
+  return callFlexiPatch(`offices/${officeId}`, {
+    signal,
+    body: {
+      name,
+      description,
+      building,
+      floor,
+      room,
+      capacity,
+      hourly_rate_cents: hourlyRateCents,
+      currency,
+      status,
+      image_url: imageUrl,
+    },
+  })
+}
+
+export function deleteOffice({ officeId, signal }) {
+  return callFlexiDelete(`offices/${officeId}`, { signal })
+}
+
 async function callFlexiGet(path, { signal } = {}) {
   const token = await getAccessToken()
   const normalizedPath = path.replace(/^\/+/, '')

@@ -3,6 +3,8 @@ import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import {
   createOffice,
+  updateOffice,
+  deleteOffice,
   fetchOperatorsForOffice,
   fetchAllOperators,
   assignOperator,
@@ -805,19 +807,19 @@ export default function AssetCommand() {
     setEditSubmitting(true)
     setEditSubmitError(null)
     try {
-      const { error } = await supabase.from('offices').update({
+      await updateOffice({
+        officeId: editingOffice.id,
         name: editForm.name.trim(),
         description: editForm.description.trim() || null,
         building: editForm.building.trim() || null,
         floor: editForm.floor.trim() || null,
         room: editForm.room.trim() || null,
         capacity: parseInt(editForm.capacityStr, 10),
-        hourly_rate_cents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
+        hourlyRateCents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
         currency: editForm.currency,
         status: editForm.status,
-        image_url: editForm.imageUrl.trim() || null,
-      }).eq('id', editingOffice.id)
-      if (error) throw new Error(error.message)
+        imageUrl: editForm.imageUrl.trim() || null,
+      })
       await reloadOffices()
       closeEditModal()
     } catch (err) {
@@ -832,10 +834,7 @@ export default function AssetCommand() {
     setEditSubmitting(true)
     setEditSubmitError(null)
     try {
-      const { error } = await supabase.from('offices')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', editingOffice.id)
-      if (error) throw new Error(error.message)
+      await deleteOffice({ officeId: editingOffice.id })
       await reloadOffices()
       closeEditModal()
     } catch (err) {

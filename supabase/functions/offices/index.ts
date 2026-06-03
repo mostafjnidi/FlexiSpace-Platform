@@ -161,6 +161,113 @@ async function handleCreateOffice(req: Request): Promise<Response> {
   )
 }
 
+async function handleUpdateOffice(req: Request, officeId: string): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:offices:update')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['OWNER', 'ADMIN'])
+
+  const body = await parseJsonBody(req)
+
+  const supabase = createServiceClient()
+
+  const { data: office, error: fetchError } = await supabase
+    .from('offices')
+    .select('id, owner_id')
+    .eq('id', officeId)
+    .is('deleted_at', null)
+    .single()
+
+  if (fetchError || !office) {
+    throw new FlexiError('NOT_FOUND', 'Office not found', 404)
+  }
+
+  if (profile.role !== 'ADMIN' && (office as { owner_id: string }).owner_id !== profile.id) {
+    throw new FlexiError('FORBIDDEN', 'You do not own this office', 403)
+  }
+
+  const updateData: Record<string, unknown> = { updated_at: new Date().toISOString() }
+
+  if (body.name !== undefined) {
+    if (typeof body.name !== 'string' || body.name.trim().length === 0) {
+      throw new FlexiError('BAD_REQUEST', 'name must be a non-empty string', 400)
+    }
+    updateData.name = body.name.trim()
+  }
+  if (body.description !== undefined) updateData.description = body.description ?? null
+  if (body.building !== undefined) updateData.building = body.building ?? null
+  if (body.floor !== undefined) updateData.floor = body.floor ?? null
+  if (body.room !== undefined) updateData.room = body.room ?? null
+  if (body.image_url !== undefined) updateData.image_url = body.image_url ?? null
+
+  if (body.capacity !== undefined) {
+    if (!Number.isInteger(body.capacity) || (body.capacity as number) <= 0) {
+      throw new FlexiError('BAD_REQUEST', 'capacity must be a positive integer', 400)
+    }
+    updateData.capacity = body.capacity
+  }
+  if (body.hourly_rate_cents !== undefined) {
+    if (!Number.isInteger(body.hourly_rate_cents) || (body.hourly_rate_cents as number) < 0) {
+      throw new FlexiError('BAD_REQUEST', 'hourly_rate_cents must be a non-negative integer', 400)
+    }
+    updateData.hourly_rate_cents = body.hourly_rate_cents
+  }
+  if (body.currency !== undefined) {
+    if (typeof body.currency !== 'string' || !CURRENCY_RE.test(body.currency)) {
+      throw new FlexiError('BAD_REQUEST', 'currency must be 3 uppercase letters (e.g. USD)', 400)
+    }
+    updateData.currency = body.currency
+  }
+  if (body.status !== undefined) {
+    if (typeof body.status !== 'string' || !VALID_OFFICE_STATUS.has(body.status)) {
+      throw new FlexiError('BAD_REQUEST', `status must be one of: ${[...VALID_OFFICE_STATUS].join(', ')}`, 400)
+    }
+    updateData.status = body.status
+  }
+
+  const { error } = await supabase.from('offices').update(updateData).eq('id', officeId)
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({ data: { id: officeId }, meta: { request_id: requestId } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
+async function handleDeleteOffice(req: Request, officeId: string): Promise<Response> {
+  const requestId = getOrGenerateRequestId(req, 'edge:offices:delete')
+  const { profile } = await requireAuth(req)
+  requireRole(profile, ['OWNER', 'ADMIN'])
+
+  const supabase = createServiceClient()
+
+  const { data: office, error: fetchError } = await supabase
+    .from('offices')
+    .select('id, owner_id')
+    .eq('id', officeId)
+    .is('deleted_at', null)
+    .single()
+
+  if (fetchError || !office) {
+    throw new FlexiError('NOT_FOUND', 'Office not found', 404)
+  }
+
+  if (profile.role !== 'ADMIN' && (office as { owner_id: string }).owner_id !== profile.id) {
+    throw new FlexiError('FORBIDDEN', 'You do not own this office', 403)
+  }
+
+  const { error } = await supabase
+    .from('offices')
+    .update({ deleted_at: new Date().toISOString() })
+    .eq('id', officeId)
+
+  if (error) throw error
+
+  return new Response(
+    JSON.stringify({ data: { id: officeId }, meta: { request_id: requestId } }),
+    { status: 200, headers: { 'Content-Type': 'application/json' } },
+  )
+}
+
 Deno.serve(async (req: Request): Promise<Response> => {
   const preflight = handlePreflight(req)
   if (preflight) return preflight
@@ -168,16 +275,29 @@ Deno.serve(async (req: Request): Promise<Response> => {
   const pathname = new URL(req.url).pathname
 
   try {
-    if (req.method !== 'POST') {
+    const createMatch = /\/offices\/create\/?$/.test(pathname)
+    const idMatch = pathname.match(/\/offices\/([^/]+)\/?$/)
+    const officeId = idMatch?.[1]
+
+    if (createMatch) {
+      if (req.method !== 'POST') throw new FlexiError('METHOD_NOT_ALLOWED', 'Method not allowed', 405)
+      const response = await handleCreateOffice(req)
+      return addCorsHeaders(response)
+    }
+
+    if (officeId && isValidUuid(officeId)) {
+      if (req.method === 'PATCH') {
+        const response = await handleUpdateOffice(req, officeId)
+        return addCorsHeaders(response)
+      }
+      if (req.method === 'DELETE') {
+        const response = await handleDeleteOffice(req, officeId)
+        return addCorsHeaders(response)
+      }
       throw new FlexiError('METHOD_NOT_ALLOWED', 'Method not allowed', 405)
     }
 
-    if (!/\/offices\/create\/?$/.test(pathname)) {
-      throw new FlexiError('NOT_FOUND', 'Route not found', 404)
-    }
-
-    const response = await handleCreateOffice(req)
-    return addCorsHeaders(response)
+    throw new FlexiError('NOT_FOUND', 'Route not found', 404)
   } catch (err) {
     return addCorsHeaders(errorResponse(err, req.headers.get('X-Request-ID')))
   }

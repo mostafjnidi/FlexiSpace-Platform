@@ -8,16 +8,22 @@
   html { scroll-behavior: smooth; }
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   background-color: #070B14;
   color: #F1F5F9;
   margin: 0;
-  font-family: 'Inter Tight', sans-serif;
+  font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 html[dir="rtl"] body {
+  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
   text-align: right;
 }
 
@@ -27,10 +33,11 @@ html[dir="rtl"] select {
   text-align: right;
 }
 
+/* LTR islands — language switcher, brand text, mono data, tabular numbers */
 html[dir="rtl"] .language-switcher,
 html[dir="rtl"] .brand-text,
-html[dir="rtl"] .font-mono,
-html[dir="rtl"] [class*="tabular-nums"] {
+html[dir="rtl"] .ltr-data,
+html[dir="rtl"] [data-ltr] {
   direction: ltr;
 }
 
@@ -79,6 +86,9 @@ html[dir="rtl"] aside.app-sidebar {
 nav.app-mobile-nav {
   background-color: #060A12;
   border-top: 1px solid rgba(255,255,255,0.05);
+  /* iOS home indicator safe area */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  height: calc(3.5rem + env(safe-area-inset-bottom, 0px));
 }
 
 html[dir="rtl"] header.app-header,
@@ -145,12 +155,13 @@ aside.app-sidebar a[aria-current="page"] {
 
 /* ═══════════════════════════════════════════════════════════════════════════
    DESIGN SYSTEM — Typography, Cards & Bars
-   Single source of truth for all 22 pages.
+   Single source of truth for all pages.
    ══════════════════════════════════════════════════════════════════════════ */
 @layer components {
 
   /* ── Typography ─────────────────────────────────────────────────────────── */
 
+  /* Brand / marketing hero only — not dashboard headings */
   .type-display {
     font-family: 'Fraunces', serif;
     font-size: 28px;
@@ -160,17 +171,37 @@ aside.app-sidebar a[aria-current="page"] {
     line-height: 1.2;
   }
 
-  .type-h1 {
-    font-family: 'Inter Tight', sans-serif;
+  /* Page-level heading */
+  .type-page-title {
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 30px;
     font-weight: 700;
     letter-spacing: -0.01em;
     color: #F1F5F9;
-    line-height: 1;
+    line-height: 1.1;
+  }
+
+  .type-h1 {
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-size: 30px;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    color: #F1F5F9;
+    line-height: 1.1;
   }
 
   .type-h2 {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    color: #F1F5F9;
+    line-height: 1.4;
+  }
+
+  /* Card / panel title */
+  .type-card-title {
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 16px;
     font-weight: 600;
     letter-spacing: -0.01em;
@@ -179,7 +210,7 @@ aside.app-sidebar a[aria-current="page"] {
   }
 
   .type-h3 {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 13.5px;
     font-weight: 600;
     color: #F1F5F9;
@@ -187,7 +218,7 @@ aside.app-sidebar a[aria-current="page"] {
   }
 
   .type-body {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 14px;
     font-weight: 400;
     color: #94A3B8;
@@ -195,7 +226,7 @@ aside.app-sidebar a[aria-current="page"] {
   }
 
   .type-body-sm {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 13px;
     font-weight: 400;
     color: #94A3B8;
@@ -203,52 +234,65 @@ aside.app-sidebar a[aria-current="page"] {
   }
 
   .type-label {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 11px;
     font-weight: 500;
     color: #6C7D91;
     line-height: 1.4;
   }
 
-  .type-caption {
-    font-family: 'JetBrains Mono', monospace;
+  /* Section / subsection label — LTR: small caps; RTL: plain uppercase removed */
+  .type-section-label {
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 11px;
-    font-weight: 500;
+    font-weight: 600;
     color: #6C7D91;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     line-height: 1.4;
   }
 
+  /* Semantic UI caption — prose, not machine data */
+  .type-caption {
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    color: #6C7D91;
+    line-height: 1.4;
+  }
+
+  /* Stat numbers — always LTR-safe, tabular */
   .type-stat {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
     font-size: 30px;
     font-weight: 700;
     letter-spacing: 0.01em;
     color: #F1F5F9;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
     line-height: 1;
   }
 
   .type-stat-lg {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', system-ui, sans-serif;
     font-size: 36px;
     font-weight: 700;
     letter-spacing: 0.01em;
     color: #F1F5F9;
-    font-variant-numeric: tabular-nums;
+    font-variant-numeric: lining-nums tabular-nums;
     line-height: 1;
   }
 
-  .type-btn {
-    font-family: 'Inter Tight', sans-serif;
+  /* Button text */
+  .type-btn,
+  .type-button {
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 13px;
     font-weight: 500;
-    line-height: 1;
+    line-height: 1.2;
   }
 
   .type-nav {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 13px;
     font-weight: 400;
     color: #6C7D91;
@@ -299,17 +343,18 @@ aside.app-sidebar a[aria-current="page"] {
   header.app-header .nav-link,
   aside.app-sidebar .nav-item,
   nav.app-mobile-nav .nav-item {
-    font-family: 'Inter Tight', sans-serif;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
     font-size: 13px;
     font-weight: 400;
   }
 
+  /* Section label in sidebar — not mono, plain IBM Plex Sans */
   aside.app-sidebar .nav-section-label {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    font-weight: 500;
+    font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
+    font-size: 10px;
+    font-weight: 600;
     text-transform: uppercase;
-    letter-spacing: 0.14em;
+    letter-spacing: 0.1em;
     color: #6C7D91;
   }
 
@@ -322,11 +367,10 @@ aside.app-sidebar a[aria-current="page"] {
 }
 
 /* ═══════════════════════════════════════════════════════════════════════════
-   GLOBAL OVERRIDES — Typography, Numeric, Alignment (all 22 pages)
-   All rules use !important to win over inline styles and component classes.
+   GLOBAL OVERRIDES — Typography, Numeric, Alignment (all pages)
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* ── 1. Universal font family — every element, no exceptions ─────────────── */
+/* ── 1. Universal font family — every element ────────────────────────────── */
 *,
 *::before,
 *::after,
@@ -342,7 +386,7 @@ th,
 label,
 p,
 h1, h2, h3, h4, h5, h6 {
-  font-family: 'Inter Tight', sans-serif !important;
+  font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
 }
 
 /* Keep brand name in Fraunces */
@@ -352,10 +396,8 @@ h1, h2, h3, h4, h5, h6 {
   font-family: 'Fraunces', serif !important;
 }
 
-/* Keep mono contexts in JetBrains Mono */
+/* Keep machine data in JetBrains Mono — IDs, timestamps, prices, code */
 .font-mono,
-.type-caption,
-.nav-section-label,
 code, pre, kbd {
   font-family: 'JetBrains Mono', monospace !important;
 }
@@ -385,7 +427,7 @@ aside.app-sidebar,
 aside.app-sidebar *,
 nav.app-mobile-nav,
 nav.app-mobile-nav * {
-  font-family: 'Inter Tight', sans-serif !important;
+  font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
   -webkit-font-smoothing: antialiased !important;
   -moz-osx-font-smoothing: grayscale !important;
 }
@@ -395,8 +437,9 @@ aside.app-sidebar .brand-text {
   font-family: 'Fraunces', serif !important;
 }
 
+/* nav-section-label is a UI label, not a mono code element */
 aside.app-sidebar .nav-section-label {
-  font-family: 'JetBrains Mono', monospace !important;
+  font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif !important;
 }
 
 header.app-header .nav-link,
@@ -450,7 +493,7 @@ html[dir="rtl"] [class*="card"] span {
    ARABIC RTL — Font, alignment, sidebar active indicator
    ══════════════════════════════════════════════════════════════════════════ */
 
-/* Arabic body font — Cairo replaces Inter Tight in RTL mode */
+/* IBM Plex Sans Arabic replaces IBM Plex Sans in RTL mode */
 html[dir="rtl"] body,
 html[dir="rtl"] *,
 html[dir="rtl"] *::before,
@@ -472,23 +515,79 @@ html[dir="rtl"] h3,
 html[dir="rtl"] h4,
 html[dir="rtl"] h5,
 html[dir="rtl"] h6 {
-  font-family: 'Cairo', 'Inter Tight', sans-serif !important;
+  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif !important;
 }
 
-/* Preserve mono/brand fonts in RTL */
+/* Preserve brand font in RTL */
 html[dir="rtl"] .font-fraunces,
 html[dir="rtl"] [class*="brand-text"],
 html[dir="rtl"] .brand-text {
   font-family: 'Fraunces', serif !important;
 }
 
+/* Preserve mono for machine data in RTL — IDs, timestamps, prices, codes */
 html[dir="rtl"] .font-mono,
-html[dir="rtl"] .type-caption,
-html[dir="rtl"] .nav-section-label,
 html[dir="rtl"] code,
 html[dir="rtl"] pre,
 html[dir="rtl"] kbd {
   font-family: 'JetBrains Mono', monospace !important;
+  direction: ltr;
+  unicode-bidi: plaintext;
+}
+
+/* ── Arabic text protection — never letter-space or uppercase Arabic ──────── */
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] label,
+html[dir="rtl"] li,
+html[dir="rtl"] button,
+html[dir="rtl"] a,
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4,
+html[dir="rtl"] h5,
+html[dir="rtl"] h6 {
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* Table headers in RTL: use Arabic font, remove mono styling */
+html[dir="rtl"] th,
+html[dir="rtl"] td {
+  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif !important;
+  letter-spacing: 0 !important;
+  text-transform: none !important;
+}
+
+/* Sidebar nav-section-label in RTL: Arabic font, no caps, no tracking */
+html[dir="rtl"] aside.app-sidebar .nav-section-label {
+  font-family: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif !important;
+  text-transform: none !important;
+  letter-spacing: 0 !important;
+  font-size: 11px !important;
+  font-weight: 600 !important;
+}
+
+/* ── Arabic line-height — more leading for body, tighter for headings ──────── */
+html[dir="rtl"] p,
+html[dir="rtl"] span,
+html[dir="rtl"] label,
+html[dir="rtl"] li,
+html[dir="rtl"] td,
+html[dir="rtl"] th {
+  line-height: 1.65 !important;
+}
+
+html[dir="rtl"] h1,
+html[dir="rtl"] h2,
+html[dir="rtl"] h3,
+html[dir="rtl"] h4 {
+  line-height: 1.4 !important;
+}
+
+html[dir="rtl"] button {
+  line-height: 1.35 !important;
 }
 
 /* RTL text alignment — override the strong LTR defaults */
@@ -530,16 +629,6 @@ html[dir="rtl"] aside.app-sidebar button[aria-current="page"],
 html[dir="rtl"] aside.app-sidebar a[aria-current="page"] {
   border-left-color: transparent !important;
   border-right-color: #10B981 !important;
-}
-
-/* Arabic line-height — Cairo reads better with slightly more leading */
-html[dir="rtl"] p,
-html[dir="rtl"] span,
-html[dir="rtl"] label,
-html[dir="rtl"] li,
-html[dir="rtl"] td,
-html[dir="rtl"] th {
-  line-height: 1.75 !important;
 }
 
 /* Flex row direction for RTL shell bars */

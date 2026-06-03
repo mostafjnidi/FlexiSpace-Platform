@@ -1392,7 +1392,7 @@ export default function BookingsCommandCenter() {
                   }`}
                 >
                   <NavIcon type={group.mobileIcon} />
-                  <span className="font-mono text-[11px] uppercase tracking-[.14em]">{group.label.split(' ')[0]}</span>
+                  <span className="font-inter text-[10px] font-semibold uppercase tracking-[.1em]">{group.label.split(' ')[0]}</span>
                 </button>
               )
             })}

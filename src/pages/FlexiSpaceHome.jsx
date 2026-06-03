@@ -83,7 +83,7 @@ function HeroSection() {
   const navigate = useNavigate()
   const { t, direction } = useI18n()
   return (
-    <section className="pt-16 min-h-screen flex items-center bg-bg overflow-hidden">
+    <section className="pt-16 min-h-[100dvh] flex items-center bg-bg overflow-hidden">
       <div className="w-full px-6 md:px-12 py-20 md:py-0 grid md:grid-cols-2 gap-12 items-center">
         <div className="flex flex-col gap-7 animate-fadeUp" style={{ '--delay': '0ms' }}>
           <div>
