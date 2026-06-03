@@ -114,7 +114,7 @@ function InputField({ label, id, icon, type = 'text', placeholder, value, onChan
   const { t } = useI18n()
   return (
     <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+      <label htmlFor={id} className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
         {label}
       </label>
       <div className={`relative bg-bg-3 border rounded-xl transition-all duration-200 ${
@@ -274,13 +274,13 @@ function RegistrationForm() {
   return (
     <div className="bg-bg-2 border border-line rounded-2xl shadow-card p-8 w-full max-w-md animate-fadeUp" style={{ '--delay': '120ms' }}>
       <div className="mb-5">
-        <h2 className="font-mono text-[15px] uppercase tracking-[.14em] text-accent font-medium mb-1">{t('auth.register')}</h2>
+        <h2 className="font-inter font-semibold text-[15px] uppercase tracking-[.1em] text-accent font-medium mb-1">{t('auth.register')}</h2>
         <p className="font-inter text-[13.5px] text-neutral-2">{t('auth.createAccount')}</p>
       </div>
 
       {/* Demo role selector */}
       <div className="mb-5 rounded-xl border border-line bg-bg-3 px-4 py-3">
-        <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2.5">{t('auth.role')}</p>
+        <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2.5">{t('auth.role')}</p>
         <div className="flex items-center gap-2">
           {DEMO_ROLES.map((role) => (
             <button
@@ -340,7 +340,7 @@ function RegistrationForm() {
 
         {/* Password with strength indicator */}
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="password" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="password" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('auth.password')}
           </label>
           <div className={`relative bg-bg-3 border rounded-xl transition-all duration-200 ${
@@ -379,7 +379,7 @@ function RegistrationForm() {
               <div className="flex-1 h-1 rounded-full bg-line overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-300 ${strength.bar} ${strength.barColor}`} />
               </div>
-              <span className={`font-mono text-[11px] uppercase tracking-[.14em] font-medium ${strength.text}`}>
+              <span className={`font-inter text-[11px] uppercase tracking-[.1em] font-medium ${strength.text}`}>
                 {t(`auth.${strength.label.toLowerCase()}`)}
               </span>
             </div>
@@ -504,7 +504,7 @@ export default function Register() {
             <div className="absolute bottom-12 left-10 right-10 animate-fadeUp" style={{ '--delay': '0ms' }}>
               <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-line rounded-full bg-bg/60 mb-5">
                 <span className="w-1.5 h-1.5 rounded-full bg-green-400 shadow-[0_0_0_3px_rgba(74,222,128,.2)]" />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">{t('auth.systemOnline')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">{t('auth.systemOnline')}</span>
               </div>
               <h1 className="font-fraunces text-4xl md:text-5xl font-light text-ink leading-tight">
                 {t('auth.registerTitle')}
@@ -517,7 +517,7 @@ export default function Register() {
               <div className="md:hidden mb-8 animate-fadeUp" style={{ '--delay': '0ms' }}>
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 border border-line rounded-full bg-ink/[.06] mb-4">
                   <span className="w-1.5 h-1.5 rounded-full bg-green-400" />
-                  <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">{t('auth.systemOnline')}</span>
+                  <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">{t('auth.systemOnline')}</span>
                 </div>
                 <p aria-hidden="true" className="font-fraunces text-3xl font-light text-ink">{t('auth.registerTitle')}</p>
               </div>

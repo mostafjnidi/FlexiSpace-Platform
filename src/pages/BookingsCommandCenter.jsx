@@ -512,7 +512,7 @@ function PaymentBadge({ type }) {
   if (type === 'paid') {
     return (
       <div
-        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] uppercase tracking-[.14em]"
+        className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-inter text-[11px] uppercase tracking-[.1em]"
         style={{ backgroundColor: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.25)', color: '#10B981' }}
       >
         <CheckCircleIcon />
@@ -522,7 +522,7 @@ function PaymentBadge({ type }) {
   }
   return (
     <div
-      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono text-[11px] uppercase tracking-[.14em]"
+      className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-inter text-[11px] uppercase tracking-[.1em]"
       style={{ backgroundColor: 'rgba(245,158,11,0.08)', border: '1px solid rgba(245,158,11,0.20)', color: '#F59E0B' }}
     >
       <HourglassIcon size={13} />
@@ -588,7 +588,7 @@ function BookingRow({ booking, onApprove, onReject, onOpenDrawer, isLast, select
       </td>
       <td className="px-4 py-5">
         <div className="font-inter text-[13px] text-ink-2">{booking.date}</div>
-        <div className="font-mono text-[11px] text-neutral mt-0.5">{booking.time}</div>
+        <div className="font-inter text-[11px] text-neutral mt-0.5">{booking.time}</div>
       </td>
       <td className="px-4 py-5">
         <PaymentBadge type={booking.payment} />
@@ -627,7 +627,7 @@ function BookingRow({ booking, onApprove, onReject, onOpenDrawer, isLast, select
             </div>
             <div className="flex items-center gap-1.5 mt-1">
               <span className={`w-1.5 h-1.5 rounded-full ${booking.iot.inRange ? 'bg-accent' : 'bg-neutral'}`} />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                 {booking.iot.inRange
                   ? t('bookingsCommand.inRange')
                   : booking.iot.doorLocked
@@ -659,7 +659,7 @@ function BookingDrawer({ booking, onClose, onApprove, onReject }) {
       >
         <div className="flex items-center justify-between px-6 py-5 border-b border-line shrink-0">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-0.5">
+            <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-0.5">
               {t('bookingsCommand.bookingDetails')}
             </p>
             <h2 className="font-inter text-[16px] font-semibold text-ink">{booking.id}</h2>
@@ -674,7 +674,7 @@ function BookingDrawer({ booking, onClose, onApprove, onReject }) {
         </div>
 
         <div className="px-6 py-5 border-b border-line">
-          <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('bookingsCommand.client')}</p>
+          <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('bookingsCommand.client')}</p>
           <div className="flex items-center gap-3 mb-4">
             <ClientAvatar client={booking.client} />
             <div>
@@ -695,7 +695,7 @@ function BookingDrawer({ booking, onClose, onApprove, onReject }) {
         </div>
 
         <div className="px-6 py-5 border-b border-line">
-          <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('bookingsCommand.bookingInfo')}</p>
+          <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('bookingsCommand.bookingInfo')}</p>
           <div className="flex flex-col gap-3">
             {[
               [t('bookingsCommand.space'), booking.space.name],
@@ -705,7 +705,7 @@ function BookingDrawer({ booking, onClose, onApprove, onReject }) {
               [t('bookingsCommand.time'), booking.time],
             ].map(([label, value]) => (
               <div key={label} className="flex items-center justify-between">
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{label}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{label}</span>
                 <span className="font-inter text-[13px] text-ink">{value}</span>
               </div>
             ))}
@@ -717,7 +717,7 @@ function BookingDrawer({ booking, onClose, onApprove, onReject }) {
         </div>
 
         <div className="px-6 py-5 border-b border-line">
-          <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('bookingsCommand.iotStatus')}</p>
+          <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('bookingsCommand.iotStatus')}</p>
           <div className="flex items-center justify-between">
             <span className="font-inter text-[13px] text-neutral-2">{t('bookingsCommand.clientProximity')}</span>
             <div className="flex items-center gap-1.5">
@@ -737,7 +737,7 @@ function BookingDrawer({ booking, onClose, onApprove, onReject }) {
 
         {booking.notes && (
           <div className="px-6 py-5 border-b border-line">
-            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">
+            <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">
               {t('bookingsCommand.clientNotes')}
             </p>
             <p className="font-inter text-[13px] text-ink-2 leading-relaxed">{booking.notes}</p>
@@ -1052,7 +1052,7 @@ export default function BookingsCommandCenter() {
                       onClick={() => toggleGroup(group.id)}
                       aria-expanded={isOpen}
                       aria-label={`${tGroup.label} section`}
-                      className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-mono text-[11px] uppercase tracking-[.14em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
+                      className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
                         groupActive ? 'text-accent' : 'text-neutral hover:text-neutral-2'
                       }`}
                     >
@@ -1112,7 +1112,7 @@ export default function BookingsCommandCenter() {
               {/* Page Header */}
               <div className="pt-8 pb-6 flex items-start justify-between">
                 <div>
-                  <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('bookingsCommand.section')}</p>
+                  <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('bookingsCommand.section')}</p>
                   <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('bookingsCommand.title')}</h1>
                   <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('bookingsCommand.subtitle')}</p>
                 </div>
@@ -1150,7 +1150,7 @@ export default function BookingsCommandCenter() {
 
               {(loadingBookings || bookingLoadError) && (
                 <div className="mb-6 animate-fadeUp" style={{ animationDelay: '20ms' }}>
-                  <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                  <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                     {loadingBookings ? t('bookingsCommand.loading') : t('bookingsCommand.fallback')}
                   </p>
                 </div>
@@ -1166,7 +1166,7 @@ export default function BookingsCommandCenter() {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6 animate-fadeUp" style={{ animationDelay: '40ms' }}>
                 <div className="bg-bg-2 border border-line rounded-xl shadow-card p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.activeBookings')}</span>
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.activeBookings')}</span>
                     <div className="w-8 h-8 rounded-lg bg-bg-3 border border-line flex items-center justify-center text-neutral-2">
                       <CalendarIcon size={16} />
                     </div>
@@ -1186,7 +1186,7 @@ export default function BookingsCommandCenter() {
 
                 <div className="rounded-xl p-5" style={{ backgroundColor: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)' }}>
                   <div className="flex items-start justify-between mb-3">
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.pendingApprovals')}</span>
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.pendingApprovals')}</span>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(71,85,105,0.08)', color: '#10B981' }}>
                       <HourglassIcon size={16} />
                     </div>
@@ -1207,7 +1207,7 @@ export default function BookingsCommandCenter() {
 
                 <div className="rounded-xl p-5 bg-bg-2 border border-line">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.todaysRevenue')}</span>
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.todaysRevenue')}</span>
                     <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(71,85,105,0.1)', color: '#10B981' }}>
                       <CashIcon size={16} />
                     </div>
@@ -1220,7 +1220,7 @@ export default function BookingsCommandCenter() {
 
                 <div className="bg-bg-2 border border-line rounded-xl shadow-card p-5">
                   <div className="flex items-start justify-between mb-3">
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.canceledRequests')}</span>
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.canceledRequests')}</span>
                     <div className="w-8 h-8 rounded-lg bg-bg-3 border border-line flex items-center justify-center text-neutral-2">
                       <XCircleIcon size={16} />
                     </div>
@@ -1314,12 +1314,12 @@ export default function BookingsCommandCenter() {
                             {allSelected && <CheckSmallIcon />}
                           </button>
                         </th>
-                        <th className="text-left px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.bookingId')}</th>
-                        <th className="text-left px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.client')}</th>
-                        <th className="text-left px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.officeSpace')}</th>
-                        <th className="text-left px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.dateTime')}</th>
-                        <th className="text-left px-4 py-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.payment')}</th>
-                        <th className="text-left px-5 py-3 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral">{t('bookingsCommand.statusAction')}</th>
+                        <th className="text-left px-5 py-3 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.bookingId')}</th>
+                        <th className="text-left px-4 py-3 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.client')}</th>
+                        <th className="text-left px-4 py-3 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.officeSpace')}</th>
+                        <th className="text-left px-4 py-3 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.dateTime')}</th>
+                        <th className="text-left px-4 py-3 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.payment')}</th>
+                        <th className="text-left px-5 py-3 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral">{t('bookingsCommand.statusAction')}</th>
                       </tr>
                     </thead>
                     <tbody>

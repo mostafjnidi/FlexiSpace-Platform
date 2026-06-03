@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { verifyQrToken, FlexiApiError } from '../lib/flexispaceApi'
 import { OperatorMobileNav, OperatorSidebar } from '../components/OperatorSidebar'
@@ -19,7 +19,7 @@ function ScanCrosshair({ t }) {
           }}
         />
       </div>
-      <span className="font-mono text-[11px] uppercase tracking-[.14em]" style={{ color: '#94A3B8' }}>
+      <span className="font-inter text-[11px] uppercase tracking-[.1em]" style={{ color: '#94A3B8' }}>
         {t('scanner.pointCamera')}
       </span>
     </div>
@@ -93,7 +93,7 @@ function AuthModal({ onClose, iotState, onVerify, onScanNext, deviceName, verify
               </p>
             )}
             <div className="w-full mb-3">
-              <label htmlFor="qr-token-input" className="block font-mono text-[11px] uppercase tracking-[.14em] mb-1.5" style={{ color: '#64748B' }}>
+              <label htmlFor="qr-token-input" className="block font-inter text-[11px] uppercase tracking-[.1em] mb-1.5" style={{ color: '#64748B' }}>
                 {t('scanner.pasteToken')}
               </label>
               <input
@@ -357,7 +357,7 @@ export default function ScannerControl() {
               <>
                 {deviceLoading ? (
                   <div className="absolute inset-0 flex items-center justify-center z-10">
-                    <p className="font-mono text-[11px] uppercase tracking-[.14em]" style={{ color: '#94A3B8' }}>
+                    <p className="font-inter text-[11px] uppercase tracking-[.1em]" style={{ color: '#94A3B8' }}>
                       {t('scanner.loadingDevice')}
                     </p>
                   </div>
@@ -372,7 +372,7 @@ export default function ScannerControl() {
                         <path d="M7 5.5v3M7 10v.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" />
                       </svg>
                     </div>
-                    <p className="font-mono text-[11px] uppercase tracking-[.14em] text-center leading-relaxed" style={{ color: '#f87171' }}>
+                    <p className="font-inter text-[11px] uppercase tracking-[.1em] text-center leading-relaxed" style={{ color: '#f87171' }}>
                       {deviceError}
                     </p>
                   </div>
@@ -383,7 +383,7 @@ export default function ScannerControl() {
                       <button
                         aria-label={t('scanner.tapToScan')}
                         onClick={() => setShowModal(true)}
-                        className="px-8 py-2.5 rounded-full font-mono text-[11px] uppercase tracking-[.14em] font-bold cursor-pointer border-0 transition-all duration-200 text-bg-3"
+                        className="px-8 py-2.5 rounded-full font-inter text-[11px] uppercase tracking-[.1em] font-bold cursor-pointer border-0 transition-all duration-200 text-bg-3"
                         style={{ backgroundColor: '#10B981' }}
                       >
                         {t('scanner.tapToScan')}
@@ -428,7 +428,7 @@ export default function ScannerControl() {
                     />
                   )}
                   {item.icon(item.key === activeTab)}
-                  <span className="font-mono text-[11px] uppercase tracking-[.14em]">{t(item.labelKey)}</span>
+                  <span className="font-inter text-[11px] uppercase tracking-[.1em]">{t(item.labelKey)}</span>
                 </button>
               ))}
             </div>

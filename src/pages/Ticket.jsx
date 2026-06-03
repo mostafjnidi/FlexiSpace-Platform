@@ -1,4 +1,4 @@
-import { useState, useRef, useCallback } from 'react'
+﻿import { useState, useRef, useCallback } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { appUnlock } from '../lib/flexispaceApi'
 import LanguageSwitcher from '../components/LanguageSwitcher'
@@ -230,7 +230,7 @@ export default function Ticket() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-bg-2 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-bg-2 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
           >
             <ArrowLeftIcon />
             Back
@@ -244,7 +244,7 @@ export default function Ticket() {
           {/* Header */}
           <div className="px-8 pt-8 pb-6 text-center border-b border-line">
             <div
-              className="inline-flex items-center gap-2 px-3.5 py-1.5 border rounded-full font-mono text-[11px] uppercase tracking-[.14em] mb-5"
+              className="inline-flex items-center gap-2 px-3.5 py-1.5 border rounded-full font-inter text-[11px] uppercase tracking-[.1em] mb-5"
               style={{ borderColor: 'rgba(16,185,129,.18)', backgroundColor: 'rgba(16,185,129,.06)', color: '#10B981' }}
             >
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
@@ -253,7 +253,7 @@ export default function Ticket() {
             <h1 className="font-inter text-[22px] font-bold tracking-tight text-ink mb-0.5">
               {officeName ?? 'Loading...'}
             </h1>
-            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-accent">
+            <p className="font-inter text-[11px] uppercase tracking-[.1em] text-accent">
               {formatDate(startTime)}
             </p>
             <p className="font-inter text-[12px] text-neutral-2 mt-1">
@@ -290,15 +290,15 @@ export default function Ticket() {
               <p className="font-inter text-[13px] text-neutral-2">Enter your 6-digit access code</p>
             )}
             {termState === TERMINAL_STATES.AUTHENTICATING && (
-              <p className="font-mono text-[12px] uppercase tracking-[.14em] text-accent animate-pulse">Authenticating...</p>
+              <p className="font-inter text-[12px] uppercase tracking-[.1em] text-accent animate-pulse">Authenticating...</p>
             )}
             {termState === TERMINAL_STATES.CONNECTING && (
-              <p className="font-mono text-[12px] uppercase tracking-[.14em] text-accent animate-pulse">Connecting to Smart Lock...</p>
+              <p className="font-inter text-[12px] uppercase tracking-[.1em] text-accent animate-pulse">Connecting to Smart Lock...</p>
             )}
             {termState === TERMINAL_STATES.GRANTED && (
               <div className="flex items-center gap-2 text-accent">
                 <CheckIcon />
-                <p className="font-mono text-[13px] uppercase tracking-[.14em] font-semibold">Access Granted</p>
+                <p className="font-mono text-[13px] uppercase tracking-[.1em] font-semibold">Access Granted</p>
               </div>
             )}
             {(termState === TERMINAL_STATES.DENIED || termState === TERMINAL_STATES.IDLE) && errorMsg && (
@@ -311,7 +311,7 @@ export default function Ticket() {
             )}
             {termState === TERMINAL_STATES.CHECKED_IN_VIEW && (
               <div className="flex flex-col items-center gap-1">
-                <p className="font-mono text-[12px] uppercase tracking-[.14em] text-accent">You're Checked In</p>
+                <p className="font-inter text-[12px] uppercase tracking-[.1em] text-accent">You're Checked In</p>
                 <p className="font-inter text-[12px] text-neutral-2">Session active</p>
               </div>
             )}
@@ -389,14 +389,14 @@ export default function Ticket() {
           {/* Footer */}
           <div className="bg-bg-3 border-t border-line px-8 py-4 flex items-center justify-between">
             <div className="flex flex-col gap-0.5">
-              <span className="font-mono text-[10px] uppercase tracking-[.14em] text-neutral-2">Booking</span>
+              <span className="font-inter text-[10px] uppercase tracking-[.1em] text-neutral-2">Booking</span>
               <span className="font-mono text-[13px] font-semibold text-accent">{shortId}</span>
             </div>
             <div className="flex items-center gap-1.5">
               <svg width="11" height="11" viewBox="0 0 11 11" fill="none" aria-hidden="true">
                 <path d="M5.5 1L1.5 3.5v2.5c0 2.5 1.8 4 4 4.5 2.2-.5 4-2 4-4.5V3.5L5.5 1Z" stroke="currentColor" strokeWidth="1.1" strokeLinejoin="round" className="text-neutral" />
               </svg>
-              <span className="font-mono text-[10px] uppercase tracking-[.14em] text-neutral">
+              <span className="font-inter text-[10px] uppercase tracking-[.1em] text-neutral">
                 Single Use · Encrypted
               </span>
             </div>

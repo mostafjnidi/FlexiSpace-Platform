@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { supabase } from './lib/supabase'
 import FlexiSpaceHome from './pages/FlexiSpaceHome'
@@ -31,7 +31,7 @@ function LoadingScreen() {
   const { t } = useI18n()
   return (
     <div className="min-h-screen bg-bg flex items-center justify-center">
-      <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">{t('common.loading')}</span>
+      <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">{t('common.loading')}</span>
     </div>
   )
 }

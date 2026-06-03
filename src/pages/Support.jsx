@@ -137,7 +137,7 @@ function SupportForm({ t, prefillName = '', prefillEmail = '' }) {
 
       <form onSubmit={handleSubmit} className="flex flex-col gap-4" noValidate>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="support-name" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="support-name" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('support.operatorName')}
           </label>
           <input
@@ -152,7 +152,7 @@ function SupportForm({ t, prefillName = '', prefillEmail = '' }) {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="support-email" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="support-email" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('support.systemEmail')}
           </label>
           <input
@@ -167,7 +167,7 @@ function SupportForm({ t, prefillName = '', prefillEmail = '' }) {
           />
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="support-category" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="support-category" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('support.incidentCategory')}
           </label>
           <div className="relative">
@@ -192,7 +192,7 @@ function SupportForm({ t, prefillName = '', prefillEmail = '' }) {
           </div>
         </div>
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="support-summary" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="support-summary" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('support.diagnosticSummary')}
           </label>
           <textarea

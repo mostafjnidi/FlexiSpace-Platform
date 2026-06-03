@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import BrandLogo from '../components/BrandLogo'
@@ -209,7 +209,7 @@ export default function BillingHistory() {
             </div>
             <div>
               <div className="font-inter text-[13.5px] font-semibold text-accent">{t('billing.premiumTier')}</div>
-              <div className="font-mono text-[11px] text-neutral">{t('billing.enterpriseAccount')}</div>
+              <div className="font-inter text-[11px] text-neutral">{t('billing.enterpriseAccount')}</div>
             </div>
           </div>
 
@@ -246,7 +246,7 @@ export default function BillingHistory() {
             <div className="bg-bg-2 border border-line rounded-2xl overflow-hidden animate-fadeUp" style={{ '--delay': '80ms' }}>
               <div className="hidden md:grid grid-cols-[180px_160px_1fr_120px_64px] bg-bg-3 border-b border-line px-6 py-3">
                 {[t('billing.colDate'), t('billing.colBookingId'), t('billing.colDesc'), t('billing.colAmount'), t('billing.colInvoice')].map(col => (
-                  <div key={col} className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{col}</div>
+                  <div key={col} className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{col}</div>
                 ))}
               </div>
 
@@ -300,9 +300,9 @@ export default function BillingHistory() {
                   style={{ '--delay': `${i * 60 + 120}ms` }}
                 >
                   <div>
-                    <div className="font-mono text-[11px] text-accent mb-0.5">#{entry.id}</div>
+                    <div className="font-inter text-[11px] text-accent mb-0.5">#{entry.id}</div>
                     <div className="font-inter text-[13.5px] text-ink-2">{entry.desc}</div>
-                    <div className="font-mono text-[11px] text-neutral mt-0.5">{entry.date}</div>
+                    <div className="font-inter text-[11px] text-neutral mt-0.5">{entry.date}</div>
                   </div>
                   <div className="flex items-center gap-3 shrink-0">
                     <span className="font-inter text-[13.5px] font-semibold text-ink">{entry.amount}</span>
@@ -344,14 +344,14 @@ export default function BillingHistory() {
           </main>
 
           <footer className="border-t border-line px-6 md:px-10 py-3 flex items-center justify-between shrink-0 bg-bg-2">
-            <span className="font-mono text-[11px] text-neutral uppercase tracking-[.14em]">· Secure Encrypted Environment.</span>
+            <span className="font-inter text-[11px] text-neutral uppercase tracking-[.1em]">· Secure Encrypted Environment.</span>
             <div className="hidden md:flex items-center gap-4">
               {[
                 { key: 'billing.privacyPolicy', label: t('billing.privacyPolicy') },
                 { key: 'billing.termsOfService', label: t('billing.termsOfService') },
                 { key: 'billing.securityArchitecture', label: t('billing.securityArchitecture') },
               ].map(link => (
-                <a key={link.key} href="#" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral hover:text-ink transition-colors no-underline">
+                <a key={link.key} href="#" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral hover:text-ink transition-colors no-underline">
                   {link.label}
                 </a>
               ))}
@@ -375,7 +375,7 @@ export default function BillingHistory() {
             }`}
           >
             {item.icon}
-            <span className="font-mono text-[11px] uppercase tracking-[.14em]">
+            <span className="font-inter text-[11px] uppercase tracking-[.1em]">
               {item.label.split(' ')[0]}
             </span>
           </button>

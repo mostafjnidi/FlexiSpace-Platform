@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+﻿import { useState, useMemo } from 'react'
 import { useNavigate, useLocation, Link } from 'react-router-dom'
 import { createBooking, createPaymentSession, confirmPayment, confirmUsagePayment } from '../lib/flexispaceApi'
 import BrandLogo from '../components/BrandLogo'
@@ -197,13 +197,13 @@ function PaymentForm({ form, setForm, errors, touched, onBlur }) {
 
   return (
     <div className="bg-bg-2 border border-line rounded-2xl shadow-card p-8 animate-fadeUp" style={{ '--delay': '0ms' }}>
-      <h2 className="font-mono text-[15px] uppercase tracking-[.14em] text-accent font-medium mb-1">{t('checkout.paymentMethod')}</h2>
+      <h2 className="font-inter font-semibold text-[15px] uppercase tracking-[.1em] text-accent font-medium mb-1">{t('checkout.paymentMethod')}</h2>
       <p className="font-inter text-[13.5px] text-neutral-2 mb-4">{t('checkout.paymentCopy')}</p>
 
       {/* Demo mode hint */}
       <div className="rounded-xl border border-accent/25 bg-accent/[.06] px-4 py-3 mb-5">
-        <p className="font-mono text-[10px] uppercase tracking-[.13em] text-accent font-semibold mb-0.5">{t('checkout.validation.demoMode')}</p>
-        <p className="font-mono text-[11.5px] text-neutral-2 leading-relaxed tracking-wide">{t('checkout.validation.demoCards')}</p>
+        <p className="font-inter text-[10px] uppercase tracking-[.1em] text-accent font-semibold mb-0.5">{t('checkout.validation.demoMode')}</p>
+        <p className="font-inter text-[11.5px] text-neutral-2 leading-relaxed tracking-wide">{t('checkout.validation.demoCards')}</p>
       </div>
 
       <div className="border-t border-line mb-6" />
@@ -211,7 +211,7 @@ function PaymentForm({ form, setForm, errors, touched, onBlur }) {
       <div className="flex flex-col gap-5">
         {/* Cardholder Name */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="cardName" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="cardName" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('checkout.cardholder')}
           </label>
           <div className={wrapperClass('cardName')}>
@@ -237,7 +237,7 @@ function PaymentForm({ form, setForm, errors, touched, onBlur }) {
 
         {/* Card Number */}
         <div className="flex flex-col gap-2">
-          <label htmlFor="cardNumber" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+          <label htmlFor="cardNumber" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
             {t('checkout.cardNumber')}
           </label>
           <div className={wrapperClass('cardNumber')}>
@@ -270,7 +270,7 @@ function PaymentForm({ form, setForm, errors, touched, onBlur }) {
         {/* Expiry + CVV */}
         <div className="grid grid-cols-2 gap-4">
           <div className="flex flex-col gap-2">
-            <label htmlFor="expiry" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+            <label htmlFor="expiry" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
               {t('checkout.expiry')}
             </label>
             <div className={wrapperClass('expiry')}>
@@ -293,7 +293,7 @@ function PaymentForm({ form, setForm, errors, touched, onBlur }) {
             <FieldError message={touched.expiry && errors.expiry ? t(errors.expiry) : ''} />
           </div>
           <div className="flex flex-col gap-2">
-            <label htmlFor="cvv" className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+            <label htmlFor="cvv" className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
               CVV
             </label>
             <div className={wrapperClass('cvv')}>
@@ -335,7 +335,7 @@ function UsageFeePanel({ onPay, paying, error, amountCents, currency, sessionMin
   return (
     <div className="bg-bg-2 border border-accent/40 rounded-2xl p-7 flex flex-col gap-6 animate-fadeUp" style={{ '--delay': '80ms' }}>
       <div>
-        <h2 className="font-mono text-[15px] uppercase tracking-[.14em] text-accent font-medium">{t('checkout.finalCharges')}</h2>
+        <h2 className="font-inter font-semibold text-[15px] uppercase tracking-[.1em] text-accent font-medium">{t('checkout.finalCharges')}</h2>
         <p className="font-inter text-[13.5px] text-neutral-2 mt-1">{t('checkout.usageCopy')}</p>
       </div>
 
@@ -418,7 +418,7 @@ function IoTFeeRow() {
             onMouseLeave={() => setTooltip(false)}
             onFocus={() => setTooltip(true)}
             onBlur={() => setTooltip(false)}
-            className="w-[15px] h-[15px] rounded-full border border-neutral/40 text-neutral font-mono text-[9px] flex items-center justify-center hover:border-accent/60 hover:text-accent transition-colors duration-150 cursor-default bg-transparent"
+            className="w-[15px] h-[15px] rounded-full border border-neutral/40 text-neutral font-inter text-[9px] flex items-center justify-center hover:border-accent/60 hover:text-accent transition-colors duration-150 cursor-default bg-transparent"
           >
             ?
           </button>
@@ -466,7 +466,7 @@ function OrderSummary({ onPay, paying, workspace, schedule, error, isPaymentMode
   const ws = workspace ?? FALLBACK_WORKSPACE
   return (
     <div className="bg-bg-2 border border-accent/40 rounded-2xl p-7 flex flex-col gap-6 animate-fadeUp" style={{ '--delay': '80ms' }}>
-      <h2 className="font-mono text-[15px] uppercase tracking-[.14em] text-accent font-medium">{t('checkout.orderSummary')}</h2>
+      <h2 className="font-inter font-semibold text-[15px] uppercase tracking-[.1em] text-accent font-medium">{t('checkout.orderSummary')}</h2>
 
       <div className="bg-bg-3 border border-line rounded-xl p-4 flex items-center gap-4">
         <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-line">
@@ -671,7 +671,7 @@ export default function Checkout() {
           >
             <BrandLogo variant="colored" iconSize={20} />
           </Link>
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 mt-1.5 block">
+          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 mt-1.5 block">
             {usagePaymentMode ? t('checkout.usageFeePayment') : isPaymentMode ? t('checkout.completePayment') : t('checkout.secureCheckout')}
           </span>
         </div>
@@ -682,7 +682,7 @@ export default function Checkout() {
           type="button"
           aria-label={t('common.back')}
           onClick={() => navigate(-1)}
-          className="inline-flex items-center gap-2 px-4 py-2 mt-1 rounded-lg bg-bg-2 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 mt-1 rounded-lg bg-bg-2 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
         >
           <span style={{ transform: direction === 'rtl' ? 'scaleX(-1)' : undefined, display: 'inline-flex' }}>
             <ArrowLeftIcon />
@@ -698,7 +698,7 @@ export default function Checkout() {
               <div className="bg-bg-2 border border-line rounded-2xl p-5 flex flex-col gap-4">
                 <h3 className="font-inter text-[13px] font-semibold text-ink">{t('checkout.bookingSchedule')}</h3>
                 <div className="flex flex-col gap-1.5">
-                  <label className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('checkout.date')}</label>
+                  <label className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('checkout.date')}</label>
                   <input
                     type="date"
                     dir="ltr"
@@ -710,7 +710,7 @@ export default function Checkout() {
                 </div>
                 <div className="flex gap-3">
                   <div className="flex flex-col gap-1.5 flex-1">
-                    <label className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('checkout.startTime')}</label>
+                    <label className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('checkout.startTime')}</label>
                     <input
                       type="time"
                       dir="ltr"
@@ -720,7 +720,7 @@ export default function Checkout() {
                     />
                   </div>
                   <div className="flex flex-col gap-1.5 flex-1">
-                    <label className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('checkout.duration')}</label>
+                    <label className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('checkout.duration')}</label>
                     <select
                       value={bookingDuration}
                       onChange={(e) => setBookingDuration(Number(e.target.value))}
@@ -775,12 +775,12 @@ export default function Checkout() {
           <div className="flex items-center gap-4 text-neutral">
             <div className="flex items-center gap-1.5">
               <ShieldSmallIcon />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">PCI-DSS</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">PCI-DSS</span>
             </div>
-            <span className="text-neutral/40 font-mono text-[11px]">|</span>
+            <span className="text-neutral/40 font-inter text-[11px]">|</span>
             <div className="flex items-center gap-1.5">
               <CheckCircleIcon />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">SSL 256-Bit</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">SSL 256-Bit</span>
             </div>
           </div>
           <div className="flex items-center gap-1.5 text-neutral">

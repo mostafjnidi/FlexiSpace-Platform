@@ -242,13 +242,13 @@ const STATUS_FILTERS = ['All', 'Success', 'Failed', 'Pending']
 
 function StatusBadge({ status }) {
   if (status === 'success') return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981] font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981] font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
       Success
     </span>
   )
   if (status === 'failed') return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-red-400/10 border-red-400/30 text-red-400 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-red-400/10 border-red-400/30 text-red-400 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
         <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
       </svg>
@@ -256,7 +256,7 @@ function StatusBadge({ status }) {
     </span>
   )
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-amber-400/10 border-amber-400/30 text-amber-400 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-amber-400/10 border-amber-400/30 text-amber-400 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
         <circle cx="6" cy="6" r="4.5" stroke="currentColor" strokeWidth="1.3" />
         <path d="M6 3.5V6l1.5 1.5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round" />
@@ -443,7 +443,7 @@ export default function FinancialReports() {
                     onClick={() => toggleGroup(rawGroup.id)}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                   >
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                       {group.label}
                     </span>
                     <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -494,7 +494,7 @@ export default function FinancialReports() {
           {/* 3-Layer Page Title */}
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('financialReports.section')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('financialReports.section')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('financialReports.title')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">
                 {t('financialReports.subtitle')}
@@ -510,7 +510,7 @@ export default function FinancialReports() {
           <div className="grid grid-cols-3 gap-4 mb-8">
 
             <div className="bg-bg-2 border border-line rounded-2xl shadow-card p-4 animate-fadeUp" style={{ '--delay': '60ms' }}>
-              <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">{t('financialReports.totalRevenue')}</div>
+              <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">{t('financialReports.totalRevenue')}</div>
               <div className="flex items-center gap-2 font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums text-[#10B981]">
                 <span className="w-2 h-2 rounded-full shrink-0 bg-[#10B981]" />
                 {`$${(totalRevenueCents / 100).toFixed(2)}`}
@@ -519,7 +519,7 @@ export default function FinancialReports() {
             </div>
 
             <div className="bg-bg-2 border border-line rounded-2xl shadow-card p-4 animate-fadeUp" style={{ '--delay': '120ms' }}>
-              <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">{t('financialReports.totalTransactions')}</div>
+              <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">{t('financialReports.totalTransactions')}</div>
               <div className="flex items-center gap-2 font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums text-ink">
                 <span className="w-2 h-2 rounded-full shrink-0 bg-accent animate-pulse" />
                 {`${payments.length}`}
@@ -528,7 +528,7 @@ export default function FinancialReports() {
             </div>
 
             <div className="bg-bg-2 border border-line rounded-2xl shadow-card p-4 animate-fadeUp" style={{ '--delay': '180ms' }}>
-              <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">{t('financialReports.pendingPayments')}</div>
+              <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">{t('financialReports.pendingPayments')}</div>
               <div className="flex items-center gap-2 font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums text-amber-400">
                 <span className="w-2 h-2 rounded-full shrink-0 bg-amber-400" />
                 {`$${(pendingCents / 100).toFixed(2)}`}
@@ -572,13 +572,13 @@ export default function FinancialReports() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-line">
-                    <th className="text-left px-6 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colDate')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colTransaction')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colCustomer')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colSpace')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colMethod')}</th>
-                    <th className="text-right px-4 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colAmount')}</th>
-                    <th className="text-right px-6 py-4 font-mono text-[11px] uppercase tracking-[.14em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colStatus')}</th>
+                    <th className="text-left px-6 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colDate')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colTransaction')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colCustomer')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colSpace')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colMethod')}</th>
+                    <th className="text-right px-4 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colAmount')}</th>
+                    <th className="text-right px-6 py-4 font-inter text-[11px] uppercase tracking-[.1em] text-neutral font-medium whitespace-nowrap">{t('financialReports.colStatus')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -592,10 +592,10 @@ export default function FinancialReports() {
                   {filtered.map((t) => (
                     <tr key={t.id} className="border-b border-line transition-colors duration-150 hover:bg-ink/[.03] last:border-b-0">
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className="font-mono text-[12px] text-neutral">{t.date}</span>
+                        <span className="font-inter text-[12px] text-neutral">{t.date}</span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="font-mono text-[12px] text-ink">{t.id}</span>
+                        <span className="font-inter text-[12px] text-ink">{t.id}</span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className="font-inter text-[13.5px] font-medium text-ink">{t.customer}</span>
@@ -604,7 +604,7 @@ export default function FinancialReports() {
                         <span className="font-inter text-[13px] text-neutral-2">{t.space}</span>
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
-                        <span className="font-mono text-[12px] text-neutral">{t.method}</span>
+                        <span className="font-inter text-[12px] text-neutral">{t.method}</span>
                       </td>
                       <td className="px-4 py-4 text-right whitespace-nowrap">
                         <AmountCell amount={t.amount} status={t.status} />
@@ -658,7 +658,7 @@ export default function FinancialReports() {
               }`}
             >
               <NavIcon type={rawGroup.mobileIcon} />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">
                 {group.label.split(' ')[0]}
               </span>
             </button>

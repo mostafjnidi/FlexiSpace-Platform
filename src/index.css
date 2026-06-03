@@ -8,10 +8,6 @@
   html { scroll-behavior: smooth; }
 }
 
-html {
-  overflow-x: hidden;
-}
-
 body {
   background-color: #070B14;
   color: #F1F5F9;
@@ -19,7 +15,9 @@ body {
   font-family: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  /* overflow-x on body only — NOT html, which breaks iOS fixed-element touch events */
   overflow-x: hidden;
+  position: relative;
 }
 
 html[dir="rtl"] body {

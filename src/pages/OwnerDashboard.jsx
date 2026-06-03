@@ -540,7 +540,7 @@ export default function OwnerDashboard() {
                     onClick={() => toggleGroup(group.id)}
                     aria-expanded={isOpen}
                     aria-label={`${group.label} section`}
-                    className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-mono text-[11px] uppercase tracking-[.14em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
+                    className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
                       groupActive ? 'text-accent' : 'text-neutral hover:text-neutral-2'
                     }`}
                   >
@@ -605,7 +605,7 @@ export default function OwnerDashboard() {
 
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('dashboard.overview')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('dashboard.overview')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('dashboard.ownerTitle')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('dashboard.ownerSubtitle')}</p>
             </div>
@@ -614,7 +614,7 @@ export default function OwnerDashboard() {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 mb-6 animate-fadeUp" style={{ animationDelay: '40ms' }}>
             <div className="bg-bg-2 border border-line rounded-xl shadow-card p-5">
               <div className="flex items-start justify-between mb-3">
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('dashboard.totalRevenue')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('dashboard.totalRevenue')}</span>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(234,179,8,.1)', color: '#facc15' }}>
                   <CoinsIcon />
                 </div>
@@ -630,7 +630,7 @@ export default function OwnerDashboard() {
 
             <div className="bg-bg-2 border border-line rounded-xl shadow-card p-5">
               <div className="flex items-start justify-between mb-3">
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('dashboard.occupancyRate')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('dashboard.occupancyRate')}</span>
                 <div className="w-8 h-8 rounded-lg bg-bg-3 border border-line flex items-center justify-center text-neutral-2">
                   <OccupancyIcon />
                 </div>
@@ -652,7 +652,7 @@ export default function OwnerDashboard() {
 
             <div className="bg-bg-2 border border-line rounded-xl shadow-card p-5">
               <div className="flex items-start justify-between mb-3">
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('dashboard.activeIotDevices')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('dashboard.activeIotDevices')}</span>
                 <div className="w-8 h-8 rounded-lg bg-bg-3 border border-line flex items-center justify-center text-neutral-2">
                   <NetworkDotsIcon />
                 </div>
@@ -668,7 +668,7 @@ export default function OwnerDashboard() {
 
             <div className="rounded-xl p-5 relative overflow-hidden" style={{ backgroundColor: 'rgba(239,68,68,.05)', border: '1px solid rgba(239,68,68,.2)' }}>
               <div className="flex items-start justify-between mb-3">
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]" style={{ color: 'rgba(239,68,68,.8)' }}>{t('dashboard.securityAlerts')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]" style={{ color: 'rgba(239,68,68,.8)' }}>{t('dashboard.securityAlerts')}</span>
                 <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(239,68,68,.12)', color: '#f87171' }}>
                   <ShieldAlertIcon size={18} />
                 </div>
@@ -734,8 +734,8 @@ export default function OwnerDashboard() {
                 className="w-full rounded-xl px-4 py-5 flex flex-col items-center gap-1.5 bg-red-600 cursor-pointer hover:bg-red-500 transition-all duration-200 border-0"
               >
                 <WarningTriangleIcon size={28} />
-                <span className="font-inter text-[13px] font-bold text-white uppercase tracking-[.14em]">{t('dashboard.globalDoorUnlock')}</span>
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-white/60">{t('dashboard.fireOnly')}</span>
+                <span className="font-inter text-[13px] font-bold text-white uppercase tracking-[.1em]">{t('dashboard.globalDoorUnlock')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-white/60">{t('dashboard.fireOnly')}</span>
               </button>
             </section>
 
@@ -751,6 +751,7 @@ export default function OwnerDashboard() {
             return (
               <button
                 key={group.id}
+                onClick={() => navigate(rawGroup.mobilePath)}
                 aria-label={translateNavLabel(rawGroup.label, t)}
                 aria-current={active ? 'page' : undefined}
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors cursor-pointer bg-transparent border-0 focus:ring-2 focus:ring-accent/40 ${
@@ -758,7 +759,7 @@ export default function OwnerDashboard() {
                 }`}
               >
                 <span aria-hidden="true"><NavIcon type={group.mobileIcon} /></span>
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">
                   {translateNavLabel(rawGroup.label, t).split(' ')[0]}
                 </span>
               </button>

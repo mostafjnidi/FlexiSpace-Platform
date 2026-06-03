@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
@@ -6,7 +6,7 @@ import { useI18n } from '../i18n'
 
 function Eyebrow({ label }) {
   return (
-    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 border border-line rounded-full bg-white/[.05] font-mono text-[11px] uppercase tracking-[.14em] text-ink-2">
+    <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 border border-line rounded-full bg-white/[.05] font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">
       <span className="w-1.5 h-1.5 rounded-full bg-accent" />
       {label}
     </div>
@@ -118,12 +118,12 @@ function HeroSection() {
                 </svg>
                 <span className="font-fraunces text-xl font-medium text-ink">4.9/5</span>
               </div>
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('home.guestRating')}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('home.guestRating')}</span>
             </div>
             <div className="w-px h-8 bg-line" />
             <div>
               <span className="font-fraunces text-xl font-medium text-ink block mb-0.5">12+</span>
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('home.globalLocations')}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('home.globalLocations')}</span>
             </div>
           </div>
         </div>
@@ -138,7 +138,7 @@ function HeroSection() {
             <div className="absolute inset-0 bg-gradient-to-t from-bg/70 to-transparent" />
             <div className="absolute bottom-0 left-0 right-0 p-5 flex items-center justify-between">
               <div>
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-accent mb-1 block">{t('home.featuredLocation')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-accent mb-1 block">{t('home.featuredLocation')}</span>
                 <h3 className="font-fraunces text-lg font-medium text-ink m-0">The Pinnacle</h3>
                 <div className="flex items-center gap-1.5 mt-1">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
@@ -169,7 +169,7 @@ function EnvironmentCard({ badge, image, title, description, capacity, delay, t 
         <img src={image} alt={title} className="w-full h-full object-cover" aria-hidden="true" />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-2/60 to-transparent" />
         <div className="absolute top-4 left-4">
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-2/80 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-ink-2">
+          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-bg-2/80 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">
             {badge}
           </span>
         </div>
@@ -178,8 +178,8 @@ function EnvironmentCard({ badge, image, title, description, capacity, delay, t 
         <h3 className="font-fraunces text-xl font-medium text-ink mb-2 mt-0">{title}</h3>
         <p className="font-inter text-[13.5px] text-neutral-2 leading-relaxed mb-4">{description}</p>
         <div className="flex items-center justify-between pt-3 border-t border-line">
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('home.capacity')} {capacity}</span>
-          <button aria-label={`${t('home.reserve')} ${title}`} className="font-mono text-[11px] uppercase tracking-[.14em] text-accent hover:text-accent-2 transition-colors duration-200 cursor-pointer bg-transparent border-0 p-0">
+          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('home.capacity')} {capacity}</span>
+          <button aria-label={`${t('home.reserve')} ${title}`} className="font-inter text-[11px] uppercase tracking-[.1em] text-accent hover:text-accent-2 transition-colors duration-200 cursor-pointer bg-transparent border-0 p-0">
             {t('home.reserve')}
           </button>
         </div>
@@ -435,7 +435,7 @@ function Footer() {
             </div>
           </div>
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral block mb-5">{t('home.portfolio')}</span>
+            <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral block mb-5">{t('home.portfolio')}</span>
             <ul className="flex flex-col gap-3 list-none m-0 p-0">
               {portfolioLinks.map((l) => (
                 <li key={l}>
@@ -445,7 +445,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral block mb-5">{t('home.solutions')}</span>
+            <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral block mb-5">{t('home.solutions')}</span>
             <ul className="flex flex-col gap-3 list-none m-0 p-0">
               {solutionsLinks.map((l) => (
                 <li key={l}>
@@ -455,7 +455,7 @@ function Footer() {
             </ul>
           </div>
           <div>
-            <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral block mb-5">{t('home.support')}</span>
+            <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral block mb-5">{t('home.support')}</span>
             <ul className="flex flex-col gap-3 list-none m-0 p-0">
               {supportLinks.map((l) => (
                 <li key={l}>

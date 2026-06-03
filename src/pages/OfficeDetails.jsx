@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useNavigate, useLocation, useParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import BrandLogo from '../components/BrandLogo'
@@ -171,14 +171,14 @@ function DeviceRow({ device }) {
         </span>
         <div>
           <div className="font-inter text-[13px] text-ink leading-tight">{device.name}</div>
-          <div className="font-mono text-[11px] uppercase tracking-[.12em] text-neutral mt-0.5">
+          <div className="font-inter text-[11px] uppercase tracking-[.12em] text-neutral mt-0.5">
             {t(`office.devices.${device.device_type}`) !== `office.devices.${device.device_type}` ? t(`office.devices.${device.device_type}`) : (DEVICE_TYPE_LABELS[device.device_type] ?? device.device_type)}
           </div>
         </div>
       </div>
       <div className="flex items-center gap-1.5">
         <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
-        <span className="font-mono text-[11px] uppercase tracking-[.12em] text-neutral-2">
+        <span className="font-inter text-[11px] uppercase tracking-[.12em] text-neutral-2">
           {translateStatusLabel(device.status, t, t('common.unknown'))}
         </span>
       </div>
@@ -193,7 +193,7 @@ function MetaCard({ label, value, icon }) {
     <div className="flex items-start gap-3 bg-bg-3 border border-line rounded-xl px-4 py-3">
       <span className="text-neutral-2 mt-0.5 shrink-0">{icon}</span>
       <div>
-        <div className="font-mono text-[11px] uppercase tracking-[.12em] text-neutral mb-0.5">{label}</div>
+        <div className="font-inter text-[11px] uppercase tracking-[.12em] text-neutral mb-0.5">{label}</div>
         <div className="font-inter text-[13px] text-ink-2">{value}</div>
       </div>
     </div>
@@ -219,7 +219,7 @@ function PageShell({ onBack, children }) {
         <button
           type="button"
           onClick={onBack}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-bg-2 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-bg-2 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
         >
           <ArrowLeftIcon />
           {t('common.back')}
@@ -239,7 +239,7 @@ function LoadingState({ onBack }) {
           <span className="text-neutral-2">
             <SpinnerIcon />
           </span>
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('office.loading')}</span>
+          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('office.loading')}</span>
         </div>
       </div>
     </PageShell>
@@ -259,7 +259,7 @@ function ErrorState({ message, onBack }) {
           </div>
           <button
             onClick={onBack}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 hover:text-ink hover:bg-ink/[.06] transition-all duration-200 cursor-pointer bg-transparent"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 hover:text-ink hover:bg-ink/[.06] transition-all duration-200 cursor-pointer bg-transparent"
           >
             <ArrowLeftIcon />
             {t('common.back')}
@@ -364,7 +364,7 @@ export default function OfficeDetails() {
         <button
           type="button"
           onClick={handleBack}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-bg-2 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-bg-2 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 hover:text-ink hover:border-accent/40 transition-all duration-200 cursor-pointer"
         >
           <ArrowLeftIcon />
           {t('common.back')}
@@ -382,7 +382,7 @@ export default function OfficeDetails() {
             <div className="absolute inset-0 bg-gradient-to-t from-bg/60 to-transparent" />
             {!isActive && (
               <div className="absolute inset-0 bg-bg/50 flex items-center justify-center">
-                <span className="font-mono text-[12px] uppercase tracking-[.14em] text-ink bg-bg/80 px-4 py-2 rounded-full border border-line">
+                <span className="font-inter text-[12px] uppercase tracking-[.1em] text-ink bg-bg/80 px-4 py-2 rounded-full border border-line">
                   {t('office.currentlyUnavailable')}
                 </span>
               </div>
@@ -396,7 +396,7 @@ export default function OfficeDetails() {
                   <span
                     className={`w-2 h-2 rounded-full shrink-0 ${isActive ? 'bg-accent' : 'bg-red-400'}`}
                   />
-                  <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+                  <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
                     {isActive ? t('common.available') : t('common.unavailable')}
                   </span>
                 </div>
@@ -434,7 +434,7 @@ export default function OfficeDetails() {
 
               {office.description && (
                 <div>
-                  <h2 className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 mb-3">
+                  <h2 className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 mb-3">
                     {t('office.aboutSpace')}
                   </h2>
                   <p className="font-inter text-[14px] text-ink-2 leading-relaxed">
@@ -444,7 +444,7 @@ export default function OfficeDetails() {
               )}
 
               <div>
-                <h2 className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2 mb-3">
+                <h2 className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2 mb-3">
                   {t('office.smartOffice')}
                 </h2>
                 {!devicesLoaded ? (
@@ -471,7 +471,7 @@ export default function OfficeDetails() {
             <div className="md:sticky md:top-6">
               <div className="bg-bg-2 border border-accent/40 rounded-2xl p-6 flex flex-col gap-5">
                 <div>
-                  <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">{t('office.hourlyRate')}</span>
+                  <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">{t('office.hourlyRate')}</span>
                   <div className="flex items-baseline gap-1.5 mt-1">
                     <span className="font-inter font-semibold text-[26px] text-accent tracking-tight">
                       {formatPrice(office.hourly_rate_cents, office.currency)}

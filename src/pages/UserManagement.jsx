@@ -383,7 +383,7 @@ const IOT_FILTER_LABEL_KEYS = {
 
 function TierBadge({ tier, t }) {
   if (tier === 'Enterprise') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-purple-400/10 border-purple-400/30 text-purple-300 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-purple-400/10 border-purple-400/30 text-purple-300 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
         <path d="M6 1.5L10.5 6 6 10.5 1.5 6 6 1.5Z" stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round" />
       </svg>
@@ -391,7 +391,7 @@ function TierBadge({ tier, t }) {
     </span>
   )
   if (tier === 'Premium') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-amber-400/10 border-amber-400/30 text-amber-400 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-amber-400/10 border-amber-400/30 text-amber-400 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="currentColor" aria-hidden="true">
         <path d="M6 1l1.3 3.8H11L8 7l1.1 3.8L6 8.6 2.9 10.8 4 7 1 4.8h3.7L6 1Z" />
       </svg>
@@ -399,7 +399,7 @@ function TierBadge({ tier, t }) {
     </span>
   )
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-full border bg-neutral-400/10 border-neutral-400/20 text-neutral font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full border bg-neutral-400/10 border-neutral-400/20 text-neutral font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       {t('userManagement.standard')}
     </span>
   )
@@ -407,19 +407,19 @@ function TierBadge({ tier, t }) {
 
 function StatusBadge({ status, t }) {
   if (status === 'active') return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981] font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-[#10B981]/10 border-[#10B981]/30 text-[#10B981] font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" />
       {t('userManagement.activeBadge')}
     </span>
   )
   if (status === 'suspended') return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-red-400/10 border-red-400/30 text-red-400 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-red-400/10 border-red-400/30 text-red-400 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
       {t('userManagement.suspendedBadge')}
     </span>
   )
   return (
-    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-amber-400/10 border-amber-400/30 text-amber-400 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full border bg-amber-400/10 border-amber-400/30 text-amber-400 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
       {t('userManagement.pendingBadge')}
     </span>
@@ -428,12 +428,12 @@ function StatusBadge({ status, t }) {
 
 function IoTIndicator({ access, t }) {
   if (access === 'granted') return (
-    <span className="inline-flex items-center gap-1.5 text-[#10B981] font-mono text-[11px] uppercase tracking-[.14em]">
+    <span className="inline-flex items-center gap-1.5 text-[#10B981] font-inter text-[11px] uppercase tracking-[.1em]">
       <UnlockIcon /> {t('userManagement.grantedBadge')}
     </span>
   )
   return (
-    <span className="inline-flex items-center gap-1.5 text-red-400 font-mono text-[11px] uppercase tracking-[.14em]">
+    <span className="inline-flex items-center gap-1.5 text-red-400 font-inter text-[11px] uppercase tracking-[.1em]">
       <LockIcon /> {t('userManagement.revokedBadge')}
     </span>
   )
@@ -441,7 +441,7 @@ function IoTIndicator({ access, t }) {
 
 function RoleBadge({ role, t }) {
   if (role === 'admin') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-accent/10 border-accent/30 text-accent font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-accent/10 border-accent/30 text-accent font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
         <path d="M6 1L1.5 3.5v3C1.5 9 3.5 10.8 6 11.5c2.5-.7 4.5-2.5 4.5-5v-3L6 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
       </svg>
@@ -449,7 +449,7 @@ function RoleBadge({ role, t }) {
     </span>
   )
   if (role === 'operator') return (
-    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-blue-400/10 border-blue-400/30 text-blue-300 font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full border bg-blue-400/10 border-blue-400/30 text-blue-300 font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
         <circle cx="6" cy="4" r="2.2" stroke="currentColor" strokeWidth="1.2" />
         <path d="M1.5 10.5c0-2.2 2-4 4.5-4s4.5 1.8 4.5 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
@@ -458,7 +458,7 @@ function RoleBadge({ role, t }) {
     </span>
   )
   return (
-    <span className="inline-flex items-center px-2.5 py-1 rounded-full border bg-neutral-400/10 border-neutral-400/20 text-neutral font-mono text-[11px] uppercase tracking-[.14em] whitespace-nowrap">
+    <span className="inline-flex items-center px-2.5 py-1 rounded-full border bg-neutral-400/10 border-neutral-400/20 text-neutral font-inter text-[11px] uppercase tracking-[.1em] whitespace-nowrap">
       {t('userManagement.clientBadge')}
     </span>
   )
@@ -473,7 +473,7 @@ function HistoryEventRow({ event }) {
       <span className="mt-[5px] w-1.5 h-1.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
       <div className="flex-1 min-w-0">
         <p className="font-inter text-[12px] text-ink leading-snug">{event.event}</p>
-        <p className="font-mono text-[11px] text-neutral mt-0.5">{event.time}</p>
+        <p className="font-inter text-[11px] text-neutral mt-0.5">{event.time}</p>
       </div>
     </div>
   )
@@ -649,7 +649,7 @@ export default function UserManagement() {
                     onClick={() => toggleGroup(rawGroup.id)}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                   >
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                       {group.label}
                     </span>
                     <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -699,7 +699,7 @@ export default function UserManagement() {
 
           {/* Page title */}
           <div className="mb-8 animate-fadeUp" style={{ '--delay': '0ms' }}>
-            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1">{t('userManagement.members')}</p>
+            <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1">{t('userManagement.members')}</p>
             <h1 className="font-inter text-[30px] font-bold text-ink leading-none tracking-[.02em] mb-2">
               {t('userManagement.registeredMembers')}
             </h1>
@@ -711,29 +711,29 @@ export default function UserManagement() {
           {/* Stat cards */}
           <div className="grid grid-cols-3 gap-4 mb-8 animate-fadeUp" style={{ '--delay': '40ms' }}>
             <div className="bg-bg border border-line rounded-xl px-5 py-4">
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('userManagement.totalRegistered')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('userManagement.totalRegistered')}</p>
               <p className="font-inter text-[30px] font-bold text-ink leading-none tracking-[.02em]">1,248</p>
-              <p className="font-mono text-[11px] text-neutral mt-2">{t('userManagement.allPlatformAccounts')}</p>
+              <p className="font-inter text-[11px] text-neutral mt-2">{t('userManagement.allPlatformAccounts')}</p>
             </div>
 
             <div className="bg-bg border border-line rounded-xl px-5 py-4">
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('userManagement.currentlyInSpace')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('userManagement.currentlyInSpace')}</p>
               <div className="flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
                 <p className="font-inter text-[30px] font-bold text-accent leading-none tracking-[.02em]">42</p>
               </div>
-              <p className="font-mono text-[11px] text-neutral mt-2">{t('userManagement.activeViaIot')}</p>
+              <p className="font-inter text-[11px] text-neutral mt-2">{t('userManagement.activeViaIot')}</p>
             </div>
 
             <div className={`bg-bg border rounded-xl px-5 py-4 transition-colors duration-300 ${alertCount > 0 ? 'border-red-400/30' : 'border-line'}`}>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('userManagement.securityAlerts')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('userManagement.securityAlerts')}</p>
               <div className="flex items-center gap-2">
                 {alertCount > 0 && <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse shrink-0" />}
                 <p className={`font-inter text-[30px] font-bold leading-none tracking-[.02em] transition-colors duration-300 ${alertCount > 0 ? 'text-red-400' : 'text-ink'}`}>
                   {alertCount}
                 </p>
               </div>
-              <p className="font-mono text-[11px] text-neutral mt-2">{t('userManagement.accountsSuspended')}</p>
+              <p className="font-inter text-[11px] text-neutral mt-2">{t('userManagement.accountsSuspended')}</p>
             </div>
           </div>
 
@@ -772,7 +772,7 @@ export default function UserManagement() {
 
           {(loadingUsers || userLoadError) && (
             <div className="mb-5 animate-fadeUp" style={{ '--delay': '70ms' }}>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                 {loadingUsers ? t('userManagement.loadingMembers') : t('userManagement.showingFallback')}
               </p>
             </div>
@@ -792,7 +792,7 @@ export default function UserManagement() {
                     t('userManagement.iotGateAccess'),
                     t('userManagement.actions'),
                   ].map((col) => (
-                    <th key={col} className="px-5 py-3 text-left font-mono text-[11px] uppercase tracking-[.14em] text-neutral whitespace-nowrap">
+                    <th key={col} className="px-5 py-3 text-left font-inter text-[11px] uppercase tracking-[.1em] text-neutral whitespace-nowrap">
                       {col}
                     </th>
                   ))}
@@ -801,7 +801,7 @@ export default function UserManagement() {
               <tbody>
                 {filtered.length === 0 && (
                   <tr>
-                    <td colSpan={7} className="px-5 py-12 text-center font-mono text-[12px] text-neutral">
+                    <td colSpan={7} className="px-5 py-12 text-center font-inter text-[12px] text-neutral">
                       {t('userManagement.noMembersMatch')}
                     </td>
                   </tr>
@@ -813,11 +813,11 @@ export default function UserManagement() {
                     {/* Main row */}
                     <tr className={`border-b border-line transition-colors hover:bg-line/20 ${user.status === 'suspended' ? 'opacity-60' : ''}`}>
                       <td className="px-5 py-4 whitespace-nowrap">
-                        <span className="font-mono text-[12px] text-neutral">{user.id}</span>
+                        <span className="font-inter text-[12px] text-neutral">{user.id}</span>
                       </td>
                       <td className="px-5 py-4">
                         <p className="font-inter text-[13px] font-medium text-ink leading-snug">{user.name}</p>
-                        <p className="font-mono text-[11px] text-neutral mt-0.5">{user.email}</p>
+                        <p className="font-inter text-[11px] text-neutral mt-0.5">{user.email}</p>
                       </td>
                       <td className="px-5 py-4 whitespace-nowrap">
                         <TierBadge tier={user.tier} t={t} />
@@ -828,7 +828,7 @@ export default function UserManagement() {
                           <select
                             value={user.role}
                             onChange={(e) => changeRole(user.id, e.target.value)}
-                            className="px-1.5 py-0.5 bg-bg border border-line rounded text-neutral font-mono text-[11px] focus:outline-none focus:border-accent/50 cursor-pointer transition-colors hover:border-neutral/40"
+                            className="px-1.5 py-0.5 bg-bg border border-line rounded text-neutral font-inter text-[11px] focus:outline-none focus:border-accent/50 cursor-pointer transition-colors hover:border-neutral/40"
                           >
                             <option value="client">Client</option>
                             <option value="operator">Operator</option>
@@ -847,7 +847,7 @@ export default function UserManagement() {
                           {/* Toggle IoT */}
                           <button
                             onClick={() => toggleIoT(user.id)}
-                            className={`px-2.5 py-1 rounded-md border font-mono text-[11px] uppercase tracking-[.14em] transition-colors whitespace-nowrap ${
+                            className={`px-2.5 py-1 rounded-md border font-inter text-[11px] uppercase tracking-[.1em] transition-colors whitespace-nowrap ${
                               user.iotAccess === 'granted'
                                 ? 'border-red-400/30 text-red-400 hover:bg-red-400/10'
                                 : 'border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10'
@@ -861,7 +861,7 @@ export default function UserManagement() {
                             onClick={() =>
                               user.status === 'suspended' ? applySuspend(user.id) : initSuspend(user.id)
                             }
-                            className={`px-2.5 py-1 rounded-md border font-mono text-[11px] uppercase tracking-[.14em] transition-colors whitespace-nowrap ${
+                            className={`px-2.5 py-1 rounded-md border font-inter text-[11px] uppercase tracking-[.1em] transition-colors whitespace-nowrap ${
                               user.status === 'suspended'
                                 ? 'border-[#10B981]/30 text-[#10B981] hover:bg-[#10B981]/10'
                                 : 'border-amber-400/30 text-amber-400 hover:bg-amber-400/10'
@@ -891,18 +891,18 @@ export default function UserManagement() {
                       <tr key={`confirm-${user.id}`} className="border-b border-amber-400/20 bg-amber-400/[.03]">
                         <td colSpan={7} className="px-5 py-3">
                           <div className="flex items-center gap-3 flex-wrap">
-                            <span className="font-mono text-[11px] text-amber-400 uppercase tracking-[.14em]">
+                            <span className="font-inter text-[11px] text-amber-400 uppercase tracking-[.1em]">
                               {t('userManagement.suspendWarning', { name: user.name })}
                             </span>
                             <button
                               onClick={() => applySuspend(user.id)}
-                              className="px-3 py-1 rounded-md bg-red-400/10 border border-red-400/30 text-red-400 font-mono text-[11px] uppercase tracking-[.14em] hover:bg-red-400/20 transition-colors"
+                              className="px-3 py-1 rounded-md bg-red-400/10 border border-red-400/30 text-red-400 font-inter text-[11px] uppercase tracking-[.1em] hover:bg-red-400/20 transition-colors"
                             >
                               {t('userManagement.confirmSuspend')}
                             </button>
                             <button
                               onClick={() => setConfirmSuspendId(null)}
-                              className="px-3 py-1 rounded-md border border-line text-neutral font-mono text-[11px] uppercase tracking-[.14em] hover:text-ink transition-colors"
+                              className="px-3 py-1 rounded-md border border-line text-neutral font-inter text-[11px] uppercase tracking-[.1em] hover:text-ink transition-colors"
                             >
                               {t('common.cancel')}
                             </button>
@@ -915,7 +915,7 @@ export default function UserManagement() {
                     {openHistoryId === user.id && (
                       <tr key={`history-${user.id}`} className="border-b border-line bg-line/10">
                         <td colSpan={7} className="px-8 py-5">
-                          <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">
+                          <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">
                             {t('userManagement.activityLog')} — {user.name}
                             <span className="ml-3 normal-case text-neutral/60">{t('userManagement.lastSeenLabel')} {user.lastSeen}</span>
                           </p>
@@ -935,10 +935,10 @@ export default function UserManagement() {
 
             {/* Table footer */}
             <div className="px-5 py-3 border-t border-line flex items-center justify-between">
-              <span className="font-mono text-[11px] text-neutral">
+              <span className="font-inter text-[11px] text-neutral">
                 {t('userManagement.showingOf', { shown: filtered.length, total: users.length })}
               </span>
-              <span className="font-mono text-[11px] text-neutral">
+              <span className="font-inter text-[11px] text-neutral">
                 {t('userManagement.suspendedCount', { count: alertCount })} · {t('userManagement.iotRevokedCount', { count: revokedCount })}
               </span>
             </div>
@@ -963,7 +963,7 @@ export default function UserManagement() {
               }`}
             >
               <NavIcon type={rawGroup.mobileIcon} />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">{group.label}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">{group.label}</span>
             </button>
           )
         })}

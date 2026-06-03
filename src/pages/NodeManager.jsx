@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import BrandLogo from '../components/BrandLogo'
@@ -838,14 +838,14 @@ function NodeCard({ node, t, enabled, onToggle, onAlertClick, onReboot, selected
                   <button
                     aria-label={`View alert for ${node.name}`}
                     onClick={() => onAlertClick(node)}
-                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-mono text-[11px] uppercase tracking-[.14em] cursor-pointer border-0 transition-all duration-150 hover:opacity-80 focus:ring-2 focus:ring-red-500/40"
+                    className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full font-inter text-[11px] uppercase tracking-[.1em] cursor-pointer border-0 transition-all duration-150 hover:opacity-80 focus:ring-2 focus:ring-red-500/40"
                     style={{ backgroundColor: 'rgba(239,68,68,.12)', border: '1px solid rgba(239,68,68,.4)', color: '#f87171' }}
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                     {t('nodeManager.errView')}
                   </button>
                 ) : (
-                  <div className="inline-flex items-center px-2 py-0.5 rounded-full font-mono text-[11px] uppercase tracking-[.14em]"
+                  <div className="inline-flex items-center px-2 py-0.5 rounded-full font-inter text-[11px] uppercase tracking-[.1em]"
                     style={{ backgroundColor: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.25)', color: '#10B981' }}
                   >
                     {t('nodeManager.nominal')}
@@ -853,7 +853,7 @@ function NodeCard({ node, t, enabled, onToggle, onAlertClick, onReboot, selected
                 )}
               </div>
               <h3 className="font-inter text-[13px] font-semibold text-ink leading-tight">{node.name}</h3>
-              <p className="font-mono text-[11px] text-neutral opacity-75 mt-0.5 uppercase tracking-[.14em]">
+              <p className="font-inter text-[11px] text-neutral opacity-75 mt-0.5 uppercase tracking-[.1em]">
                 {node.nodeId} · {node.version}
               </p>
               <div className="flex items-center gap-1.5 mt-1.5">
@@ -934,7 +934,7 @@ function AlertModal({ node, onClose, t }) {
               <WarningSmIcon />
             </div>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-red-400 mb-0.5">{t('nodeManager.activeAlert')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-red-400 mb-0.5">{t('nodeManager.activeAlert')}</p>
               <p className="font-inter text-[13px] font-semibold text-ink">{node.name}</p>
             </div>
           </div>
@@ -952,7 +952,7 @@ function AlertModal({ node, onClose, t }) {
           <div className="grid grid-cols-2 gap-3 mb-4">
             {infoRows.map(([label, val]) => (
               <div key={label} className="bg-bg-3 rounded-lg p-3">
-                <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1">{label}</p>
+                <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1">{label}</p>
                 <p className="font-inter text-[13px] font-semibold text-ink">{val}</p>
               </div>
             ))}
@@ -981,10 +981,10 @@ function LogLine({ entry }) {
   const isClass = typeof color === 'string' && color.startsWith('text-')
   return (
     <div className="flex items-start gap-2 py-0.5">
-      <span className="font-mono text-[11px] text-neutral shrink-0">[{entry.time}]</span>
-      <span className={`font-mono text-[11px] font-bold shrink-0 ${isClass ? color : ''}`} style={!isClass ? { color } : {}}>[{entry.type}]</span>
-      <span className="font-mono text-[11px] text-neutral shrink-0">{entry.direction}</span>
-      <span className={`font-mono text-[11px] break-all ${isClass ? color : ''}`} style={!isClass ? { color } : {}}>{entry.message}</span>
+      <span className="font-inter text-[11px] text-neutral shrink-0">[{entry.time}]</span>
+      <span className={`font-inter text-[11px] font-bold shrink-0 ${isClass ? color : ''}`} style={!isClass ? { color } : {}}>[{entry.type}]</span>
+      <span className="font-inter text-[11px] text-neutral shrink-0">{entry.direction}</span>
+      <span className={`font-inter text-[11px] break-all ${isClass ? color : ''}`} style={!isClass ? { color } : {}}>{entry.message}</span>
     </div>
   )
 }
@@ -1000,7 +1000,7 @@ function SensorRow({ sensor, isLast }) {
         <div className="font-inter text-[11px] font-normal text-neutral opacity-75 mt-0.5">{sensor.sub}</div>
       </div>
       {sensor.type === 'badge' ? (
-        <div className="inline-flex items-center px-2.5 py-1 rounded-lg font-mono text-[11px] uppercase tracking-[.14em]"
+        <div className="inline-flex items-center px-2.5 py-1 rounded-lg font-inter text-[11px] uppercase tracking-[.1em]"
           style={{ backgroundColor: 'rgba(16,185,129,.12)', border: '1px solid rgba(16,185,129,.25)', color: '#10B981' }}>
           {sensor.value}
         </div>
@@ -1032,7 +1032,7 @@ function FloorRoomCard({ room, onClick, simTick }) {
       <div className="flex items-start justify-between gap-2">
         <div className="flex-1 min-w-0">
           <h3 className="font-inter text-[13px] font-semibold text-ink truncate leading-tight">{room.officeName}</h3>
-          <p className="font-mono text-[10px] text-neutral uppercase tracking-[.12em] mt-0.5">
+          <p className="font-inter text-[10px] text-neutral uppercase tracking-[.12em] mt-0.5">
             {room.deviceCount} devices · {room.onlineDevices} online
           </p>
         </div>
@@ -1044,7 +1044,7 @@ function FloorRoomCard({ room, onClick, simTick }) {
             className={`w-1.5 h-1.5 rounded-full shrink-0${room.status === 'OCCUPIED' ? ' animate-pulse' : ''}`}
             style={{ backgroundColor: cfg.dot }}
           />
-          <span className="font-mono text-[10px] uppercase tracking-[.12em]" style={{ color: cfg.color }}>
+          <span className="font-inter text-[10px] uppercase tracking-[.12em]" style={{ color: cfg.color }}>
             {cfg.label}
           </span>
         </div>
@@ -1053,26 +1053,26 @@ function FloorRoomCard({ room, onClick, simTick }) {
       <div className="grid grid-cols-3 gap-2">
         <div className="rounded-lg p-2 text-center"
           style={{ border: tempAlert ? '1px solid rgba(239,68,68,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">Temp</div>
+          <div className="font-inter text-[9px] uppercase text-neutral mb-0.5">Temp</div>
           <div className="font-inter text-[13px] font-semibold" style={{ color: tempAlert ? '#f87171' : '#F1F5F9' }}>
             {temperature != null ? `${temperature}°C` : '—'}
           </div>
-          {tempAlert && <div className="font-mono text-[9px] text-red-400 mt-0.5">HIGH</div>}
+          {tempAlert && <div className="font-inter text-[9px] text-red-400 mt-0.5">HIGH</div>}
         </div>
         <div className="rounded-lg p-2 text-center"
           style={{ border: humidAlert ? '1px solid rgba(245,158,11,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">Humid</div>
+          <div className="font-inter text-[9px] uppercase text-neutral mb-0.5">Humid</div>
           <div className="font-inter text-[13px] font-semibold" style={{ color: humidAlert ? '#f59e0b' : '#F1F5F9' }}>
             {humidity != null ? `${humidity}%` : '—'}
           </div>
         </div>
         <div className="rounded-lg p-2 text-center"
           style={{ border: co2Alert ? '1px solid rgba(167,139,250,.25)' : '1px solid rgba(255,255,255,0.05)' }}>
-          <div className="font-mono text-[9px] uppercase text-neutral mb-0.5">CO₂</div>
+          <div className="font-inter text-[9px] uppercase text-neutral mb-0.5">CO₂</div>
           <div className="font-inter text-[13px] font-semibold" style={{ color: co2Alert ? '#a78bfa' : '#F1F5F9' }}>
             {co2 != null ? `${co2}` : '—'}
           </div>
-          {co2Alert && <div className="font-mono text-[9px] mt-0.5" style={{ color: '#a78bfa' }}>HIGH</div>}
+          {co2Alert && <div className="font-inter text-[9px] mt-0.5" style={{ color: '#a78bfa' }}>HIGH</div>}
         </div>
       </div>
 
@@ -1089,7 +1089,7 @@ function FloorRoomCard({ room, onClick, simTick }) {
             </>
           )}
           {powerKw != null && (
-            <span className="font-mono text-[11px] text-neutral ml-1">⚡ {powerKw}kW</span>
+            <span className="font-inter text-[11px] text-neutral ml-1">⚡ {powerKw}kW</span>
           )}
         </div>
         <span className="font-inter text-[10px] text-neutral opacity-60">
@@ -1129,7 +1129,7 @@ function RoomDetailModal({ room, onClose, simTick }) {
       >
         <div className="flex items-center justify-between px-5 py-4 border-b border-line">
           <div>
-            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-0.5">Room Detail</p>
+            <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-0.5">Room Detail</p>
             <h3 className="font-inter text-[15px] font-semibold text-ink">{room.officeName}</h3>
           </div>
           <button
@@ -1152,7 +1152,7 @@ function RoomDetailModal({ room, onClose, simTick }) {
             />
             <span className="font-inter text-[13px] font-semibold" style={{ color: cfg.color }}>{cfg.label}</span>
             {room.booking && (
-              <span className="font-mono text-[11px] text-neutral ml-auto capitalize">
+              <span className="font-inter text-[11px] text-neutral ml-auto capitalize">
                 {room.booking.status.toLowerCase().replace(/_/g, ' ')}
               </span>
             )}
@@ -1162,7 +1162,7 @@ function RoomDetailModal({ room, onClose, simTick }) {
         <div className="grid grid-cols-2 gap-3 px-5 py-4">
           {details.map(([label, val]) => (
             <div key={label} className="bg-bg-3 rounded-lg p-3">
-              <p className="font-mono text-[10px] uppercase tracking-[.12em] text-neutral mb-1">{label}</p>
+              <p className="font-inter text-[10px] uppercase tracking-[.12em] text-neutral mb-1">{label}</p>
               <p className="font-inter text-[14px] font-semibold text-ink">{val}</p>
             </div>
           ))}
@@ -1208,12 +1208,12 @@ function FloorMapView({ rooms, isLoading, onRoomClick, simTick }) {
           <div key={status} className="flex items-center gap-1.5">
             <span className="w-2 h-2 rounded-full" style={{ backgroundColor: cfg.dot }} />
             <span className="font-inter text-[12px] text-neutral-2">{cfg.label}</span>
-            <span className="font-mono text-[11px] text-neutral opacity-60">({statusCounts[status] ?? 0})</span>
+            <span className="font-inter text-[11px] text-neutral opacity-60">({statusCounts[status] ?? 0})</span>
           </div>
         ))}
         <div className="ml-auto flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="font-mono text-[11px] uppercase tracking-[.12em] text-accent">Live</span>
+          <span className="font-inter text-[11px] uppercase tracking-[.12em] text-accent">Live</span>
         </div>
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -1236,7 +1236,7 @@ function AutomationTimeline({ events, isLoading }) {
         <h2 className="font-inter text-[16px] font-semibold text-ink">IoT Automation Timeline</h2>
         <div className="flex items-center gap-1.5">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="font-mono text-[11px] uppercase tracking-[.12em] text-accent">Live</span>
+          <span className="font-inter text-[11px] uppercase tracking-[.12em] text-accent">Live</span>
         </div>
       </div>
 
@@ -1289,14 +1289,14 @@ function AutomationTimeline({ events, isLoading }) {
                     <div className="flex items-center gap-2 mb-0.5 flex-wrap">
                       <span className="font-inter text-[13px] font-semibold text-ink">{event.title}</span>
                       <span
-                        className="px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-[.12em]"
+                        className="px-1.5 py-0.5 rounded font-inter text-[9px] uppercase tracking-[.12em]"
                         style={{ backgroundColor: cfg.bg, border: `1px solid ${cfg.border}`, color: cfg.color }}
                       >
                         {cfg.label}
                       </span>
                       {event.severity === 'error' && (
                         <span
-                          className="px-1.5 py-0.5 rounded font-mono text-[9px] uppercase tracking-[.12em]"
+                          className="px-1.5 py-0.5 rounded font-inter text-[9px] uppercase tracking-[.12em]"
                           style={{ backgroundColor: 'rgba(239,68,68,.1)', border: '1px solid rgba(239,68,68,.3)', color: '#f87171' }}
                         >
                           Alert
@@ -1305,7 +1305,7 @@ function AutomationTimeline({ events, isLoading }) {
                     </div>
                     <p className="font-inter text-[12px] text-neutral truncate">{event.description}</p>
                   </div>
-                  <span className="font-mono text-[11px] text-neutral-2 shrink-0 mt-0.5">{timeStr}</span>
+                  <span className="font-inter text-[11px] text-neutral-2 shrink-0 mt-0.5">{timeStr}</span>
                 </div>
               )
             })}
@@ -1830,7 +1830,7 @@ export default function NodeManager() {
                       onClick={() => toggleGroup(group.id)}
                       aria-expanded={isOpen}
                       aria-label={`${group.label} section`}
-                      className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-mono text-[11px] uppercase tracking-[.14em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
+                      className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
                         groupActive ? 'text-accent' : 'text-neutral hover:text-neutral-2'
                       }`}
                     >
@@ -1886,7 +1886,7 @@ export default function NodeManager() {
               {/* Page Header */}
               <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
                 <div>
-                  <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('nodeManager.section')}</p>
+                  <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('nodeManager.section')}</p>
                   <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('nodeManager.title')}</h1>
                   <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('nodeManager.subtitle')}</p>
                 </div>
@@ -1901,7 +1901,7 @@ export default function NodeManager() {
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-3 animate-fadeUp" style={{ animationDelay: '40ms' }}>
                     <div className="bg-bg-2 border border-line rounded-xl shadow-card p-4">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('nodeManager.totalNodes')}</div>
+                        <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('nodeManager.totalNodes')}</div>
                         <div className="w-7 h-7 rounded-lg bg-bg-3 border border-line flex items-center justify-center text-neutral-2">
                           <MonitorNodesIcon />
                         </div>
@@ -1914,7 +1914,7 @@ export default function NodeManager() {
 
                     <div className="bg-bg-2 rounded-xl p-4" style={{ border: '1px solid rgba(16,185,129,.15)' }}>
                       <div className="flex items-start justify-between mb-2">
-                        <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('nodeManager.onlineStatus')}</div>
+                        <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('nodeManager.onlineStatus')}</div>
                         <span className="w-2 h-2 rounded-full mt-1 animate-pulse" style={{ backgroundColor: '#10B981' }} />
                       </div>
                       <div className="font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums text-ink">
@@ -1927,7 +1927,7 @@ export default function NodeManager() {
 
                     <div className="bg-bg-2 border border-line rounded-xl shadow-card p-4">
                       <div className="flex items-start justify-between mb-2">
-                        <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('nodeManager.pwrConsumption')}</div>
+                        <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('nodeManager.pwrConsumption')}</div>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(234,179,8,.12)', color: '#facc15' }}>
                           <ZapIcon />
                         </div>
@@ -1941,7 +1941,7 @@ export default function NodeManager() {
 
                     <div className="rounded-xl p-4" style={{ backgroundColor: 'rgba(239,68,68,.05)', border: '1px solid rgba(239,68,68,.35)' }}>
                       <div className="flex items-start justify-between mb-2">
-                        <div className="font-mono text-[11px] uppercase tracking-[.14em]" style={{ color: 'rgba(239,68,68,.8)' }}>{t('nodeManager.activeAlerts')}</div>
+                        <div className="font-inter text-[11px] uppercase tracking-[.1em]" style={{ color: 'rgba(239,68,68,.8)' }}>{t('nodeManager.activeAlerts')}</div>
                         <div className="w-7 h-7 rounded-lg flex items-center justify-center" style={{ backgroundColor: 'rgba(239,68,68,.12)', color: '#f87171' }}>
                           <WarningSmIcon />
                         </div>
@@ -2030,7 +2030,7 @@ export default function NodeManager() {
                       {nodes.map((node) => (
                         <div key={node.id}>
                           {rebootFeedback === node.id && (
-                            <div className="mb-2 px-3 py-2 rounded-lg font-mono text-[11px] uppercase tracking-[.14em] text-center animate-fadeUp"
+                            <div className="mb-2 px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] text-center animate-fadeUp"
                               style={{ backgroundColor: 'rgba(96,165,250,.08)', border: '1px solid rgba(96,165,250,.25)', color: '#60a5fa' }}>
                               {t('nodeManager.rebootSignal', { nodeId: node.nodeId })}
                             </div>
@@ -2056,7 +2056,7 @@ export default function NodeManager() {
                       <div className="flex items-center justify-between px-4 py-3 border-b border-line">
                         <div className="flex items-center gap-2 text-neutral-2">
                           <TerminalIcon />
-                          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-ink-2">{t('nodeManager.liveLogs')}</span>
+                          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">{t('nodeManager.liveLogs')}</span>
                         </div>
                         <div className="flex items-center gap-1.5">
                           {logFilters.map((f) => (
@@ -2147,7 +2147,7 @@ export default function NodeManager() {
                   }`}
                 >
                   <NavIcon type={rawGroup.mobileIcon} />
-                  <span className="font-mono text-[11px] uppercase tracking-[.14em]">{tGroup.label.split(' ')[0]}</span>
+                  <span className="font-inter text-[11px] uppercase tracking-[.1em]">{tGroup.label.split(' ')[0]}</span>
                 </button>
               )
             })}

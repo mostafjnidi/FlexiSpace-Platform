@@ -324,13 +324,13 @@ function BookingRow({ booking, onMarkArrived, checkinInFlight, t }) {
   return (
     <div className="flex items-stretch gap-4 animate-fadeUp" style={{ '--delay': booking.delay }}>
       <div className="w-16 shrink-0 flex flex-col items-end justify-center gap-0.5 pt-1">
-        <div className={`flex items-center gap-1 font-mono text-[11px] ${isActive ? 'text-accent' : 'text-neutral'}`}>
+        <div className={`flex items-center gap-1 font-inter text-[11px] ${isActive ? 'text-accent' : 'text-neutral'}`}>
           {isActive && (
             <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           )}
           {booking.startTime}
         </div>
-        <div className={`font-mono text-[11px] ${isActive ? 'text-accent' : 'text-neutral'}`}>{booking.endTime}</div>
+        <div className={`font-inter text-[11px] ${isActive ? 'text-accent' : 'text-neutral'}`}>{booking.endTime}</div>
       </div>
 
       <div
@@ -354,7 +354,7 @@ function BookingRow({ booking, onMarkArrived, checkinInFlight, t }) {
           </div>
           {isActive && booking.capacity && (
             <div className="mt-2">
-              <div className="font-mono text-[11px] text-accent uppercase tracking-[.14em] mb-1">
+              <div className="font-inter text-[11px] text-accent uppercase tracking-[.1em] mb-1">
                 {t('todaysBookings.capacityLabel')}: {booking.capacity.current}/{booking.capacity.max}
               </div>
               <div className="w-24 h-0.5 bg-bg-3 rounded-full overflow-hidden">
@@ -369,19 +369,19 @@ function BookingRow({ booking, onMarkArrived, checkinInFlight, t }) {
 
         <div className="flex items-center gap-2 shrink-0">
           {isCompleted && (
-            <span className="px-3 py-1.5 rounded-full bg-bg-3 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+            <span className="px-3 py-1.5 rounded-full bg-bg-3 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
               {t('todaysBookings.completedBadge')}
             </span>
           )}
           {isActive && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/20 border border-accent/30 font-mono text-[11px] uppercase tracking-[.14em] text-accent">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-accent/20 border border-accent/30 font-inter text-[11px] uppercase tracking-[.1em] text-accent">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               {t('todaysBookings.inSession')}
             </span>
           )}
           {isWaiting && (
             <>
-              <span className="px-3 py-1.5 rounded-full bg-bg-3 border border-line font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">
+              <span className="px-3 py-1.5 rounded-full bg-bg-3 border border-line font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">
                 {t('todaysBookings.waiting')}
               </span>
               <button
@@ -649,7 +649,7 @@ export default function TodaysBookings({ operatorMode = false }) {
                       onClick={() => toggleGroup(group.id)}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                     >
-                      <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                      <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                         {group.label}
                       </span>
                       <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
@@ -701,12 +701,12 @@ export default function TodaysBookings({ operatorMode = false }) {
           {/* 3-Layer Page Title */}
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('todaysBookings.section')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('todaysBookings.section')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('todaysBookings.overviewTitle')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('todaysBookings.liveMonitoring')}</p>
             </div>
             <div className="hidden md:flex items-center gap-2 shrink-0 mt-1 ml-auto">
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{todayLabel}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{todayLabel}</span>
             </div>
           </div>
 
@@ -714,20 +714,20 @@ export default function TodaysBookings({ operatorMode = false }) {
           <div className="flex items-center gap-3 mb-6 pb-5 border-b border-line animate-fadeUp" style={{ '--delay': '60ms' }}>
             <div className="flex items-center gap-2">
               <span className="font-inter text-[30px] font-bold text-ink leading-none tabular-nums">{totalCount}</span>
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('todaysBookings.total')}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('todaysBookings.total')}</span>
             </div>
             <span className="text-line font-mono text-neutral">·</span>
             <div className="flex items-center gap-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
               <span className="font-inter text-[30px] font-bold text-accent leading-none tabular-nums">{activeCount}</span>
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('todaysBookings.inSession')}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('todaysBookings.inSession')}</span>
             </div>
             <span className="text-line font-mono text-neutral">·</span>
             <div className="flex items-center gap-2">
               <span className="font-inter text-[30px] font-bold text-ink leading-none tabular-nums">{waitingCount}</span>
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('todaysBookings.waiting')}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('todaysBookings.waiting')}</span>
             </div>
-            <span className="ml-auto font-mono text-[11px] uppercase tracking-[.14em] text-neutral hidden md:block">{todayLabel}</span>
+            <span className="ml-auto font-inter text-[11px] uppercase tracking-[.1em] text-neutral hidden md:block">{todayLabel}</span>
           </div>
 
           {/* Booking Rows */}
@@ -738,9 +738,9 @@ export default function TodaysBookings({ operatorMode = false }) {
           )}
           <div className="flex flex-col gap-3">
             {loading ? (
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral py-8 text-center">{t('common.loading')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral py-8 text-center">{t('common.loading')}</p>
             ) : searchFiltered.length === 0 ? (
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral py-8 text-center">{t('todaysBookings.noBookings')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral py-8 text-center">{t('todaysBookings.noBookings')}</p>
             ) : (
               searchFiltered.map((booking) => (
                 <BookingRow
@@ -767,7 +767,7 @@ export default function TodaysBookings({ operatorMode = false }) {
                 onClick={() => navigate(item.path)}
                 className={`flex flex-col items-center gap-0.5 px-2 py-1 cursor-pointer bg-transparent border-0 transition-colors duration-200 ${isActive ? 'text-accent' : 'text-neutral-2'}`}>
                 <NavIcon type={item.icon} />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{item.shortLabel}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">{item.shortLabel}</span>
               </button>
             )
           })
@@ -780,7 +780,7 @@ export default function TodaysBookings({ operatorMode = false }) {
                 onClick={() => navigate(group.mobilePath)}
                 className={`flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer bg-transparent border-0 transition-colors duration-200 ${isActive ? 'text-accent' : 'text-neutral-2'}`}>
                 <NavIcon type={group.mobileIcon} />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{group.label.split(' ')[0]}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">{group.label.split(' ')[0]}</span>
               </button>
             )
           })

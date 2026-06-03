@@ -359,10 +359,10 @@ function GlobalCommandPanel({ t }) {
         className="w-full rounded-xl px-4 py-5 min-h-[112px] flex flex-col items-center justify-center gap-1.5 bg-red-600/80 border border-red-400/30 text-white cursor-pointer hover:bg-red-600 transition-all duration-200"
       >
         <WarningIcon />
-        <span className="font-inter text-[13px] font-bold uppercase tracking-[.14em] text-center">
+        <span className="font-inter text-[13px] font-bold uppercase tracking-[.1em] text-center">
           {t('commandCenter.globalDoorUnlock')}
         </span>
-        <span className="font-mono text-[11px] uppercase tracking-[.14em] text-white/70 text-center">
+        <span className="font-inter text-[11px] uppercase tracking-[.1em] text-white/70 text-center">
           {t('commandCenter.fireEmergencyOnly')}
         </span>
       </button>
@@ -475,10 +475,10 @@ function BookingCard({ request, onApprove, onReject, t }) {
   return (
     <div className="bg-bg-2 border border-line rounded-xl shadow-card p-4 flex flex-col gap-3">
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('commandCenter.bookingRequest')}</span>
+        <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('commandCenter.bookingRequest')}</span>
         <div className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-bg-3 border border-line">
           <span className="text-neutral"><ClockIcon /></span>
-          <span className="font-mono text-[11px] text-neutral-2">{request.age}</span>
+          <span className="font-inter text-[11px] text-neutral-2">{request.age}</span>
         </div>
       </div>
       <div>
@@ -541,7 +541,7 @@ function RoomCard({ room, doorLocked, onToggleDoor, remainingSecs, showToast, t 
                 <img src={room.avatar} alt={room.occupant}
                   className="w-8 h-8 rounded-full object-cover shrink-0" aria-hidden="true" />
               ) : (
-                <div className="w-8 h-8 rounded-full flex items-center justify-center font-mono text-[11px] font-bold shrink-0"
+                <div className="w-8 h-8 rounded-full flex items-center justify-center font-inter text-[11px] font-bold shrink-0"
                   style={{ backgroundColor: 'rgba(16,185,129,.2)', color: '#10B981' }}>
                   {room.initials}
                 </div>
@@ -571,19 +571,19 @@ function RoomCard({ room, doorLocked, onToggleDoor, remainingSecs, showToast, t 
       <div className="border-t border-line px-4 py-3 flex items-center justify-between gap-2">
         <div className={`flex items-center gap-1.5 ${isActive ? 'text-neutral-2' : 'text-neutral'}`}>
           {doorLocked ? <LockIcon /> : <UnlockIcon />}
-          <span className="font-mono text-[11px] uppercase tracking-[.14em]">
+          <span className="font-inter text-[11px] uppercase tracking-[.1em]">
             {doorLocked ? t('commandCenter.doorLocked') : t('commandCenter.doorUnlocked')}
           </span>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           {showToast && (
-            <span className="text-[#10B981] font-mono text-[11px] animate-fadeUp">
+            <span className="text-[#10B981] font-inter text-[11px] animate-fadeUp">
               {t('commandCenter.doorCommandSent')}
             </span>
           )}
           <button
             onClick={() => onToggleDoor(room.id)}
-            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-mono text-[11px] uppercase tracking-[.14em] font-semibold transition-all duration-200 cursor-pointer border-0 text-white ${
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] font-semibold transition-all duration-200 cursor-pointer border-0 text-white ${
               doorLocked
                 ? 'bg-red-500 hover:bg-red-600'
                 : 'bg-[#10B981] hover:bg-[#059669]'
@@ -651,13 +651,13 @@ function HealthAlertRow({ alert, t }) {
       <div className="flex-1 min-w-0">
         <div className="font-inter text-[13.5px] text-ink">{alert.device}</div>
         <div className={`font-inter text-[12px] mt-0.5 ${cfg.issueClass}`}>{alert.issueKey ? t(`commandCenter.${alert.issueKey}`) : alert.issue}</div>
-        <div className="font-mono text-[11px] text-neutral mt-1">{alert.time}</div>
+        <div className="font-inter text-[11px] text-neutral mt-1">{alert.time}</div>
         {alert.severity === 'warning' && (
           <div className="flex items-center gap-2 mt-2">
             <button
               onClick={handlePing}
               disabled={pingState === 'pinging'}
-              className="px-2.5 py-1 rounded border border-accent/30 text-accent font-mono text-[11px] transition-colors hover:bg-accent/10 cursor-pointer bg-transparent disabled:opacity-60"
+              className="px-2.5 py-1 rounded border border-accent/30 text-accent font-inter text-[11px] transition-colors hover:bg-accent/10 cursor-pointer bg-transparent disabled:opacity-60"
             >
               {pingState === 'idle'    ? t('commandCenter.pingDevice')    : ''}
               {pingState === 'pinging' ? `↻ ${t('commandCenter.pinging')}`   : ''}
@@ -665,7 +665,7 @@ function HealthAlertRow({ alert, t }) {
             </button>
             <button
               onClick={() => navigate('/facility-ops-hub')}
-              className="px-2.5 py-1 rounded border border-line text-neutral font-mono text-[11px] transition-colors hover:text-ink hover:border-neutral/40 cursor-pointer bg-transparent"
+              className="px-2.5 py-1 rounded border border-line text-neutral font-inter text-[11px] transition-colors hover:text-ink hover:border-neutral/40 cursor-pointer bg-transparent"
             >
               {t('commandCenter.createTicket')}
             </button>
@@ -993,10 +993,10 @@ export default function CommandCenter() {
         {/* Real-time Status Banner */}
         <div className="h-8 px-6 border-b border-line flex items-center gap-2 shrink-0">
           <span className="w-2 h-2 rounded-full bg-[#10B981] animate-pulse shrink-0" />
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-[#10B981]">{t('commandCenter.systemLive')}</span>
-          <span className="text-neutral font-mono text-[11px]">·</span>
-          <span className="font-mono text-[11px] text-neutral">{t('commandCenter.connected')}</span>
-          <span className="ml-auto font-mono text-[11px] text-neutral">{liveRooms.length + healthAlerts.length} {t('commandCenter.eventsLoaded')}</span>
+          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-[#10B981]">{t('commandCenter.systemLive')}</span>
+          <span className="text-neutral font-inter text-[11px]">·</span>
+          <span className="font-inter text-[11px] text-neutral">{t('commandCenter.connected')}</span>
+          <span className="ml-auto font-inter text-[11px] text-neutral">{liveRooms.length + healthAlerts.length} {t('commandCenter.eventsLoaded')}</span>
         </div>
 
         {/* ── Main ── */}
@@ -1115,7 +1115,7 @@ export default function CommandCenter() {
                         key={check.time + check.name}
                         className="flex items-center gap-4 py-3.5 w-full text-left hover:bg-ink/[.04] transition-colors duration-150 cursor-pointer bg-transparent border-0 rounded-lg px-1"
                       >
-                        <span className="font-mono text-[11px] text-accent w-10 shrink-0">{check.time}</span>
+                        <span className="font-inter text-[11px] text-accent w-10 shrink-0">{check.time}</span>
                         <span className="font-inter text-[13.5px] text-ink-2 flex-1">{check.name}</span>
                         <span className="text-neutral-2 shrink-0"><ChevronRightIcon /></span>
                       </button>

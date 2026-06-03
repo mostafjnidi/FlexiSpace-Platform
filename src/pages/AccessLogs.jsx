@@ -496,7 +496,7 @@ function MethodBadge({ method }) {
   }[method]
 
   return (
-    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-mono text-[11px] whitespace-nowrap" style={cfg.style}>
+    <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg font-inter text-[11px] whitespace-nowrap" style={cfg.style}>
       {cfg.icon}
       {t(`accessLogs.methodLabels.${method}`)}
     </div>
@@ -819,7 +819,7 @@ export default function AccessLogs({ operatorMode = false }) {
           {/* 3-Layer Page Title */}
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('accessLogs.section')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('accessLogs.section')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('accessLogs.title')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('accessLogs.subtitle')}</p>
             </div>
@@ -839,7 +839,7 @@ export default function AccessLogs({ operatorMode = false }) {
                 }`}
                 style={{ '--delay': `${i * 60 + 60}ms` }}
               >
-                <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">{stat.label}</div>
+                <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">{stat.label}</div>
                 <div className={`flex items-center gap-2 font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums ${stat.color}`}>
                   {stat.dot === '#10B981' && <span className="w-2 h-2 rounded-full shrink-0 bg-[#10B981]" />}
                   {stat.dot === 'red'     && <span className="w-2 h-2 rounded-full shrink-0 bg-red-400 animate-pulse" />}
@@ -877,11 +877,11 @@ export default function AccessLogs({ operatorMode = false }) {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-line">
-                    <th className="text-left px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral whitespace-nowrap">{t('accessLogs.timestamp')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral whitespace-nowrap">{t('accessLogs.user')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral whitespace-nowrap">{t('accessLogs.officeLocation')}</th>
-                    <th className="text-left px-4 py-4 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral whitespace-nowrap">{t('accessLogs.method')}</th>
-                    <th className="text-right px-6 py-4 font-mono text-[11px] font-medium uppercase tracking-[.14em] text-neutral whitespace-nowrap">{t('accessLogs.status')}</th>
+                    <th className="text-left px-6 py-4 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral whitespace-nowrap">{t('accessLogs.timestamp')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral whitespace-nowrap">{t('accessLogs.user')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral whitespace-nowrap">{t('accessLogs.officeLocation')}</th>
+                    <th className="text-left px-4 py-4 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral whitespace-nowrap">{t('accessLogs.method')}</th>
+                    <th className="text-right px-6 py-4 font-inter text-[11px] font-medium uppercase tracking-[.1em] text-neutral whitespace-nowrap">{t('accessLogs.status')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -968,13 +968,13 @@ export default function AccessLogs({ operatorMode = false }) {
             <div className="flex items-center justify-between px-6 py-3.5 border-t border-line bg-bg-3/30 flex-wrap gap-2">
               <div className="flex items-center gap-3">
                 <span className="w-2 h-2 rounded-full bg-accent animate-pulse shrink-0" />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em] text-accent">{t('accessLogs.liveConnection')}</span>
-                <span className="text-neutral font-mono text-[11px]">·</span>
-                <span className="font-mono text-[11px] text-neutral">
+                <span className="font-inter text-[11px] uppercase tracking-[.1em] text-accent">{t('accessLogs.liveConnection')}</span>
+                <span className="text-neutral font-inter text-[11px]">·</span>
+                <span className="font-inter text-[11px] text-neutral">
                   {t('accessLogs.eventsLoaded')} <span className="text-ink font-semibold">{logs.length}</span>
                 </span>
               </div>
-              <span className="font-mono text-[11px] text-neutral uppercase tracking-[.14em]">
+              <span className="font-inter text-[11px] text-neutral uppercase tracking-[.1em]">
                 {t('accessLogs.showingLatest')}
               </span>
             </div>
@@ -1001,7 +1001,7 @@ export default function AccessLogs({ operatorMode = false }) {
         <div className="flex items-center justify-between px-5 py-4 border-b border-line shrink-0">
           <div>
             <div id="camera-panel-title" className="font-inter text-[13px] font-semibold text-ink">{t('accessLogs.liveFeed')}</div>
-            <div className="font-mono text-[11px] text-neutral mt-0.5 uppercase tracking-[.14em] truncate max-w-[180px]">
+            <div className="font-inter text-[11px] text-neutral mt-0.5 uppercase tracking-[.1em] truncate max-w-[180px]">
               {activeCamera?.location ?? '—'}
             </div>
           </div>
@@ -1025,21 +1025,21 @@ export default function AccessLogs({ operatorMode = false }) {
             <div className="absolute inset-0 bg-gradient-to-t from-[#0F172A]/70 to-transparent" />
             <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
-              <span className="font-mono text-[11px] text-red-400 uppercase tracking-[.14em]">LIVE</span>
+              <span className="font-inter text-[11px] text-red-400 uppercase tracking-[.1em]">LIVE</span>
             </div>
             <div className="absolute top-2.5 right-2.5">
-              <span className="font-mono text-[9px] text-neutral-2 bg-black/50 px-1.5 py-0.5 rounded">REC</span>
+              <span className="font-inter text-[9px] text-neutral-2 bg-black/50 px-1.5 py-0.5 rounded">REC</span>
             </div>
           </div>
 
           <div className="mt-4 space-y-1">
-            <div className="font-mono text-[11px] text-neutral">
+            <div className="font-inter text-[11px] text-neutral">
               Camera ID: CAM-0{activeCameraId}3 · Zone A
             </div>
-            <div className="font-mono text-[11px] text-neutral">
+            <div className="font-inter text-[11px] text-neutral">
               {new Date().toLocaleTimeString('en-US', { hour12: false })} · Auto-refresh 30s
             </div>
-            <div className="font-mono text-[11px] text-neutral">
+            <div className="font-inter text-[11px] text-neutral">
               User: {activeCamera?.userId} — {activeCamera?.name}
             </div>
           </div>
@@ -1077,7 +1077,7 @@ export default function AccessLogs({ operatorMode = false }) {
                 onClick={() => navigate(group.mobilePath)}
                 className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors duration-200 cursor-pointer bg-transparent border-0 ${active ? 'text-accent' : 'text-neutral hover:text-ink'}`}>
                 <NavIcon type={group.mobileIcon} />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{group.label.split(' ')[0]}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">{group.label.split(' ')[0]}</span>
               </button>
             )
           })

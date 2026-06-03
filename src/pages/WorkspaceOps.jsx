@@ -309,10 +309,10 @@ function SpaceCell({ space, status, delay, onClick, t }) {
         </span>
         <span className={`w-2 h-2 rounded-full shrink-0 mt-0.5 ${cfg.dot} ${status === 'occupied' ? 'animate-pulse' : ''}`} />
       </div>
-      <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">
+      <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">
         {space.floor ? `${t('workspaceOps.floorLabel', { floor: space.floor })} · ` : ''}{typeLabel}
       </div>
-      <div className={`font-mono text-[11px] uppercase tracking-[.14em] font-medium ${cfg.label}`}>
+      <div className={`font-inter text-[11px] uppercase tracking-[.1em] font-medium ${cfg.label}`}>
         {t(STATUS_TEXT_KEY[status])}
       </div>
     </div>
@@ -488,7 +488,7 @@ export default function WorkspaceOps() {
                     aria-expanded={isOpen}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                   >
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                       {group.label}
                     </span>
                     <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
@@ -539,7 +539,7 @@ export default function WorkspaceOps() {
           {/* Page Header */}
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('workspaceOps.section')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('workspaceOps.section')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('workspaceOps.title')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('workspaceOps.subtitle')}</p>
             </div>
@@ -558,7 +558,7 @@ export default function WorkspaceOps() {
                 </div>
                 <StatCircularProgress pct={occupancyPct} />
               </div>
-              <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mt-3">{t('workspaceOps.liveOccupancy')}</div>
+              <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mt-3">{t('workspaceOps.liveOccupancy')}</div>
             </div>
 
             <div className="bg-bg-2 border border-line rounded-2xl p-5">
@@ -567,7 +567,7 @@ export default function WorkspaceOps() {
                 <span className="w-2.5 h-2.5 rounded-full bg-accent animate-pulse shrink-0" />
               </div>
               <div className="font-inter text-[11px] text-neutral mt-1">{t('workspaceOps.sessionsRunning')}</div>
-              <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mt-3">{t('workspaceOps.activeSessions')}</div>
+              <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mt-3">{t('workspaceOps.activeSessions')}</div>
             </div>
 
             <div className="bg-bg-2 border border-line rounded-2xl p-5">
@@ -576,7 +576,7 @@ export default function WorkspaceOps() {
                 <span className="text-neutral-2"><ClockIcon /></span>
               </div>
               <div className="font-inter text-[11px] text-neutral mt-1">{t('workspaceOps.endingIn30')}</div>
-              <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mt-3">{t('workspaceOps.freeingSoon')}</div>
+              <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mt-3">{t('workspaceOps.freeingSoon')}</div>
             </div>
           </div>
 
@@ -590,7 +590,7 @@ export default function WorkspaceOps() {
                 {legend.map((l) => (
                   <div key={l.label} className="flex items-center gap-1.5">
                     <span className={`w-2 h-2 rounded-full ${l.dot}`} />
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{l.label}</span>
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{l.label}</span>
                   </div>
                 ))}
               </div>
@@ -664,7 +664,7 @@ export default function WorkspaceOps() {
               }`}
             >
               <NavIcon type={group.mobileIcon} />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">
                 {group.label.split(' ')[0]}
               </span>
             </button>

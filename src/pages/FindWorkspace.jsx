@@ -677,7 +677,7 @@ export default function FindWorkspace() {
 
           {(loadingOffices || officeLoadError) && (
             <div className="mb-5 animate-fadeUp" style={{ '--delay': '120ms' }}>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                 {loadingOffices ? t('workspace.loadingCatalog') : t('workspace.fallbackCatalog')}
               </p>
             </div>
@@ -729,7 +729,7 @@ export default function FindWorkspace() {
               }`}
             >
               {item.icon}
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">{translateNavLabel(item.label, t)}</span>
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">{translateNavLabel(item.label, t)}</span>
             </button>
           )
         })}

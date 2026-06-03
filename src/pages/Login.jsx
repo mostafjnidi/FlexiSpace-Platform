@@ -249,7 +249,7 @@ function LoginForm() {
   return (
     <div className="w-full max-w-md animate-fadeUp" style={{ '--delay': '100ms' }}>
       <div className="mb-8">
-        <span className="font-mono text-[13.5px] uppercase tracking-[.14em] text-accent font-semibold">
+        <span className="font-mono text-[13.5px] uppercase tracking-[.1em] text-accent font-semibold">
           {t('auth.authorization')}
         </span>
         <div className="mt-1.5 h-0.5 w-8 bg-accent rounded-full" />
@@ -257,7 +257,7 @@ function LoginForm() {
 
       {/* Demo quick-login panel */}
       <div className="mb-6 rounded-xl border border-line bg-bg-3 px-4 py-3">
-        <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2.5">
+        <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2.5">
           {t('auth.demoAccounts')}
         </p>
         <div className="flex items-center gap-2">

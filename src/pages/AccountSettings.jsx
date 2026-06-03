@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react'
+﻿import { useState, useRef, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import BrandLogo from '../components/BrandLogo'
@@ -207,7 +207,7 @@ function FieldInput({ label, id, icon, type = 'text', placeholder, value, onChan
   return (
     <div className="flex flex-col gap-1.5">
       <div className="flex items-center gap-2">
-        <label htmlFor={id || name} className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+        <label htmlFor={id || name} className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
           {label}
         </label>
         {badge}
@@ -245,7 +245,7 @@ function SectionHeading({ icon, title }) {
   return (
     <div className="flex items-center gap-2.5 mb-6">
       <span className="text-accent">{icon}</span>
-      <h2 className="font-mono text-[11px] uppercase tracking-[.14em] text-accent font-medium">{title}</h2>
+      <h2 className="font-inter text-[11px] uppercase tracking-[.1em] text-accent font-medium">{title}</h2>
     </div>
   )
 }
@@ -293,18 +293,18 @@ function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t, userRole, 
 
       {/* Role badge */}
       <div className="mb-6">
-        <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+        <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
           {t('settings.jwtRole')}
         </p>
         <div className="inline-flex items-center gap-2 px-2.5 py-1 rounded-full border border-accent/25 bg-accent/[.07]">
           <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-accent">{userRole || '—'}</span>
+          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-accent">{userRole || '—'}</span>
         </div>
       </div>
 
       {/* Drag-drop avatar */}
       <div className="mb-8 pb-8 border-b border-line">
-        <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">{t('settings.profilePicture')}</p>
+        <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">{t('settings.profilePicture')}</p>
         <div className="grid md:grid-cols-[auto_1fr] gap-5 items-center">
           <div className="w-20 h-20 rounded-full overflow-hidden border-2 border-accent/30 bg-bg-3 shrink-0">
             {avatar ? (
@@ -340,7 +340,7 @@ function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t, userRole, 
             <p className="font-inter text-[13px] text-neutral-2 text-center">
               <span className="text-accent font-medium">{t('settings.clickToUpload')}</span> {t('settings.orDragDrop')}
             </p>
-            <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+            <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
               {t('settings.uploadHint')}
             </p>
           </div>
@@ -366,7 +366,7 @@ function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t, userRole, 
           value={form.email}
           onChange={onChange}
           badge={
-            <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-accent/25 bg-accent/[.07] font-mono text-[11px] text-accent">
+            <span className="inline-flex items-center px-2 py-0.5 rounded-full border border-accent/25 bg-accent/[.07] font-inter text-[11px] text-accent">
               {t('settings.verified')}
             </span>
           }
@@ -375,7 +375,7 @@ function ProfileCard({ form, onChange, avatar, setAvatar, fileRef, t, userRole, 
 
       {/* Phone with country code */}
       <div className="flex flex-col gap-1.5">
-        <label className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('settings.phoneNumber')}</label>
+        <label className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('settings.phoneNumber')}</label>
         <div className="flex bg-bg-3 border border-line rounded-xl focus-within:border-accent focus-within:ring-[3px] focus-within:ring-accent/[.14] transition-all duration-200 overflow-hidden">
           <select
             name="countryCode"
@@ -436,7 +436,7 @@ function SecurityCard({ form, onChange, toggles, setToggles, t }) {
               <div className="flex-1 h-1 rounded-full bg-line overflow-hidden">
                 <div className={`h-full rounded-full transition-all duration-300 ${strength.bar} ${strength.barColor}`} />
               </div>
-              <span className={`font-mono text-[11px] uppercase tracking-[.14em] font-medium ${strength.text}`}>
+              <span className={`font-inter text-[11px] uppercase tracking-[.1em] font-medium ${strength.text}`}>
                 {t(strength.labelKey)}
               </span>
             </div>
@@ -466,7 +466,7 @@ function SecurityCard({ form, onChange, toggles, setToggles, t }) {
 
       {/* Active Sessions */}
       <div className="mt-8 pt-6 border-t border-line">
-        <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-4">{t('settings.activeSessions')}</p>
+        <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-4">{t('settings.activeSessions')}</p>
         <div className="flex flex-col divide-y divide-line">
           {[
             { icon: <LaptopIcon />, browser: 'Chrome', os: 'Windows 11', time: t('settings.activeNow'), pulse: true },
@@ -479,13 +479,13 @@ function SecurityCard({ form, onChange, toggles, setToggles, t }) {
                   <p className="font-inter text-[13.5px] text-ink-2">{s.browser} · {s.os}</p>
                   <div className="flex items-center gap-1.5 mt-0.5">
                     <span className={`w-1.5 h-1.5 rounded-full ${s.pulse ? 'bg-accent animate-pulse' : 'bg-neutral'}`} />
-                    <span className="font-mono text-[11px] text-neutral">{s.time}</span>
+                    <span className="font-inter text-[11px] text-neutral">{s.time}</span>
                   </div>
                 </div>
               </div>
               <button
                 type="button"
-                className="font-mono text-[11px] uppercase tracking-[.14em] text-red-400 border border-red-500/20 rounded-lg px-3 py-1.5 hover:bg-red-500/10 transition-all duration-150 cursor-pointer bg-transparent"
+                className="font-inter text-[11px] uppercase tracking-[.1em] text-red-400 border border-red-500/20 rounded-lg px-3 py-1.5 hover:bg-red-500/10 transition-all duration-150 cursor-pointer bg-transparent"
               >
                 {t('settings.revoke')}
               </button>
@@ -513,7 +513,7 @@ function DangerZoneCard({ t }) {
         </div>
         <button
           type="button"
-          className="shrink-0 border border-red-500/30 text-red-400 font-mono text-[11px] uppercase tracking-[.14em] px-4 py-2 rounded-lg hover:bg-red-500/10 transition-all duration-150 bg-transparent cursor-pointer whitespace-nowrap"
+          className="shrink-0 border border-red-500/30 text-red-400 font-inter text-[11px] uppercase tracking-[.1em] px-4 py-2 rounded-lg hover:bg-red-500/10 transition-all duration-150 bg-transparent cursor-pointer whitespace-nowrap"
         >
           {t('settings.deleteAccount')}
         </button>
@@ -533,7 +533,7 @@ function BillingCard({ t }) {
       <div className="flex items-center justify-between mb-6 pb-6 border-b border-line">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <span className="inline-flex items-center px-3 py-1 rounded-full border border-accent/25 bg-accent/[.07] font-mono text-[11px] uppercase tracking-[.14em] text-accent">
+            <span className="inline-flex items-center px-3 py-1 rounded-full border border-accent/25 bg-accent/[.07] font-inter text-[11px] uppercase tracking-[.1em] text-accent">
               {t('settings.enterprise')}
             </span>
           </div>
@@ -547,7 +547,7 @@ function BillingCard({ t }) {
       {/* Payment method */}
       <div className="flex items-center justify-between mb-8 pb-6 border-b border-line">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">{t('settings.paymentMethod')}</p>
+          <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">{t('settings.paymentMethod')}</p>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-0.5">
               <div className="w-6 h-6 rounded-full bg-accent opacity-80" />
@@ -558,7 +558,7 @@ function BillingCard({ t }) {
         </div>
         <button
           type="button"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line bg-transparent font-mono text-[11px] uppercase tracking-[.14em] text-ink-2 hover:border-accent hover:text-accent transition-all duration-200 cursor-pointer"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-line bg-transparent font-inter text-[11px] uppercase tracking-[.1em] text-ink-2 hover:border-accent hover:text-accent transition-all duration-200 cursor-pointer"
         >
           {t('settings.updateCard')}
         </button>
@@ -566,11 +566,11 @@ function BillingCard({ t }) {
 
       {/* Invoice history */}
       <div>
-        <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-4">{t('settings.invoiceHistory')}</p>
+        <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-4">{t('settings.invoiceHistory')}</p>
         <div className="rounded-xl border border-line overflow-hidden">
           <div className="grid grid-cols-[1fr_auto_auto_auto] gap-4 px-5 py-3 border-b border-line bg-bg-3">
             {[t('settings.date'), t('settings.amount'), t('settings.status'), ''].map((h) => (
-              <span key={h} className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{h}</span>
+              <span key={h} className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{h}</span>
             ))}
           </div>
           {INVOICES.map((inv, i) => (
@@ -580,7 +580,7 @@ function BillingCard({ t }) {
             >
               <span className="font-mono text-[12.5px] text-ink-2">{inv.date}</span>
               <span className="font-mono text-[12.5px] text-ink">{inv.amount}</span>
-              <span className="inline-flex items-center px-2.5 py-1 rounded-full border border-accent/20 bg-accent/[.07] font-mono text-[11px] uppercase tracking-[.14em] text-accent">
+              <span className="inline-flex items-center px-2.5 py-1 rounded-full border border-accent/20 bg-accent/[.07] font-inter text-[11px] uppercase tracking-[.1em] text-accent">
                 {t('settings.paid')}
               </span>
               <button
@@ -589,7 +589,7 @@ function BillingCard({ t }) {
                 className="flex items-center gap-1.5 text-neutral-2 hover:text-accent transition-colors duration-150 cursor-pointer bg-transparent border-0 p-0"
               >
                 <DownloadIcon />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{t('settings.downloadPdf')}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">{t('settings.downloadPdf')}</span>
               </button>
             </div>
           ))}
@@ -785,7 +785,7 @@ export default function AccountSettings() {
 
         {/* Sidebar — sticky, scroll-to-section nav */}
         <aside className="hidden md:flex flex-col w-56 shrink-0 gap-4 sticky top-20 self-start h-fit">
-          <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral px-3 mt-2">{t('settings.settingsSidebar')}</span>
+          <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral px-3 mt-2">{t('settings.settingsSidebar')}</span>
           <nav className="flex flex-col gap-1" aria-label="Settings navigation">
             {sidebarNav.map((item) => (
               <button
@@ -813,7 +813,7 @@ export default function AccountSettings() {
 
           {loading && (
             <div className="flex items-center justify-center py-32">
-              <span className="font-mono text-[12px] uppercase tracking-[.14em] text-neutral animate-pulse">Loading…</span>
+              <span className="font-inter text-[12px] uppercase tracking-[.1em] text-neutral animate-pulse">Loading…</span>
             </div>
           )}
 
@@ -868,14 +868,14 @@ export default function AccountSettings() {
           <button
             type="button"
             onClick={handleDiscard}
-            className="inline-flex items-center gap-2 px-[18px] py-[10px] rounded-xl border border-line text-ink-2 font-mono text-[11px] uppercase tracking-[.14em] hover:bg-ink/[.06] transition-all duration-200 cursor-pointer bg-transparent"
+            className="inline-flex items-center gap-2 px-[18px] py-[10px] rounded-xl border border-line text-ink-2 font-inter text-[11px] uppercase tracking-[.1em] hover:bg-ink/[.06] transition-all duration-200 cursor-pointer bg-transparent"
           >
             {t('settings.discard')}
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="inline-flex items-center gap-2 px-[18px] py-[10px] rounded-xl bg-accent text-white font-mono text-[11px] uppercase tracking-[.14em] hover:bg-accent-2 transition-all duration-200 cursor-pointer border-0"
+            className="inline-flex items-center gap-2 px-[18px] py-[10px] rounded-xl bg-accent text-white font-inter text-[11px] uppercase tracking-[.1em] hover:bg-accent-2 transition-all duration-200 cursor-pointer border-0"
           >
             <SaveIcon />
             {t('settings.saveChanges')}

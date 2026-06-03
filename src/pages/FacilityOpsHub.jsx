@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+﻿import { useEffect, useState } from 'react'
 import { useLocation, useNavigate, useSearchParams, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { fetchMaintenanceTasks, createMaintenanceTask, advanceTaskStatus, FlexiApiError } from '../lib/flexispaceApi'
@@ -474,8 +474,8 @@ function TaskCard({ task, onAdvance, advanceInFlight, t }) {
           <div className="w-8 h-8 rounded-lg bg-bg-3 border border-line flex items-center justify-center text-neutral-2 shrink-0">
             {task.icon}
           </div>
-          <span className="font-mono text-[11px] text-neutral-2 truncate">{task.location}</span>
-          <span className={`ml-auto shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-md font-mono text-[11px] uppercase tracking-[.14em] ${isHigh ? 'bg-accent/10 text-accent border border-accent/20' : 'bg-bg-3 text-neutral-2 border border-line'}`}>
+          <span className="font-inter text-[11px] text-neutral-2 truncate">{task.location}</span>
+          <span className={`ml-auto shrink-0 flex items-center gap-1 px-2 py-0.5 rounded-md font-inter text-[11px] uppercase tracking-[.1em] ${isHigh ? 'bg-accent/10 text-accent border border-accent/20' : 'bg-bg-3 text-neutral-2 border border-line'}`}>
             <span className={`w-1 h-1 rounded-full ${isHigh ? 'bg-accent' : 'bg-neutral-2'}`} />
             {task.priority}
           </span>
@@ -508,7 +508,7 @@ function TaskCard({ task, onAdvance, advanceInFlight, t }) {
             {advanceInFlight?.has(task.id) ? '...' : actionLabel}
           </button>
         ) : (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 font-mono text-[11px] uppercase tracking-[.14em] text-[#10B981]">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 font-inter text-[11px] uppercase tracking-[.1em] text-[#10B981]">
             <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
               <path d="M2 6.5l3 3 5-5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
             </svg>
@@ -529,7 +529,7 @@ function TaskCard({ task, onAdvance, advanceInFlight, t }) {
                   <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
                     done ? 'bg-[#10B981]' : active ? 'bg-accent' : 'bg-bg-3 border border-line'
                   }`} />
-                  <span className="font-mono text-[11px] text-neutral whitespace-nowrap">{step}</span>
+                  <span className="font-inter text-[11px] text-neutral whitespace-nowrap">{step}</span>
                 </div>
                 {idx < taskSteps.length - 1 && (
                   <div className={`h-px flex-1 mx-1 mb-3 transition-all duration-300 ${
@@ -737,7 +737,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
               <BellIcon />
             </button>
             {criticalNotifs > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-400 border-2 border-bg-2 flex items-center justify-center font-mono text-[9px] text-white font-bold">
+              <span className="absolute -top-0.5 -right-0.5 w-4 h-4 rounded-full bg-red-400 border-2 border-bg-2 flex items-center justify-center font-inter text-[9px] text-white font-bold">
                 {criticalNotifs}
               </span>
             )}
@@ -791,7 +791,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                       onClick={() => toggleGroup(group.id)}
                       className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                     >
-                      <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                      <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                         {group.label}
                       </span>
                       <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
@@ -841,7 +841,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
           {/* Page Header */}
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('facility.section')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('facility.section')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('facility.title')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('facility.subtitle')}</p>
             </div>
@@ -860,15 +860,15 @@ export default function FacilityOpsHub({ operatorMode = false }) {
 
           {/* Status pills */}
           <div className="flex items-center gap-2 mb-4 flex-wrap animate-fadeUp" style={{ '--delay': '80ms' }}>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-mono text-[11px] uppercase tracking-[.14em] text-ink-2">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">
               <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
               {activeCount} {t('facility.activeTasks')}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-mono text-[11px] uppercase tracking-[.14em] text-ink-2">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">
               <span className="w-1.5 h-1.5 rounded-full bg-accent" />
               {highCount} {t('facility.high')} {t('facility.priority')}
             </span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-mono text-[11px] uppercase tracking-[.14em] text-ink-2">
+            <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
               2 {t('facility.delayed')}
             </span>
@@ -930,7 +930,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
           {/* Task grid */}
           {tasksLoading ? (
             <div className="py-20 text-center">
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('common.loading')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('common.loading')}</p>
             </div>
           ) : tasksError ? (
             <div className="py-12 text-center">
@@ -980,7 +980,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
               </div>
               <form onSubmit={handleCreateTask} className="flex flex-col gap-4">
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Title *</label>
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Title *</label>
                   <input
                     type="text"
                     value={newTaskForm.title}
@@ -991,7 +991,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                 </div>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Type</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Type</label>
                     <select
                       value={newTaskForm.taskType}
                       onChange={(e) => setNewTaskForm((f) => ({ ...f, taskType: e.target.value }))}
@@ -1005,7 +1005,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Priority</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Priority</label>
                     <select
                       value={newTaskForm.priority}
                       onChange={(e) => setNewTaskForm((f) => ({ ...f, priority: e.target.value }))}
@@ -1017,7 +1017,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                   </div>
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Location</label>
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Location</label>
                   <input
                     type="text"
                     value={newTaskForm.location}
@@ -1027,7 +1027,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                   />
                 </div>
                 <div>
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Assign To</label>
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Assign To</label>
                   <input
                     type="text"
                     value={newTaskForm.assignedTo}
@@ -1072,7 +1072,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
             <div className="flex items-center justify-between px-5 py-4 border-b border-line">
               <div>
                 <div className="font-inter text-[13px] font-semibold text-ink">{t('facility.notifications')}</div>
-                <div className="font-mono text-[11px] text-neutral mt-0.5 uppercase tracking-[.14em]">
+                <div className="font-inter text-[11px] text-neutral mt-0.5 uppercase tracking-[.1em]">
                   {t('facility.criticalAlerts', { count: criticalNotifs })}
                 </div>
               </div>
@@ -1105,7 +1105,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                     <span className={`w-2 h-2 rounded-full shrink-0 mt-1 ${styles.dot} ${n.level === 'critical' ? 'animate-pulse' : ''}`} />
                     <div className="flex-1 min-w-0">
                       <div className="font-inter text-[13px] text-ink leading-snug">{n.text}</div>
-                      <div className="font-mono text-[11px] text-neutral mt-1">{n.time}</div>
+                      <div className="font-inter text-[11px] text-neutral mt-1">{n.time}</div>
                     </div>
                   </div>
                 )
@@ -1135,7 +1135,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                 onClick={() => navigate(item.path)}
                 className={`flex flex-col items-center gap-0.5 px-2 py-1 cursor-pointer bg-transparent border-0 transition-colors duration-200 ${isActive ? 'text-accent' : 'text-neutral-2'}`}>
                 <NavIcon type={item.icon} />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{item.shortLabel}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">{item.shortLabel}</span>
               </button>
             )
           })
@@ -1148,7 +1148,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                 onClick={() => navigate(group.mobilePath)}
                 className={`flex flex-col items-center gap-0.5 px-3 py-1 cursor-pointer bg-transparent border-0 transition-colors duration-200 ${isActive ? 'text-accent' : 'text-neutral-2'}`}>
                 <NavIcon type={group.mobileIcon} />
-                <span className="font-mono text-[11px] uppercase tracking-[.14em]">{group.label.split(' ')[0]}</span>
+                <span className="font-inter text-[11px] uppercase tracking-[.1em]">{group.label.split(' ')[0]}</span>
               </button>
             )
           })

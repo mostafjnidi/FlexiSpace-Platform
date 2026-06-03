@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { cancelBooking, checkOutBooking } from '../lib/flexispaceApi'
@@ -538,14 +538,14 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
 
           <div className="shrink-0 text-right">
             {countdown ? (
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/[.08] border border-accent/20 font-mono text-[11px] text-accent uppercase tracking-[.14em]">
+              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-accent/[.08] border border-accent/20 font-inter text-[11px] text-accent uppercase tracking-[.1em]">
                 <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
                 {countdown}
               </div>
             ) : (
               <div className="bg-bg-3 border border-line rounded-xl px-4 py-3 min-w-[90px]">
                 <div className="font-inter text-[15px] font-semibold text-ink leading-tight">{booking.date}</div>
-                <div className="font-mono text-[11px] text-neutral mt-1">{booking.time}</div>
+                <div className="font-inter text-[11px] text-neutral mt-1">{booking.time}</div>
               </div>
             )}
           </div>
@@ -561,7 +561,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
           {isUpcoming && booking.iot.connected && (
             <div className="flex items-center gap-1.5 mt-0.5">
               <span className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse shrink-0" />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em] text-accent">
+              <span className="font-inter text-[11px] uppercase tracking-[.1em] text-accent">
                 {t('bookings.iotReady')}
               </span>
             </div>
@@ -582,14 +582,14 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
           return (
             <div className={`inline-flex items-center gap-3 px-3.5 py-2.5 rounded-xl border ${st.bg} ${st.border} mt-1 self-start`}>
               <div className="flex flex-col gap-0.5">
-                <span className="font-mono text-[10px] uppercase tracking-[.14em] text-neutral-2">{t('ticket.pin.accessPin')}</span>
+                <span className="font-inter text-[10px] uppercase tracking-[.1em] text-neutral-2">{t('ticket.pin.accessPin')}</span>
                 <span className="font-mono text-[17px] font-bold text-ink tracking-[.18em]">
                   {booking.rawStatus === 'CHECKED_IN' ? '••••••' : pinDigits}
                 </span>
               </div>
               <div className={`inline-flex items-center gap-1 px-2 py-1 rounded-lg ${st.bg} border ${st.border}`}>
                 <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${st.dot} ${pinStatus === 'active' ? 'animate-pulse' : ''}`} />
-                <span className={`font-mono text-[10px] uppercase tracking-[.12em] ${st.text}`}>{pinLabel}</span>
+                <span className={`font-inter text-[10px] uppercase tracking-[.12em] ${st.text}`}>{pinLabel}</span>
               </div>
             </div>
           )
@@ -598,7 +598,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
         {/* Amenities */}
         {isUpcoming && booking.amenities.length > 0 && (
           <div className="flex flex-col gap-1.5">
-            <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral-2">{t('bookings.amenities.title')}</span>
+            <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral-2">{t('bookings.amenities.title')}</span>
             <div className="flex items-center gap-3 text-sky-400">
               {booking.amenities.map((type) => (
                 <span key={type} title={t(`bookings.amenities.${type}`) ?? type} className="cursor-default">
@@ -618,7 +618,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
                   <button
                     aria-label={`Complete payment for ${booking.name}`}
                     onClick={onPayNow}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-mono text-[11px] uppercase tracking-[.14em] font-medium transition-all duration-200 hover:bg-accent-2 cursor-pointer border-0"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-inter text-[11px] uppercase tracking-[.1em] font-medium transition-all duration-200 hover:bg-accent-2 cursor-pointer border-0"
                   >
                     {t('bookings.payNow')}
                   </button>
@@ -627,7 +627,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
                   <button
                     aria-label={`View ticket for ${booking.name}`}
                     onClick={onViewTicket}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-mono text-[11px] uppercase tracking-[.14em] font-medium transition-all duration-200 hover:bg-accent-2 cursor-pointer border-0"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-inter text-[11px] uppercase tracking-[.1em] font-medium transition-all duration-200 hover:bg-accent-2 cursor-pointer border-0"
                   >
                     {t('bookings.viewTicket')}
                     <TicketIcon />
@@ -638,7 +638,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
                     type="button"
                     aria-label={`Access office for ${booking.name}`}
                     onClick={onAccessOffice}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-mono text-[11px] uppercase tracking-[.14em] font-medium transition-all duration-200 hover:bg-accent-2 cursor-pointer border-0"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-inter text-[11px] uppercase tracking-[.1em] font-medium transition-all duration-200 hover:bg-accent-2 cursor-pointer border-0"
                   >
                     <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
                       <rect x="2" y="6" width="9" height="6.5" rx="1.5" stroke="currentColor" strokeWidth="1.1" />
@@ -653,7 +653,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
                     aria-label={`Check out of ${booking.name}`}
                     onClick={onCheckOut}
                     disabled={checkingOut}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bg-3 border border-line text-ink-2 font-mono text-[11px] uppercase tracking-[.14em] font-medium transition-all duration-200 hover:border-accent/40 hover:text-accent cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bg-3 border border-line text-ink-2 font-inter text-[11px] uppercase tracking-[.1em] font-medium transition-all duration-200 hover:border-accent/40 hover:text-accent cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
                   >
                     {checkingOut ? t('bookings.checkingOut') : t('bookings.checkOut')}
                   </button>
@@ -669,7 +669,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
             ) : (
               <button
                 aria-label={`Rebook ${booking.name}`}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent border border-accent/50 text-accent font-mono text-[11px] uppercase tracking-[.14em] font-medium transition-all duration-200 hover:bg-accent/[.09] cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent border border-accent/50 text-accent font-inter text-[11px] uppercase tracking-[.1em] font-medium transition-all duration-200 hover:bg-accent/[.09] cursor-pointer"
               >
                 {t('bookings.rebookSpace')}
                 <RefreshIcon />
@@ -702,7 +702,7 @@ function EmptyState({ tab, onExplore }) {
       {tab === 'upcoming' && (
         <button
           onClick={onExplore}
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent border border-accent/50 text-accent font-mono text-[11px] uppercase tracking-[.14em] font-medium transition-all duration-200 hover:bg-accent/[.09] cursor-pointer"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-transparent border border-accent/50 text-accent font-inter text-[11px] uppercase tracking-[.1em] font-medium transition-all duration-200 hover:bg-accent/[.09] cursor-pointer"
         >
           {t('bookings.exploreSpaces')}
         </button>
@@ -1045,7 +1045,7 @@ export default function MyBookings() {
 
           {(loadingBookings || bookingLoadError) && (
             <div className="mb-5 animate-fadeUp" style={{ '--delay': '120ms' }}>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                 {loadingBookings ? t('bookings.loading') : t('bookings.fallback')}
               </p>
             </div>
