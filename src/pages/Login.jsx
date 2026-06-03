@@ -249,7 +249,7 @@ function LoginForm() {
   return (
     <div className="w-full max-w-md animate-fadeUp" style={{ '--delay': '100ms' }}>
       <div className="mb-8">
-        <span className="font-mono text-[13.5px] uppercase tracking-[.1em] text-accent font-semibold">
+        <span className="font-inter text-[13.5px] uppercase tracking-[.1em] text-accent font-semibold">
           {t('auth.authorization')}
         </span>
         <div className="mt-1.5 h-0.5 w-8 bg-accent rounded-full" />

@@ -142,7 +142,7 @@ function AuthModal({ onClose, iotState, onVerify, onScanNext, deviceName, verify
             {verifyResult && (
               <div className="w-full flex flex-col gap-1 mt-1">
                 {verifyResult.status && (
-                  <p className="text-[11px] text-center font-mono uppercase tracking-[.1em]" style={{ color: '#10B981' }}>
+                  <p className="text-[11px] text-center font-inter font-medium uppercase tracking-[.1em]" style={{ color: '#10B981' }}>
                     {verifyResult.status}
                   </p>
                 )}
@@ -336,7 +336,7 @@ export default function ScannerControl() {
               <rect x="3" y="14" width="7" height="7" rx="1" />
               <rect x="14" y="14" width="7" height="7" rx="1" />
             </svg>
-            <span className="font-mono font-bold tracking-widest uppercase text-[11px]" style={{ color: '#10B981' }}>
+            <span className="font-inter font-semibold uppercase tracking-[.1em] text-[11px]" style={{ color: '#10B981' }}>
               FLEXISPACE CONTROL
             </span>
           </header>
