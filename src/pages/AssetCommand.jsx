@@ -1,10 +1,8 @@
-import { useState, useEffect } from 'react'
+﻿import { useState, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import {
   createOffice,
-  updateOffice,
-  deleteOffice,
   fetchOperatorsForOffice,
   fetchAllOperators,
   assignOperator,
@@ -306,13 +304,13 @@ function QueueItem({ item }) {
       </div>
       <div className="flex-1 min-w-0">
         <div className="font-inter text-[13px] font-semibold text-ink leading-snug">{item.title}</div>
-        <div className="font-mono text-[11px] text-neutral mt-0.5 truncate">{item.subtitle}</div>
+        <div className="font-inter text-[11px] text-neutral mt-0.5 truncate">{item.subtitle}</div>
         <div className="flex items-center gap-2 flex-wrap">
-          <span className={`inline-block mt-1.5 px-2 py-0.5 rounded-md font-mono text-[11px] uppercase tracking-[.14em] border ${
+          <span className={`inline-block mt-1.5 px-2 py-0.5 rounded-md font-inter text-[11px] uppercase tracking-[.1em] border ${
             item.urgent ? 'bg-red-900/30 text-red-400 border-red-800/40' : 'bg-bg-3 text-neutral-2 border-line'
           }`}>{item.badge}</span>
           {item.priority === 'overdue' && (
-            <span className="inline-flex items-center gap-1 font-mono text-[11px] uppercase tracking-[.14em] text-red-400 mt-1.5">
+            <span className="inline-flex items-center gap-1 font-inter text-[11px] uppercase tracking-[.1em] text-red-400 mt-1.5">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                 <path d="M6 1C6 1 8.5 3.5 8.5 6a2.5 2.5 0 0 1-5 0C3.5 4 5 2.5 5 2.5S4.5 5 6 5.5c0 0 1-1.5 0-4.5Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" />
               </svg>
@@ -331,7 +329,7 @@ function OperatorPanel({ office, links, allOperators, loading, error, selectedId
 
   return (
     <div className="mt-2 bg-bg-2 border border-accent/20 rounded-2xl p-4 animate-fadeUp" style={{ '--delay': '0ms' }}>
-      <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-3">
+      <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-3">
         Operators — {office.name}
       </p>
 
@@ -361,12 +359,12 @@ function OperatorPanel({ office, links, allOperators, loading, error, selectedId
               <div key={link.id} className="flex items-center justify-between gap-3 px-3 py-2 bg-bg-3 rounded-xl border border-line">
                 <div className="min-w-0">
                   <p className="font-inter text-[13px] text-ink truncate">{prof?.full_name || 'Unnamed'}</p>
-                  <p className="font-mono text-[11px] text-neutral truncate">{prof?.email || ''}</p>
+                  <p className="font-inter text-[11px] text-neutral truncate">{prof?.email || ''}</p>
                 </div>
                 <button
                   onClick={() => onUnassign(link.id)}
                   disabled={unassigningId === link.id}
-                  className="shrink-0 px-2.5 py-1 rounded-lg border border-red-400/30 text-red-400 font-mono text-[11px] uppercase tracking-[.14em] hover:bg-red-400/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="shrink-0 px-2.5 py-1 rounded-lg border border-red-400/30 text-red-400 font-inter text-[11px] uppercase tracking-[.1em] hover:bg-red-400/10 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {unassigningId === link.id ? '…' : 'Unassign'}
                 </button>
@@ -395,7 +393,7 @@ function OperatorPanel({ office, links, allOperators, loading, error, selectedId
           <button
             onClick={onAssign}
             disabled={!selectedId || assigning || available.length === 0}
-            className="shrink-0 px-3 py-2 rounded-xl bg-accent/10 border border-accent/30 text-accent font-mono text-[11px] uppercase tracking-[.14em] hover:bg-accent/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+            className="shrink-0 px-3 py-2 rounded-xl bg-accent/10 border border-accent/30 text-accent font-inter text-[11px] uppercase tracking-[.1em] hover:bg-accent/20 transition-colors cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
           >
             {assigning ? '…' : 'Assign'}
           </button>
@@ -432,7 +430,7 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
             )}
           </button>
           <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full
-            font-mono text-[11px] uppercase tracking-[.14em] ${
+            font-inter text-[11px] uppercase tracking-[.1em] ${
             office.status === 'Live'
               ? 'bg-bg/70 border border-line text-accent'
               : 'bg-accent/20 border border-accent/40 text-accent'
@@ -445,8 +443,8 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
         {isTopPerformer && (
           <div className="absolute top-3 right-3">
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full
-              bg-amber-400/20 border border-amber-400/50 font-mono text-[11px]
-              uppercase tracking-[.14em] text-amber-400">
+              bg-amber-400/20 border border-amber-400/50 font-inter text-[11px]
+              uppercase tracking-[.1em] text-amber-400">
               <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                 <path d="M6 1l1.3 3.9H11L8 7.1l1 3.9L6 8.8 3 11l1-3.9L1 4.9h3.7L6 1Z" stroke="currentColor" strokeWidth="1.2" strokeLinejoin="round" fill="currentColor" />
               </svg>
@@ -462,7 +460,7 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
           <ToggleSwitch enabled={office.enabled} onChange={onToggle} />
         </div>
         <div className="flex items-center gap-2 mb-4">
-          <span className={`flex items-center gap-1 font-mono text-[11px]`} style={{ color: office.iotOnline ? '#10B981' : undefined }}>
+          <span className={`flex items-center gap-1 font-inter text-[11px]`} style={{ color: office.iotOnline ? '#10B981' : undefined }}>
             {office.iotOnline ? (
               <>
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -486,8 +484,8 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
               </span>
             )}
           </span>
-          <span className="text-neutral font-mono text-[11px]">·</span>
-          <span className={`flex items-center gap-1 font-mono text-[11px] ${office.cleaned ? 'text-neutral-2' : 'text-neutral'}`}>
+          <span className="text-neutral font-inter text-[11px]">·</span>
+          <span className={`flex items-center gap-1 font-inter text-[11px] ${office.cleaned ? 'text-neutral-2' : 'text-neutral'}`}>
             <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" />
             </svg>
@@ -497,7 +495,7 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
 
         <div className="grid grid-cols-3 gap-2 mb-3 p-3 bg-bg-3 rounded-xl border border-line">
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1">{t('assets.health')}</div>
+            <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1">{t('assets.health')}</div>
             <div className={`font-inter text-[13px] font-semibold ${
               office.healthScore >= 80 ? 'text-[#10B981]'
                 : office.healthScore >= 50 ? 'text-amber-400'
@@ -507,11 +505,11 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
             </div>
           </div>
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1">{t('assets.hourly')}</div>
+            <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1">{t('assets.hourly')}</div>
             <div className="font-inter text-[13px] font-semibold text-ink">{office.hourly}</div>
           </div>
           <div>
-            <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1">{t('assets.monthlyBookings')}</div>
+            <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1">{t('assets.monthlyBookings')}</div>
             <div className="flex items-center gap-1">
               <span className="font-inter text-[13px] font-semibold text-ink">{office.monthlyBookings}</span>
               <span className={`font-inter text-[11px] font-medium ${
@@ -807,19 +805,19 @@ export default function AssetCommand() {
     setEditSubmitting(true)
     setEditSubmitError(null)
     try {
-      await updateOffice({
-        officeId: editingOffice.id,
+      const { error } = await supabase.from('offices').update({
         name: editForm.name.trim(),
         description: editForm.description.trim() || null,
         building: editForm.building.trim() || null,
         floor: editForm.floor.trim() || null,
         room: editForm.room.trim() || null,
         capacity: parseInt(editForm.capacityStr, 10),
-        hourlyRateCents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
+        hourly_rate_cents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
         currency: editForm.currency,
         status: editForm.status,
-        imageUrl: editForm.imageUrl.trim() || null,
-      })
+        image_url: editForm.imageUrl.trim() || null,
+      }).eq('id', editingOffice.id)
+      if (error) throw new Error(error.message)
       await reloadOffices()
       closeEditModal()
     } catch (err) {
@@ -834,7 +832,10 @@ export default function AssetCommand() {
     setEditSubmitting(true)
     setEditSubmitError(null)
     try {
-      await deleteOffice({ officeId: editingOffice.id })
+      const { error } = await supabase.from('offices')
+        .update({ deleted_at: new Date().toISOString() })
+        .eq('id', editingOffice.id)
+      if (error) throw new Error(error.message)
       await reloadOffices()
       closeEditModal()
     } catch (err) {
@@ -1101,7 +1102,7 @@ export default function AssetCommand() {
                     onClick={() => toggleGroup(group.id)}
                     className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:text-ink transition-colors duration-200 cursor-pointer bg-transparent border-0"
                   >
-                    <span className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">
                       {group.label}
                     </span>
                     <span className={`text-neutral transition-transform duration-200 ${isOpen ? 'rotate-180' : 'rotate-0'}`}>
@@ -1153,7 +1154,7 @@ export default function AssetCommand() {
           {/* Page Header */}
           <div className="pt-8 pb-6 flex items-start justify-between animate-fadeUp" style={{ '--delay': '0ms' }}>
             <div>
-              <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.assetManagement')}</p>
+              <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.assetManagement')}</p>
               <h1 className="font-inter text-[30px] font-bold tracking-[-.01em] text-ink leading-none mb-2">{t('assets.title')}</h1>
               <p className="font-inter text-[13px] text-neutral leading-relaxed">{t('assets.subtitle')}</p>
             </div>
@@ -1181,7 +1182,7 @@ export default function AssetCommand() {
                 className="bg-bg-2 border border-line rounded-2xl shadow-card p-4 animate-fadeUp"
                 style={{ '--delay': `${i * 60}ms` }}
               >
-                <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2 whitespace-pre-line">{stat.label}</div>
+                <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2 whitespace-pre-line">{stat.label}</div>
                 <div className={`flex items-center gap-2 font-inter text-[30px] font-bold tracking-[.02em] leading-none tabular-nums ${stat.accent ? 'text-accent' : 'text-ink'}`}>
                   {stat.dot && <span className="w-2 h-2 rounded-full shrink-0 bg-accent" />}
                   {stat.value}
@@ -1297,7 +1298,7 @@ export default function AssetCommand() {
               <div className="bg-bg-2 border border-line rounded-2xl shadow-card p-4 sticky top-0">
                 <div className="flex items-center justify-between mb-1">
                   <h2 className="font-inter text-[16px] font-semibold text-ink">{t('assets.actionQueue')}</h2>
-                  <span className="px-2.5 py-0.5 rounded-full bg-bg-3 border border-line font-mono text-[11px] text-neutral">
+                  <span className="px-2.5 py-0.5 rounded-full bg-bg-3 border border-line font-inter text-[11px] text-neutral">
                     {QUEUE_ITEMS.length} Tasks
                   </span>
                 </div>
@@ -1333,7 +1334,7 @@ export default function AssetCommand() {
           <div className="relative bg-bg-2 border border-line rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-line">
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-0.5">{t('assets.assetManagement')}</p>
+                <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-0.5">{t('assets.assetManagement')}</p>
                 <h2 className="font-inter text-[18px] font-semibold text-ink">{t('assets.addOffice')}</h2>
               </div>
               <button
@@ -1358,11 +1359,11 @@ export default function AssetCommand() {
                   </span>
                 </div>
                 <div className="p-3 bg-bg-3 border border-line rounded-xl mb-4">
-                  <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral">{t('assets.officeId')}</div>
+                  <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral">{t('assets.officeId')}</div>
                   <div className="font-mono text-[13px] text-ink mt-1 break-all">{submitResult.office_id}</div>
                   {submitResult.device_ids?.length > 0 && (
                     <>
-                      <div className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mt-3">{t('assets.devicesProvisioned')}</div>
+                      <div className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mt-3">{t('assets.devicesProvisioned')}</div>
                       <div className="font-mono text-[13px] text-ink mt-1">
                         {submitResult.device_ids.length} device{submitResult.device_ids.length > 1 ? 's' : ''}
                       </div>
@@ -1380,7 +1381,7 @@ export default function AssetCommand() {
               <form onSubmit={handleSubmit} className="p-6">
                 {/* Name */}
                 <div className="mb-4">
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                     {t('assets.officeName')} <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -1395,7 +1396,7 @@ export default function AssetCommand() {
 
                 {/* Description */}
                 <div className="mb-4">
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.description')}</label>
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.description')}</label>
                   <textarea
                     value={form.description}
                     onChange={(e) => setField('description', e.target.value)}
@@ -1408,7 +1409,7 @@ export default function AssetCommand() {
                 {/* Building / Floor / Room */}
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.building')}</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.building')}</label>
                     <input
                       type="text"
                       value={form.building}
@@ -1418,7 +1419,7 @@ export default function AssetCommand() {
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.floor')}</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.floor')}</label>
                     <input
                       type="text"
                       value={form.floor}
@@ -1428,7 +1429,7 @@ export default function AssetCommand() {
                     />
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.room')}</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.room')}</label>
                     <input
                       type="text"
                       value={form.room}
@@ -1442,7 +1443,7 @@ export default function AssetCommand() {
                 {/* Capacity / Hourly Price / Currency */}
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                       {t('assets.capacity')} <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -1457,7 +1458,7 @@ export default function AssetCommand() {
                     {formErrors.capacityStr && <p className="font-inter text-[12px] text-red-400 mt-1">{formErrors.capacityStr}</p>}
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                       {t('assets.hourlyRate')} ($) <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -1472,7 +1473,7 @@ export default function AssetCommand() {
                     {formErrors.hourlyPriceStr && <p className="font-inter text-[12px] text-red-400 mt-1">{formErrors.hourlyPriceStr}</p>}
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.currency')}</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.currency')}</label>
                     <input
                       type="text"
                       maxLength={3}
@@ -1488,7 +1489,7 @@ export default function AssetCommand() {
                 {/* Status / Image URL */}
                 <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">{t('assets.status')}</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">{t('assets.status')}</label>
                     <select
                       value={form.status}
                       onChange={(e) => setField('status', e.target.value)}
@@ -1500,7 +1501,7 @@ export default function AssetCommand() {
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                       Office Image
                     </label>
                     <div className="flex flex-col gap-2">
@@ -1528,7 +1529,7 @@ export default function AssetCommand() {
                         <button
                           type="button"
                           onClick={removeImage}
-                          className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral hover:text-red-400 transition-colors cursor-pointer bg-transparent border-0 text-left"
+                          className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral hover:text-red-400 transition-colors cursor-pointer bg-transparent border-0 text-left"
                         >
                           Remove image
                         </button>
@@ -1543,7 +1544,7 @@ export default function AssetCommand() {
 
                 {/* Device checklist */}
                 <div className="mb-5">
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-2">
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">
                     {t('assets.devices')}
                   </label>
                   <div className="flex flex-col gap-2">
@@ -1623,7 +1624,7 @@ export default function AssetCommand() {
           <div className="relative bg-bg-2 border border-line rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between px-6 py-4 border-b border-line">
               <div>
-                <p className="font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-0.5">Asset Management</p>
+                <p className="font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-0.5">Asset Management</p>
                 <h2 className="font-inter text-[18px] font-semibold text-ink">Edit Office</h2>
               </div>
               <button onClick={closeEditModal} className="w-8 h-8 flex items-center justify-center text-neutral-2 hover:text-ink transition-colors cursor-pointer bg-transparent border-0">
@@ -1644,7 +1645,7 @@ export default function AssetCommand() {
                     This will permanently delete <strong>{editingOffice.name}</strong>. This action cannot be undone.
                   </span>
                 </div>
-                <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                   Type <span className="text-red-400 font-bold">DELETE</span> to confirm
                 </label>
                 <input
@@ -1687,7 +1688,7 @@ export default function AssetCommand() {
             ) : (
               <form onSubmit={handleEditSubmit} className="p-6">
                 <div className="mb-4">
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                     Office Name <span className="text-red-400">*</span>
                   </label>
                   <input
@@ -1700,7 +1701,7 @@ export default function AssetCommand() {
                 </div>
 
                 <div className="mb-4">
-                  <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Description</label>
+                  <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Description</label>
                   <textarea
                     value={editForm.description || ''}
                     onChange={(e) => setEditField('description', e.target.value)}
@@ -1711,22 +1712,22 @@ export default function AssetCommand() {
 
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Building</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Building</label>
                     <input type="text" value={editForm.building || ''} onChange={(e) => setEditField('building', e.target.value)} className={editInputCls('building')} />
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Floor</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Floor</label>
                     <input type="text" value={editForm.floor || ''} onChange={(e) => setEditField('floor', e.target.value)} className={editInputCls('floor')} />
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Room</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Room</label>
                     <input type="text" value={editForm.room || ''} onChange={(e) => setEditField('room', e.target.value)} className={editInputCls('room')} />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-3 gap-3 mb-4">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                       Capacity <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -1738,7 +1739,7 @@ export default function AssetCommand() {
                     {editFormErrors.capacityStr && <p className="font-inter text-[12px] text-red-400 mt-1">{editFormErrors.capacityStr}</p>}
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
                       Hourly Rate ($) <span className="text-red-400">*</span>
                     </label>
                     <input
@@ -1750,7 +1751,7 @@ export default function AssetCommand() {
                     {editFormErrors.hourlyPriceStr && <p className="font-inter text-[12px] text-red-400 mt-1">{editFormErrors.hourlyPriceStr}</p>}
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Currency</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Currency</label>
                     <input
                       type="text" maxLength={3}
                       value={editForm.currency || ''}
@@ -1763,7 +1764,7 @@ export default function AssetCommand() {
 
                 <div className="grid grid-cols-2 gap-3 mb-5">
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Status</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Status</label>
                     <select
                       value={editForm.status || 'ACTIVE'}
                       onChange={(e) => setEditField('status', e.target.value)}
@@ -1775,7 +1776,7 @@ export default function AssetCommand() {
                     </select>
                   </div>
                   <div>
-                    <label className="block font-mono text-[11px] uppercase tracking-[.14em] text-neutral mb-1.5">Image URL</label>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Image URL</label>
                     <input
                       type="text"
                       value={editForm.imageUrl || ''}
@@ -1845,7 +1846,7 @@ export default function AssetCommand() {
               <div className="flex items-center justify-between px-5 py-4 border-b border-line">
                 <div>
                   <div className="font-inter text-[13px] font-semibold text-ink">{office?.name}</div>
-                  <div className="font-mono text-[11px] text-neutral mt-0.5 uppercase tracking-[.14em]">
+                  <div className="font-inter text-[11px] text-neutral mt-0.5 uppercase tracking-[.1em]">
                     Quick Controls
                   </div>
                 </div>
@@ -1946,7 +1947,7 @@ export default function AssetCommand() {
               }`}
             >
               <NavIcon type={group.mobileIcon} />
-              <span className="font-mono text-[11px] uppercase tracking-[.14em]">
+              <span className="font-inter text-[11px] uppercase tracking-[.1em]">
                 {group.label.split(' ')[0]}
               </span>
             </button>
