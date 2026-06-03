@@ -805,18 +805,19 @@ export default function AssetCommand() {
     setEditSubmitting(true)
     setEditSubmitError(null)
     try {
-      const { error } = await supabase.from('offices').update({
-        name: editForm.name.trim(),
-        description: editForm.description.trim() || null,
-        building: editForm.building.trim() || null,
-        floor: editForm.floor.trim() || null,
-        room: editForm.room.trim() || null,
-        capacity: parseInt(editForm.capacityStr, 10),
-        hourly_rate_cents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
-        currency: editForm.currency,
-        status: editForm.status,
-        image_url: editForm.imageUrl.trim() || null,
-      }).eq('id', editingOffice.id)
+      const { error } = await supabase.rpc('update_office_v1', {
+        p_office_id:         editingOffice.id,
+        p_name:              editForm.name.trim(),
+        p_description:       editForm.description.trim() || null,
+        p_building:          editForm.building.trim() || null,
+        p_floor:             editForm.floor.trim() || null,
+        p_room:              editForm.room.trim() || null,
+        p_capacity:          parseInt(editForm.capacityStr, 10),
+        p_hourly_rate_cents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
+        p_currency:          editForm.currency,
+        p_status:            editForm.status,
+        p_image_url:         editForm.imageUrl.trim() || null,
+      })
       if (error) throw new Error(error.message)
       await reloadOffices()
       closeEditModal()
@@ -832,9 +833,9 @@ export default function AssetCommand() {
     setEditSubmitting(true)
     setEditSubmitError(null)
     try {
-      const { error } = await supabase.from('offices')
-        .update({ deleted_at: new Date().toISOString() })
-        .eq('id', editingOffice.id)
+      const { error } = await supabase.rpc('soft_delete_office_v1', {
+        p_office_id: editingOffice.id,
+      })
       if (error) throw new Error(error.message)
       await reloadOffices()
       closeEditModal()
