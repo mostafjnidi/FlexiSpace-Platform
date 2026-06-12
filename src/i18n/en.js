@@ -581,7 +581,7 @@ const en = {
     contactUs: 'Contact Us',
     systemStatus: 'System Status',
     premiumWorkspaces: 'Premium smart workspaces designed for the world\'s most innovative professionals and forward-thinking enterprises.',
-    downtown: 'Downtown Manhattan, NY',
+    downtown: 'Gate-8 Yafour',
   },
 
   settings: {

@@ -581,7 +581,7 @@ const ar = {
     contactUs: 'تواصل معنا',
     systemStatus: 'حالة النظام',
     premiumWorkspaces: 'مساحات عمل ذكية متميزة مصممة لأكثر المهنيين ابتكارًا والشركات رائدة التفكير.',
-    downtown: 'وسط مانهاتن، نيويورك',
+    downtown: 'Gate-8 يفور',
   },
 
   settings: {
