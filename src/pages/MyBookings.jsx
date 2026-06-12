@@ -445,7 +445,7 @@ function mapBookingRow(row, office, index) {
     spaceType: 'office',
     iot: { connected: false },
     amenities: [],
-    image: fallback.image,
+    image: office?.image_url || fallback.image,
   }
 }
 
@@ -515,6 +515,7 @@ function BookingCard({ booking, countdown, onViewTicket, onCancel, onPayNow, onC
           src={booking.image}
           alt={booking.name}
           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = BOOKINGS_DATA.upcoming[0].image }}
         />
       </div>
 
@@ -763,7 +764,7 @@ export default function MyBookings() {
       if (officeIds.length > 0) {
         const { data: officeRows, error: officeError } = await supabase
           .from('offices')
-          .select('id,name,building,floor,room')
+          .select('id,name,building,floor,room,image_url')
           .in('id', officeIds)
 
         if (cancelled) return

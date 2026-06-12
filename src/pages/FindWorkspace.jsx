@@ -364,6 +364,7 @@ function WorkspaceCard({ workspace, delay, t }) {
           alt={`${workspace.name} workspace interior in ${workspace.location}`}
           loading="lazy"
           className="w-full h-44 object-cover"
+          onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = workspaces[0].image }}
         />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-2/60 to-transparent" />
         <span
