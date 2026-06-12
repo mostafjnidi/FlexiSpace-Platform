@@ -410,7 +410,7 @@ function OfficeCard({ office, onToggle, isTopPerformer, isSelected, onSelect, on
       transition-transform duration-[350ms] ease-[cubic-bezier(.2,.7,.2,1)] hover:-translate-y-1
       border-l-[3px] ${office.hasPendingMaint ? 'border-l-amber-400' : 'border-l-transparent'}`}>
       <div className="relative h-44">
-        <img src={office.image} alt="" aria-hidden="true" className="w-full h-full object-cover" />
+        <img src={office.image} alt="" aria-hidden="true" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = OFFICE_FALLBACK_IMAGES[0] }} />
         <div className="absolute inset-0 bg-gradient-to-t from-bg-2/60 to-transparent" />
 
         <div className="absolute top-3 left-3 flex items-center gap-2">

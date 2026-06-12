@@ -378,6 +378,7 @@ export default function OfficeDetails() {
               src={image}
               alt={`${office.name} workspace`}
               className="w-full h-full object-cover"
+              onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = FALLBACK_IMAGES[0] }}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-bg/60 to-transparent" />
             {!isActive && (

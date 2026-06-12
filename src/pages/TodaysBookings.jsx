@@ -341,7 +341,7 @@ function BookingRow({ booking, onMarkArrived, checkinInFlight, t }) {
         }`}
       >
         <div className="w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-line">
-          <img src={booking.image} alt="" aria-hidden="true" className="w-full h-full object-cover" />
+          <img src={booking.image} alt="" aria-hidden="true" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.onerror = null; e.currentTarget.src = OFFICE_FALLBACK_IMAGES[0] }} />
         </div>
 
         <div className="flex-1 min-w-0">
