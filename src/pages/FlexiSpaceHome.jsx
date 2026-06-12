@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
+import pinnacleImg from '../assets/pinnacle.jpg'
 
 function Eyebrow({ label }) {
   return (
@@ -131,7 +132,7 @@ function HeroSection() {
         <div className="hidden md:flex flex-col gap-4 animate-fadeUp" style={{ '--delay': '120ms' }}>
           <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
             <img
-              src="/src/assets/pinnacle.jpg"
+              src={pinnacleImg}
               alt="Premium workspace interior"
               className="w-full h-full object-cover"
             />
