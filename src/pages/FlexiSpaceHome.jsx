@@ -131,7 +131,7 @@ function HeroSection() {
         <div className="hidden md:flex flex-col gap-4 animate-fadeUp" style={{ '--delay': '120ms' }}>
           <div className="relative rounded-2xl overflow-hidden aspect-[4/3]">
             <img
-              src="https://images.unsplash.com/photo-1497366216548-37526070297c?auto=format&fit=crop&w=1200&q=80"
+              src="/src/assets/pinnacle.jpg"
               alt="Premium workspace interior"
               className="w-full h-full object-cover"
             />
