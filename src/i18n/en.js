@@ -582,6 +582,7 @@ const en = {
     systemStatus: 'System Status',
     premiumWorkspaces: 'Premium smart workspaces designed for the world\'s most innovative professionals and forward-thinking enterprises.',
     downtown: 'Gate-8 Yafour',
+    pinnacle: 'The Pinnacle',
   },
 
   settings: {

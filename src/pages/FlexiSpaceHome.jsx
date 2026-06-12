@@ -140,7 +140,7 @@ function HeroSection() {
             <div className="absolute bottom-0 left-0 right-0 p-5 flex items-center justify-between">
               <div>
                 <span className="font-inter text-[11px] uppercase tracking-[.1em] text-accent mb-1 block">{t('home.featuredLocation')}</span>
-                <h3 className="font-fraunces text-lg font-medium text-ink m-0">The Pinnacle</h3>
+                <h3 className="font-fraunces text-lg font-medium text-ink m-0">{t('home.pinnacle')}</h3>
                 <div className="flex items-center gap-1.5 mt-1">
                   <svg width="12" height="12" viewBox="0 0 12 12" fill="none" aria-hidden="true">
                     <path d="M6 1C4.067 1 2.5 2.567 2.5 4.5C2.5 7.5 6 11 6 11C6 11 9.5 7.5 9.5 4.5C9.5 2.567 7.933 1 6 1Z" stroke="currentColor" strokeWidth="1.1" fill="none" />

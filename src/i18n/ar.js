@@ -582,6 +582,7 @@ const ar = {
     systemStatus: 'حالة النظام',
     premiumWorkspaces: 'مساحات عمل ذكية متميزة مصممة لأكثر المهنيين ابتكارًا والشركات رائدة التفكير.',
     downtown: 'يعفور البوابة-8',
+    pinnacle: 'القمة',
   },
 
   settings: {
