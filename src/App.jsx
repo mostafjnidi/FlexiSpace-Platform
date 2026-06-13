@@ -155,7 +155,7 @@ export default function App() {
         <Route path="/facility-ops-hub" element={protect(<FacilityOpsHub operatorMode={operatorMode} />, { allowedRoles: operationalRoles })} />
         <Route path="/scanner-control" element={protect(<ScannerControl />, { allowedRoles: operationalRoles })} />
         <Route path="/todays-bookings" element={protect(<TodaysBookings operatorMode={operatorMode} />, { allowedRoles: operationalRoles })} />
-        <Route path="/admin/users" element={protect(<UserManagement />, { allowedRoles: ['ADMIN'] })} />
+        <Route path="/admin/users" element={protect(<UserManagement />, { allowedRoles: ownerPages })} />
         <Route path="/billing-history" element={protect(<BillingHistory />, { allowedRoles: ownerPages })} />
         <Route path="/office/:id" element={protect(<OfficeDetails />, { allowedRoles: userOnly })} />
         <Route path="*" element={<Navigate to="/" replace />} />
