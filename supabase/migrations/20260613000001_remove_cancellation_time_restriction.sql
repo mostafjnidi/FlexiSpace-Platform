@@ -1,6 +1,6 @@
 -- Allow bookings to be cancelled at any time (no 12-hour restriction).
--- Adds NO_SHOW as a cancellable status.
--- Reverts trigger to hardcoded checks (transition matrix is not fully seeded).
+-- Only COMPLETED, REFUNDED, and REJECTED statuses cannot be cancelled.
+-- Trigger uses hardcoded checks (transition matrix is not fully seeded).
 
 do $$
 begin
@@ -107,20 +107,12 @@ begin
     );
   end if;
 
-  if v_booking.status not in (
-    'PENDING_APPROVAL'::public.booking_status,
-    'APPROVED'::public.booking_status,
-    'PAYMENT_PENDING'::public.booking_status,
-    'CONFIRMED'::public.booking_status,
-    'NO_SHOW'::public.booking_status,
-    'EXPIRED'::public.booking_status
+  if v_booking.status in (
+    'COMPLETED'::public.booking_status,
+    'REFUNDED'::public.booking_status,
+    'REJECTED'::public.booking_status
   ) then
     raise exception 'INVALID_STATE: booking status cannot be cancelled'
-      using errcode = 'P0001';
-  end if;
-
-  if v_booking.checked_in_at is not null then
-    raise exception 'CANCELLATION_NOT_ALLOWED: booking cancellation is not allowed after check-in'
       using errcode = 'P0001';
   end if;
 
@@ -151,7 +143,7 @@ begin
 end;
 $$;
 
--- Trigger uses hardcoded checks only (transition matrix is not fully seeded)
+-- Trigger: only block cancellation of truly terminal statuses
 create or replace function private.validate_booking_transition()
 returns trigger
 language plpgsql
@@ -171,17 +163,11 @@ begin
   end if;
 
   if NEW.status = 'CANCELLED'::public.booking_status then
-    if OLD.status not in (
-      'PENDING_APPROVAL'::public.booking_status,
-      'APPROVED'::public.booking_status,
-      'PAYMENT_PENDING'::public.booking_status,
-      'CONFIRMED'::public.booking_status,
-      'NO_SHOW'::public.booking_status,
-      'EXPIRED'::public.booking_status
-    )
-      or OLD.checked_in_at is not null
-      or NEW.checked_in_at is not null
-    then
+    if OLD.status in (
+      'COMPLETED'::public.booking_status,
+      'REFUNDED'::public.booking_status,
+      'REJECTED'::public.booking_status
+    ) then
       raise exception 'CANCELLATION_NOT_ALLOWED: booking cancellation is not allowed from status %', OLD.status
         using errcode = 'P0001';
     end if;
