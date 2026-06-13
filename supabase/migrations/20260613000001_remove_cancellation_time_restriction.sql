@@ -1,7 +1,6 @@
 -- Allow bookings to be cancelled at any time (no 12-hour restriction).
--- Also adds NO_SHOW → CANCELLED transition and fixes trigger error message format.
-
-select private.set_actor_context(null, 'SYSTEM'::public.actor_type, 'fix_no_show_cancellation');
+-- Adds NO_SHOW as a cancellable status.
+-- Reverts trigger to hardcoded checks (transition matrix is not fully seeded).
 
 do $$
 begin
@@ -19,8 +18,6 @@ begin
   end if;
 end;
 $$;
-
-select private.clear_actor_context();
 
 create or replace function private.cancel_booking_workflow_v1(
   p_booking_id uuid,
@@ -153,6 +150,7 @@ begin
 end;
 $$;
 
+-- Trigger uses hardcoded checks only (transition matrix is not fully seeded)
 create or replace function private.validate_booking_transition()
 returns trigger
 language plpgsql
@@ -167,12 +165,7 @@ begin
   perform private.require_trusted_actor_context();
 
   if OLD.status is null or NEW.status is null then
-    raise exception 'invalid booking transition: status cannot be null'
-      using errcode = 'P0001';
-  end if;
-
-  if not private.can_transition_booking_status(OLD.status, NEW.status) then
-    raise exception 'INVALID_STATE: transition from % to % is not allowed', OLD.status, NEW.status
+    raise exception 'INVALID_STATE: booking status cannot be null'
       using errcode = 'P0001';
   end if;
 
