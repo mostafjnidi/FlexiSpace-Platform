@@ -112,7 +112,8 @@ begin
     'APPROVED'::public.booking_status,
     'PAYMENT_PENDING'::public.booking_status,
     'CONFIRMED'::public.booking_status,
-    'NO_SHOW'::public.booking_status
+    'NO_SHOW'::public.booking_status,
+    'EXPIRED'::public.booking_status
   ) then
     raise exception 'INVALID_STATE: booking status cannot be cancelled'
       using errcode = 'P0001';
@@ -175,7 +176,8 @@ begin
       'APPROVED'::public.booking_status,
       'PAYMENT_PENDING'::public.booking_status,
       'CONFIRMED'::public.booking_status,
-      'NO_SHOW'::public.booking_status
+      'NO_SHOW'::public.booking_status,
+      'EXPIRED'::public.booking_status
     )
       or OLD.checked_in_at is not null
       or NEW.checked_in_at is not null
