@@ -1,6 +1,26 @@
--- Remove the 12-hour cancellation time restriction from both the workflow
--- function and the transition validation trigger, allowing bookings to be
--- cancelled at any time (as long as they haven't been checked in).
+-- Allow bookings to be cancelled at any time (no 12-hour restriction).
+-- Also adds NO_SHOW → CANCELLED transition and fixes trigger error message format.
+
+select private.set_actor_context(null, 'SYSTEM'::public.actor_type, 'fix_no_show_cancellation');
+
+do $$
+begin
+  if not exists (
+    select 1 from public.booking_status_transitions
+    where from_status = 'NO_SHOW'::public.booking_status
+      and to_status = 'CANCELLED'::public.booking_status
+  ) then
+    insert into public.booking_status_transitions (from_status, to_status, allowed_actor_types)
+    values (
+      'NO_SHOW'::public.booking_status,
+      'CANCELLED'::public.booking_status,
+      array['USER'::public.actor_type, 'OWNER'::public.actor_type, 'OPERATOR'::public.actor_type, 'ADMIN'::public.actor_type]
+    );
+  end if;
+end;
+$$;
+
+select private.clear_actor_context();
 
 create or replace function private.cancel_booking_workflow_v1(
   p_booking_id uuid,
@@ -94,7 +114,8 @@ begin
     'PENDING_APPROVAL'::public.booking_status,
     'APPROVED'::public.booking_status,
     'PAYMENT_PENDING'::public.booking_status,
-    'CONFIRMED'::public.booking_status
+    'CONFIRMED'::public.booking_status,
+    'NO_SHOW'::public.booking_status
   ) then
     raise exception 'INVALID_STATE: booking status cannot be cancelled'
       using errcode = 'P0001';
@@ -132,9 +153,6 @@ begin
 end;
 $$;
 
-revoke all on function private.cancel_booking_workflow_v1(uuid, text) from public;
-
--- Update the transition validation trigger to match
 create or replace function private.validate_booking_transition()
 returns trigger
 language plpgsql
@@ -154,7 +172,7 @@ begin
   end if;
 
   if not private.can_transition_booking_status(OLD.status, NEW.status) then
-    raise exception 'invalid booking transition: % -> %', OLD.status, NEW.status
+    raise exception 'INVALID_STATE: transition from % to % is not allowed', OLD.status, NEW.status
       using errcode = 'P0001';
   end if;
 
@@ -163,7 +181,8 @@ begin
       'PENDING_APPROVAL'::public.booking_status,
       'APPROVED'::public.booking_status,
       'PAYMENT_PENDING'::public.booking_status,
-      'CONFIRMED'::public.booking_status
+      'CONFIRMED'::public.booking_status,
+      'NO_SHOW'::public.booking_status
     )
       or OLD.checked_in_at is not null
       or NEW.checked_in_at is not null
@@ -183,4 +202,5 @@ before update of status on public.bookings
 for each row
 execute function private.validate_booking_transition();
 
+revoke all on function private.cancel_booking_workflow_v1(uuid, text) from public;
 revoke all on function private.validate_booking_transition() from public;
