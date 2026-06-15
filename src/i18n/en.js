@@ -661,6 +661,7 @@ const en = {
     eventsLoaded: 'events loaded',
     immediateActions: 'Immediate Actions',
     noPendingRequests: 'No pending booking requests.',
+    noOfficesAssigned: 'No offices are assigned to your account. Ask an owner to assign you to an office from the Asset Management page.',
     liveFacilityStatus: 'Live Facility Status',
     systemHealth: 'System Health',
     upcomingChecks: 'Upcoming Checks',

@@ -694,6 +694,7 @@ export default function CommandCenter() {
   const [search,   setSearch]   = useState('')
   const [requests, setRequests] = useState([])
   const [loadingRequests, setLoadingRequests] = useState(true)
+  const [noOfficesAssigned, setNoOfficesAssigned] = useState(false)
   const [doorStates, setDoorStates] = useState({})
   const [doorToasts, setDoorToasts] = useState({})
   const [timers, setTimers] = useState({})
@@ -742,7 +743,11 @@ export default function CommandCenter() {
       }
 
       const allOfficeIds = [...new Set([...Object.keys(officeNameMap), ...operatedIds])]
-      if (allOfficeIds.length === 0 || cancelled) { setRequests([]); setLoadingRequests(false); return }
+      if (allOfficeIds.length === 0 || cancelled) {
+        if (!cancelled) setNoOfficesAssigned(true)
+        setRequests([]); setLoadingRequests(false); return
+      }
+      setNoOfficesAssigned(false)
 
       const { data: bookings } = await supabase
         .from('bookings')
@@ -1018,7 +1023,13 @@ export default function CommandCenter() {
                   </div>
                 ) : requests.length === 0 ? (
                   <div className="bg-bg-2 border border-line rounded-xl shadow-card p-8 text-center">
-                    <p className="font-inter text-[13.5px] text-neutral">{t('commandCenter.noPendingRequests')}</p>
+                    {noOfficesAssigned ? (
+                      <p className="font-inter text-[13.5px] text-amber-400">
+                        {t('commandCenter.noOfficesAssigned') || 'No offices are assigned to your account. Ask an owner to assign you to an office from the Asset Management page.'}
+                      </p>
+                    ) : (
+                      <p className="font-inter text-[13.5px] text-neutral">{t('commandCenter.noPendingRequests')}</p>
+                    )}
                   </div>
                 ) : (
                   <div className="grid sm:grid-cols-2 gap-4">

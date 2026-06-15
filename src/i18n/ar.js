@@ -661,6 +661,7 @@ const ar = {
     eventsLoaded: 'أحداث محمّلة',
     immediateActions: 'الإجراءات الفورية',
     noPendingRequests: 'لا توجد طلبات حجز معلقة.',
+    noOfficesAssigned: 'لا توجد مكاتب مرتبطة بحسابك. اطلب من المالك تعيينك لمكتب من صفحة إدارة الأصول.',
     liveFacilityStatus: 'حالة المرفق المباشرة',
     systemHealth: 'صحة النظام',
     upcomingChecks: 'الفحوصات القادمة',
