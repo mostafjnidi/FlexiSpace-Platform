@@ -1023,7 +1023,7 @@ function SensorRow({ sensor, isLast }) {
 function FloorRoomCard({ room, onClick, simTick }) {
   const cfg = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
   const noSensors = room.temperature == null && room.humidity == null && room.co2 == null
-  const sim = noSensors && room.status !== 'OFFLINE' ? getSimulatedReadings(room.officeId, simTick) : null
+  const sim = noSensors ? getSimulatedReadings(room.officeId, simTick) : null
   const temperature = sim ? sim.temperature : room.temperature
   const humidity    = sim ? sim.humidity    : room.humidity
   const co2         = sim ? sim.co2         : room.co2
