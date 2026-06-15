@@ -857,6 +857,7 @@ const ar = {
     clearSelection: 'إلغاء التحديد',
     loadingInventory: 'جار تحميل قائمة الأجهزة...',
     fallbackInventory: 'استخدام القائمة المحلية الاحتياطية.',
+    noDevices: 'لا توجد أجهزة IoT مرتبطة بمكاتبك.',
     rebootSignal: 'تم إرسال إشارة إعادة التشغيل إلى {{nodeId}}...',
     liveLogs: 'السجلات المباشرة',
     noEvents: 'لم تُسجَّل أحداث دخول بعد.',

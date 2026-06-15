@@ -1392,9 +1392,9 @@ export default function NodeManager({ operatorMode = false }) {
       if (!isMounted) return
 
       if (error || !data || data.length === 0) {
-        setNodes(NODES_DATA)
-        setUsingFallbackNodes(true)
-        setNodeStates({ 1: true, 2: true })
+        setNodes([])
+        setUsingFallbackNodes(false)
+        setNodeStates({})
         setIsLoadingNodes(false)
         return
       }
@@ -1505,7 +1505,7 @@ export default function NodeManager({ operatorMode = false }) {
         if (!isMounted) return
 
         if (invErr || !inventory?.length) {
-          if (isMounted) { setFloorRooms(getMockFloorRooms()); setIsLoadingFloor(false) }
+          if (isMounted) { setFloorRooms([]); setIsLoadingFloor(false) }
           return
         }
 
@@ -1519,10 +1519,10 @@ export default function NodeManager({ operatorMode = false }) {
             .in('device_id', deviceIds),
           supabase
             .from('bookings')
-            .select('office_id, status, starts_at, ends_at')
+            .select('office_id, status, start_time, end_time')
             .in('office_id', officeIds)
             .in('status', ['CONFIRMED', 'CHECKED_IN'])
-            .gt('ends_at', new Date().toISOString()),
+            .gt('end_time', new Date().toISOString()),
         ])
 
         if (!isMounted) return
@@ -1570,7 +1570,7 @@ export default function NodeManager({ operatorMode = false }) {
           } else if (booking?.status === 'CHECKED_IN') {
             status = 'OCCUPIED'
           } else if (booking?.status === 'CONFIRMED') {
-            const diffMin = (new Date(booking.starts_at) - Date.now()) / 60000
+            const diffMin = (new Date(booking.start_time) - Date.now()) / 60000
             if (diffMin <= 120) status = 'RESERVED_SOON'
           }
 
@@ -1582,11 +1582,11 @@ export default function NodeManager({ operatorMode = false }) {
         })
 
         if (isMounted) {
-          setFloorRooms(rooms.length > 0 ? rooms : getMockFloorRooms())
+          setFloorRooms(rooms)
           setIsLoadingFloor(false)
         }
       } catch {
-        if (isMounted) { setFloorRooms(getMockFloorRooms()); setIsLoadingFloor(false) }
+        if (isMounted) { setFloorRooms([]); setIsLoadingFloor(false) }
       }
     }
 
@@ -2055,10 +2055,18 @@ export default function NodeManager({ operatorMode = false }) {
                       </div>
                     )}
 
-                    {(isLoadingNodes || usingFallbackNodes) && (
+                    {isLoadingNodes && (
                       <p className="font-inter text-[12px] text-neutral mb-3">
-                        {isLoadingNodes ? t('nodeManager.loadingInventory') : t('nodeManager.fallbackInventory')}
+                        {t('nodeManager.loadingInventory')}
                       </p>
+                    )}
+
+                    {!isLoadingNodes && nodes.length === 0 && (
+                      <div className="py-12 text-center">
+                        <p className="font-inter text-[13px] text-neutral opacity-60">
+                          {t('nodeManager.noDevices') || 'No IoT devices found for your offices.'}
+                        </p>
+                      </div>
                     )}
 
                     <div className="grid sm:grid-cols-2 gap-4">

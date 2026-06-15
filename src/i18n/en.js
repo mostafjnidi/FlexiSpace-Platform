@@ -857,6 +857,7 @@ const en = {
     clearSelection: 'Clear',
     loadingInventory: 'Loading device inventory...',
     fallbackInventory: 'Using local fallback inventory.',
+    noDevices: 'No IoT devices found for your offices.',
     rebootSignal: 'Reboot signal sent to {{nodeId}}…',
     liveLogs: 'Live System Logs',
     noEvents: 'No access events recorded yet.',
