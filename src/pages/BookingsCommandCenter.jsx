@@ -859,12 +859,12 @@ export default function BookingsCommandCenter() {
       return
     }
 
-    const officeIds = [...new Set(bookingRows.map((b) => b.office_id).filter(Boolean))]
+    const bookingOfficeIds = [...new Set(bookingRows.map((b) => b.office_id).filter(Boolean))]
     const bookingIds = bookingRows.map((b) => b.id)
     const userIds = [...new Set(bookingRows.map((b) => b.user_id).filter(Boolean))]
 
-    const officeRequest = officeIds.length > 0
-      ? supabase.from('offices').select('id,name,building,floor,room,capacity').in('id', officeIds)
+    const officeRequest = bookingOfficeIds.length > 0
+      ? supabase.from('offices').select('id,name,building,floor,room,capacity').in('id', bookingOfficeIds)
       : Promise.resolve({ data: [], error: null })
     const paymentRequest = bookingIds.length > 0
       ? supabase.from('payments').select('booking_id,status,created_at').in('booking_id', bookingIds).order('created_at', { ascending: false })
