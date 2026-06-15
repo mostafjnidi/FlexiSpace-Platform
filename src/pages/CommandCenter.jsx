@@ -433,6 +433,7 @@ const NAV_GROUPS = [
       { label: 'Scanner Control',  path: '/scanner-control',  icon: 'scanner' },
       { label: 'Live Access Feed', path: '/access-logs',      icon: 'access'  },
       { label: 'Facility Ops Hub', path: '/facility-ops-hub', icon: 'wrench'  },
+      { label: 'IoT Nodes',        path: '/node-manager',     icon: 'network' },
     ],
   },
 ]

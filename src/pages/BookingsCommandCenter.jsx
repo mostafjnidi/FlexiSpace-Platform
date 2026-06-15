@@ -817,12 +817,30 @@ export default function BookingsCommandCenter() {
     const userId = user?.id
     if (!userId) { setBookings([]); setLoadingBookings(false); return }
 
-    const { data: myOffices } = await supabase
-      .from('offices')
-      .select('id')
-      .eq('owner_id', userId)
-      .is('deleted_at', null)
-    const ownerOfficeIds = (myOffices ?? []).map((o) => o.id)
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single()
+    const userRole = profile?.role
+
+    let officeIds = []
+    if (userRole === 'OPERATOR') {
+      const { data: opOffices } = await supabase
+        .from('operator_offices')
+        .select('office_id')
+        .eq('operator_id', userId)
+        .is('deleted_at', null)
+      officeIds = (opOffices ?? []).map((o) => o.office_id)
+    } else {
+      const { data: myOffices } = await supabase
+        .from('offices')
+        .select('id')
+        .eq('owner_id', userId)
+        .is('deleted_at', null)
+      officeIds = (myOffices ?? []).map((o) => o.id)
+    }
+    const ownerOfficeIds = officeIds
     if (ownerOfficeIds.length === 0) { setBookings([]); setLoadingBookings(false); return }
 
     const { data: bookingRows, error: bookingError } = await supabase

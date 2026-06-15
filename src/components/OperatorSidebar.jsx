@@ -5,11 +5,12 @@ import { translateNavItem } from './navigation'
 import BrandLogo from './BrandLogo'
 
 const OPERATOR_NAV_ITEMS = [
-  { label: 'Command Center', shortLabel: 'Command', path: '/command-center', icon: 'command' },
-  { label: "Today's Bookings", shortLabel: "Today's", path: '/todays-bookings', icon: 'today' },
-  { label: 'Live Access Feed', shortLabel: 'Access', path: '/access-logs', icon: 'access' },
-  { label: 'Facility Ops Hub', shortLabel: 'Facility', path: '/facility-ops-hub', icon: 'wrench' },
-  { label: 'Scanner Control', shortLabel: 'Scanner', path: '/scanner-control', icon: 'scanner' },
+  { label: 'Command Center',   shortLabel: 'Command',  path: '/command-center',   icon: 'command' },
+  { label: "Today's Bookings", shortLabel: "Today's",  path: '/todays-bookings',  icon: 'today'   },
+  { label: 'Scanner Control',  shortLabel: 'Scanner',  path: '/scanner-control',  icon: 'scanner' },
+  { label: 'Live Access Feed', shortLabel: 'Access',   path: '/access-logs',      icon: 'access'  },
+  { label: 'Facility Ops Hub', shortLabel: 'Facility', path: '/facility-ops-hub', icon: 'wrench'  },
+  { label: 'IoT Nodes',        shortLabel: 'IoT',      path: '/node-manager',     icon: 'network' },
 ]
 
 function NavTodayIcon() {
@@ -70,12 +71,24 @@ function LogoutIcon() {
   )
 }
 
+function NavNetworkIcon() {
+  return (
+    <svg width="15" height="15" viewBox="0 0 15 15" fill="none" aria-hidden="true">
+      <circle cx="7.5" cy="4" r="2" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="3" cy="11.5" r="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <circle cx="12" cy="11.5" r="1.5" stroke="currentColor" strokeWidth="1.2" />
+      <path d="M7.5 6v2.5M7.5 8.5L3 10M7.5 8.5L12 10" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" />
+    </svg>
+  )
+}
+
 function NavIcon({ type }) {
   if (type === 'today') return <NavTodayIcon />
   if (type === 'wrench') return <NavWrenchIcon />
   if (type === 'scanner') return <NavScannerIcon />
   if (type === 'command') return <NavCommandIcon />
   if (type === 'access') return <NavAccessIcon />
+  if (type === 'network') return <NavNetworkIcon />
   return null
 }
 

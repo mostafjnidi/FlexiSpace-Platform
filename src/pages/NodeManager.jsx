@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
-import { translateNavGroup, translateNavLabel } from '../components/navigation'
+import { translateNavGroup, translateNavLabel, translateNavItem } from '../components/navigation'
 
 // Sidebar Icons
 function GridSquaresIcon({ size = 16 }) {
@@ -465,6 +465,15 @@ function AutomationIcon() {
 }
 
 // Nav Data
+const OPERATOR_ITEMS = [
+  { label: 'Command Center',   shortLabel: 'Command',  path: '/command-center',   icon: 'command' },
+  { label: "Today's Bookings", shortLabel: "Today's",  path: '/todays-bookings',  icon: 'today'   },
+  { label: 'Scanner Control',  shortLabel: 'Scanner',  path: '/scanner-control',  icon: 'scanner' },
+  { label: 'Live Access Feed', shortLabel: 'Access',   path: '/access-logs',      icon: 'access'  },
+  { label: 'Facility Ops Hub', shortLabel: 'Facility', path: '/facility-ops-hub', icon: 'wrench'  },
+  { label: 'IoT Nodes',        shortLabel: 'IoT',      path: '/node-manager',     icon: 'network' },
+]
+
 const NAV_GROUPS = [
   {
     id: 'overview',
@@ -1317,10 +1326,11 @@ function AutomationTimeline({ events, isLoading }) {
 }
 
 // Page
-export default function NodeManager() {
+export default function NodeManager({ operatorMode = false }) {
   const location = useLocation()
   const navigate = useNavigate()
   const { t, direction } = useI18n()
+  const isOperator = operatorMode
 
   const logFilters = [
     { id: 'all', label: t('nodeManager.logFilters.all') },
@@ -1819,51 +1829,76 @@ export default function NodeManager() {
         <div className="flex flex-1">
           {/* Accordion Sidebar */}
           <aside className="app-sidebar hidden md:flex flex-col w-[200px] bg-bg-2 border-r border-line">
-            <nav className="flex flex-col gap-1 p-3 flex-1" aria-label="Owner portal navigation">
-              {NAV_GROUPS.map((rawGroup) => {
-                const group = translateNavGroup(rawGroup, t)
-                const isOpen = openGroups[group.id] ?? false
-                const groupActive = isGroupActive(group)
-                return (
-                  <div key={group.id}>
+            <nav className="flex flex-col gap-1 p-3 flex-1" aria-label="Portal navigation">
+              {isOperator ? (
+                OPERATOR_ITEMS.map((rawItem) => {
+                  const item = translateNavItem(rawItem, t)
+                  const active = isActive(item.path)
+                  return (
                     <button
-                      onClick={() => toggleGroup(group.id)}
-                      aria-expanded={isOpen}
-                      aria-label={`${group.label} section`}
-                      className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
-                        groupActive ? 'text-accent' : 'text-neutral hover:text-neutral-2'
+                      key={item.path}
+                      aria-label={item.label}
+                      aria-current={active ? 'page' : undefined}
+                      onClick={() => navigate(item.path)}
+                      className={`w-full flex items-center gap-2 px-3 py-2.5 rounded-xl font-inter text-[13px] transition-all duration-200 cursor-pointer border-0 text-left border-l-2 ${
+                        active
+                          ? 'bg-accent/[.09] border-l-accent text-accent'
+                          : 'border-l-transparent text-neutral-2 hover:bg-bg-3 hover:text-ink'
                       }`}
                     >
-                      {group.label}
-                      <span className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
-                        <ChevronDownIcon />
+                      <span aria-hidden="true" className={active ? 'text-accent' : 'text-neutral'}>
+                        <NavIcon type={item.icon} />
                       </span>
+                      {item.label}
                     </button>
-                    <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'max-h-[240px] opacity-100' : 'max-h-0 opacity-0'}`}>
-                      <div className="flex flex-col gap-0.5 pb-1">
-                        {group.items.map((item) => (
-                          <button
-                            key={item.path}
-                            aria-label={item.label}
-                            aria-current={isActive(item.path) ? 'page' : undefined}
-                            onClick={() => navigate(item.path)}
-                            className={`flex items-center gap-2 px-3 py-2.5 rounded-xl font-inter text-[13px] transition-all duration-200 cursor-pointer border-0 text-left w-full focus:ring-2 focus:ring-accent/40 ${
-                              isActive(item.path)
-                                ? 'bg-accent/[.09] border-l-2 border-l-accent text-accent'
-                                : 'border-l-2 border-l-transparent text-neutral-2 hover:bg-bg-3 hover:text-ink'
-                            }`}
-                          >
-                            <span aria-hidden="true" className={isActive(item.path) ? 'text-accent' : 'text-neutral'}>
-                              <NavIcon type={item.icon} />
-                            </span>
-                            {item.label}
-                          </button>
-                        ))}
+                  )
+                })
+              ) : (
+                NAV_GROUPS.map((rawGroup) => {
+                  const group = translateNavGroup(rawGroup, t)
+                  const isOpen = openGroups[group.id] ?? false
+                  const groupActive = isGroupActive(group)
+                  return (
+                    <div key={group.id}>
+                      <button
+                        onClick={() => toggleGroup(group.id)}
+                        aria-expanded={isOpen}
+                        aria-label={`${group.label} section`}
+                        className={`flex items-center justify-between w-full px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] transition-colors duration-150 cursor-pointer bg-transparent border-0 ${
+                          groupActive ? 'text-accent' : 'text-neutral hover:text-neutral-2'
+                        }`}
+                      >
+                        {group.label}
+                        <span className={`transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}>
+                          <ChevronDownIcon />
+                        </span>
+                      </button>
+                      <div className={`overflow-hidden transition-all duration-200 ease-in-out ${isOpen ? 'max-h-[240px] opacity-100' : 'max-h-0 opacity-0'}`}>
+                        <div className="flex flex-col gap-0.5 pb-1">
+                          {group.items.map((item) => (
+                            <button
+                              key={item.path}
+                              aria-label={item.label}
+                              aria-current={isActive(item.path) ? 'page' : undefined}
+                              onClick={() => navigate(item.path)}
+                              className={`flex items-center gap-2 px-3 py-2.5 rounded-xl font-inter text-[13px] transition-all duration-200 cursor-pointer border-0 text-left w-full focus:ring-2 focus:ring-accent/40 ${
+                                isActive(item.path)
+                                  ? 'bg-accent/[.09] border-l-2 border-l-accent text-accent'
+                                  : 'border-l-2 border-l-transparent text-neutral-2 hover:bg-bg-3 hover:text-ink'
+                              }`}
+                            >
+                              <span aria-hidden="true" className={isActive(item.path) ? 'text-accent' : 'text-neutral'}>
+                                <NavIcon type={item.icon} />
+                              </span>
+                              {item.label}
+                            </button>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                )
-              })}
+                  )
+                })
+              )}
             </nav>
             <div className="p-3 border-t border-line flex flex-col gap-1 shrink-0">
               <button aria-label={t('common.support')} onClick={() => navigate('/support')}
@@ -2136,21 +2171,37 @@ export default function NodeManager() {
         {/* Mobile bottom nav */}
         <nav className="app-mobile-nav md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bg-2 border-t border-line" aria-label="Mobile navigation">
           <div className="flex items-center justify-around px-2 h-14">
-            {NAV_GROUPS.map((rawGroup) => {
-              const tGroup = translateNavGroup(rawGroup, t)
-              const active = isGroupActive(rawGroup)
-              return (
-                <button key={rawGroup.id} aria-label={translateNavLabel(rawGroup.label, t)} aria-current={active ? 'page' : undefined}
-                  onClick={() => navigate(rawGroup.mobilePath)}
-                  className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors cursor-pointer bg-transparent border-0 focus:ring-2 focus:ring-accent/40 ${
-                    active ? 'text-accent' : 'text-neutral hover:text-ink'
-                  }`}
-                >
-                  <NavIcon type={rawGroup.mobileIcon} />
-                  <span className="font-inter text-[11px] uppercase tracking-[.1em]">{tGroup.label.split(' ')[0]}</span>
-                </button>
-              )
-            })}
+            {isOperator ? (
+              OPERATOR_ITEMS.map((rawItem) => {
+                const item = translateNavItem(rawItem, t)
+                const active = isActive(item.path)
+                return (
+                  <button key={item.path} aria-label={item.label} aria-current={active ? 'page' : undefined}
+                    onClick={() => navigate(item.path)}
+                    className={`flex flex-col items-center gap-1 px-2 py-1 cursor-pointer bg-transparent border-0 transition-colors duration-200 ${active ? 'text-accent' : 'text-neutral-2'}`}
+                  >
+                    <NavIcon type={item.icon} />
+                    <span className="font-inter text-[10px] uppercase tracking-[.1em]">{item.shortLabel}</span>
+                  </button>
+                )
+              })
+            ) : (
+              NAV_GROUPS.map((rawGroup) => {
+                const tGroup = translateNavGroup(rawGroup, t)
+                const active = isGroupActive(rawGroup)
+                return (
+                  <button key={rawGroup.id} aria-label={translateNavLabel(rawGroup.label, t)} aria-current={active ? 'page' : undefined}
+                    onClick={() => navigate(rawGroup.mobilePath)}
+                    className={`flex flex-col items-center gap-1 px-3 py-2 rounded-lg transition-colors cursor-pointer bg-transparent border-0 focus:ring-2 focus:ring-accent/40 ${
+                      active ? 'text-accent' : 'text-neutral hover:text-ink'
+                    }`}
+                  >
+                    <NavIcon type={rawGroup.mobileIcon} />
+                    <span className="font-inter text-[11px] uppercase tracking-[.1em]">{tGroup.label.split(' ')[0]}</span>
+                  </button>
+                )
+              })
+            )}
           </div>
         </nav>
       </div>

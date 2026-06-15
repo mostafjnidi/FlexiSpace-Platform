@@ -150,7 +150,7 @@ export default function App() {
         <Route path="/access-logs" element={protect(<AccessLogs operatorMode={operatorMode} />, { allowedRoles: operationalRoles })} />
         <Route path="/owner-dashboard" element={protect(<OwnerDashboard />, { allowedRoles: ownerPages })} />
         <Route path="/bookings-command-center" element={protect(<BookingsCommandCenter />, { allowedRoles: ownerPages })} />
-        <Route path="/node-manager" element={protect(<NodeManager />, { allowedRoles: operationalRoles })} />
+        <Route path="/node-manager" element={protect(<NodeManager operatorMode={operatorMode} />, { allowedRoles: operationalRoles })} />
         <Route path="/asset-command" element={protect(<AssetCommand />, { allowedRoles: ownerPages })} />
         <Route path="/facility-ops-hub" element={protect(<FacilityOpsHub operatorMode={operatorMode} />, { allowedRoles: operationalRoles })} />
         <Route path="/scanner-control" element={protect(<ScannerControl />, { allowedRoles: operationalRoles })} />

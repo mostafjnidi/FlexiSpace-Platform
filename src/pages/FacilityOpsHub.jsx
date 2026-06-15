@@ -256,6 +256,7 @@ const OPERATOR_ITEMS = [
   { label: 'Scanner Control',  shortLabel: 'Scanner',  path: '/scanner-control',  icon: 'scanner' },
   { label: 'Live Access Feed', shortLabel: 'Access',   path: '/access-logs',      icon: 'access'  },
   { label: 'Facility Ops Hub', shortLabel: 'Facility', path: '/facility-ops-hub', icon: 'wrench'  },
+  { label: 'IoT Nodes',        shortLabel: 'IoT',      path: '/node-manager',     icon: 'network' },
 ]
 
 const NAV_GROUPS = [
