@@ -574,6 +574,30 @@ export default function FacilityOpsHub({ operatorMode = false }) {
   const [newTaskForm, setNewTaskForm] = useState({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '' })
   const [newTaskError, setNewTaskError] = useState('')
   const [newTaskSubmitting, setNewTaskSubmitting] = useState(false)
+  const [managedOffices, setManagedOffices] = useState([])
+
+  // Load offices this user can manage (owner + operator)
+  useEffect(() => {
+    let mounted = true
+    async function loadManagedOffices() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user || !mounted) return
+      const [{ data: owned }, { data: operated }] = await Promise.all([
+        supabase.from('offices').select('id, name').eq('owner_id', user.id).is('deleted_at', null),
+        supabase.from('operator_offices').select('office_id').eq('operator_id', user.id).is('deleted_at', null),
+      ])
+      const ownedIds = new Set((owned ?? []).map((o) => o.id))
+      const operatedIds = (operated ?? []).map((o) => o.office_id).filter((id) => !ownedIds.has(id))
+      let extraOffices = []
+      if (operatedIds.length > 0) {
+        const { data: extra } = await supabase.from('offices').select('id, name').in('id', operatedIds).is('deleted_at', null)
+        extraOffices = extra ?? []
+      }
+      if (mounted) setManagedOffices([...(owned ?? []), ...extraOffices])
+    }
+    loadManagedOffices()
+    return () => { mounted = false }
+  }, [])
 
   // Load tasks from API
   useEffect(() => {
@@ -667,14 +691,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
     setNewTaskSubmitting(true)
     setNewTaskError('')
     try {
-      const { data: { user } } = await supabase.auth.getUser()
-      const { data: officeRows } = await supabase
-        .from('offices')
-        .select('id')
-        .eq('owner_id', user?.id)
-        .is('deleted_at', null)
-        .limit(1)
-      const officeId = officeRows?.[0]?.id ?? null
+      const officeId = managedOffices[0]?.id ?? null
       if (!officeId) { setNewTaskError('No office found for your account.'); setNewTaskSubmitting(false); return }
       await createMaintenanceTask({
         officeId,
