@@ -1358,10 +1358,10 @@ export default function NodeManager({ operatorMode = false }) {
   })
   const toggleGroup = (id) => setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }))
 
-  const [nodes, setNodes] = useState(NODES_DATA)
+  const [nodes, setNodes] = useState([])
   const [isLoadingNodes, setIsLoadingNodes] = useState(true)
   const [usingFallbackNodes, setUsingFallbackNodes] = useState(false)
-  const [nodeStates, setNodeStates] = useState({ 1: true, 2: true })
+  const [nodeStates, setNodeStates] = useState({})
   const [alertNode, setAlertNode] = useState(null)
   const [logFilter, setLogFilter] = useState('all')
   const [rebootFeedback, setRebootFeedback] = useState(null)
@@ -1379,15 +1379,51 @@ export default function NodeManager({ operatorMode = false }) {
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(true)
   const [simTick, setSimTick] = useState(0)
 
+  // null = not yet resolved, [] = no offices, [...ids] = scoped list
+  const [allowedOfficeIds, setAllowedOfficeIds] = useState(null)
+
+  // Resolve which office IDs this user is allowed to see
   useEffect(() => {
+    let isMounted = true
+    async function resolveOffices() {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!isMounted || !user) { setAllowedOfficeIds([]); return }
+
+      const [{ data: owned }, { data: operated }] = await Promise.all([
+        supabase.from('offices').select('id').eq('owner_id', user.id).is('deleted_at', null),
+        supabase.from('operator_offices').select('office_id').eq('operator_id', user.id).is('deleted_at', null),
+      ])
+
+      if (!isMounted) return
+      const ids = [
+        ...((owned ?? []).map((o) => o.id)),
+        ...((operated ?? []).map((o) => o.office_id)),
+      ]
+      setAllowedOfficeIds(ids)
+    }
+    resolveOffices()
+    return () => { isMounted = false }
+  }, [])
+
+  useEffect(() => {
+    if (allowedOfficeIds === null) return
     let isMounted = true
 
     async function loadDeviceInventory() {
       setIsLoadingNodes(true)
 
+      if (allowedOfficeIds.length === 0) {
+        setNodes([])
+        setUsingFallbackNodes(false)
+        setNodeStates({})
+        setIsLoadingNodes(false)
+        return
+      }
+
       const { data, error } = await supabase
         .from('device_inventory_read_model')
         .select(DEVICE_INVENTORY_FIELDS)
+        .in('office_id', allowedOfficeIds)
 
       if (!isMounted) return
 
@@ -1409,15 +1445,22 @@ export default function NodeManager({ operatorMode = false }) {
     loadDeviceInventory()
 
     return () => { isMounted = false }
-  }, [])
+  }, [allowedOfficeIds])
 
   // Load live IoT metrics (total nodes, online %, power draw, alert count)
   useEffect(() => {
+    if (allowedOfficeIds === null) return
     let isMounted = true
     async function loadMetrics() {
+      if (allowedOfficeIds.length === 0) {
+        if (isMounted) setIotMetrics({ total: 0, onlinePct: '0.0', powerKw: '0.0', alertCount: 0 })
+        return
+      }
+
       const { data: inventory } = await supabase
         .from('device_inventory_read_model')
         .select('id, status, device_type')
+        .in('office_id', allowedOfficeIds)
       if (!isMounted || !inventory) return
 
       const total = inventory.length
@@ -1449,33 +1492,40 @@ export default function NodeManager({ operatorMode = false }) {
     loadMetrics()
     const timer = setInterval(loadMetrics, 30_000)
     return () => { isMounted = false; clearInterval(timer) }
-  }, [])
+  }, [allowedOfficeIds])
 
   // Load live logs from access_events_read_model
   useEffect(() => {
+    if (allowedOfficeIds === null) return
     let isMounted = true
     async function loadLogs() {
-      const { data } = await supabase
+      let query = supabase
         .from('access_events_read_model')
         .select('access_event_id, occurred_at, actor_display_name, location_label, access_method, status')
         .order('occurred_at', { ascending: false })
         .limit(15)
+      if (allowedOfficeIds.length > 0) query = query.in('office_id', allowedOfficeIds)
+      const { data } = await query
       if (isMounted && data?.length) setLiveLogs(data.map(mapAccessEventToLog))
     }
 
     loadLogs()
     const timer = setInterval(loadLogs, 30_000)
     return () => { isMounted = false; clearInterval(timer) }
-  }, [])
+  }, [allowedOfficeIds])
 
   // Load active sensors from device_state_snapshots
   useEffect(() => {
+    if (allowedOfficeIds === null) return
     let isMounted = true
     async function loadSensors() {
+      if (allowedOfficeIds.length === 0) return
+
       const { data: inventory } = await supabase
         .from('device_inventory_read_model')
         .select('id, office_name, device_type, latest_snapshot_observed_at')
         .in('device_type', ['AIR_QUALITY_SENSOR', 'ELECTRICITY_METER', 'SMART_LOCK'])
+        .in('office_id', allowedOfficeIds)
       if (!isMounted || !inventory?.length) return
 
       const { data: snaps } = await supabase
@@ -1491,16 +1541,23 @@ export default function NodeManager({ operatorMode = false }) {
     loadSensors()
     const timer = setInterval(loadSensors, 30_000)
     return () => { isMounted = false; clearInterval(timer) }
-  }, [])
+  }, [allowedOfficeIds])
 
   useEffect(() => {
+    if (allowedOfficeIds === null) return
     let isMounted = true
 
     async function loadFloor() {
       try {
+        if (allowedOfficeIds.length === 0) {
+          if (isMounted) { setFloorRooms([]); setIsLoadingFloor(false) }
+          return
+        }
+
         const { data: inventory, error: invErr } = await supabase
           .from('device_inventory_read_model')
           .select('id, office_id, office_name, device_type, status, last_seen_at, latest_snapshot_observed_at')
+          .in('office_id', allowedOfficeIds)
 
         if (!isMounted) return
 
@@ -1601,7 +1658,7 @@ export default function NodeManager({ operatorMode = false }) {
 
     const floorTimer = setInterval(loadFloor, 30_000)
     return () => { isMounted = false; clearInterval(floorTimer); supabase.removeChannel(channel) }
-  }, [])
+  }, [allowedOfficeIds])
 
   useEffect(() => {
     const ticker = setInterval(() => setSimTick(t => t + 1), 2_000)
@@ -1609,19 +1666,28 @@ export default function NodeManager({ operatorMode = false }) {
   }, [])
 
   useEffect(() => {
+    if (allowedOfficeIds === null) return
     let isMounted = true
 
     async function loadTimeline() {
       try {
-        const { data: accessEvts } = await supabase
+        if (allowedOfficeIds.length === 0) {
+          if (isMounted) { setAutomationEvents([]); setIsLoadingTimeline(false) }
+          return
+        }
+
+        let accessQuery = supabase
           .from('access_events_read_model')
           .select('access_event_id, occurred_at, actor_display_name, location_label, access_method, status')
           .order('occurred_at', { ascending: false })
           .limit(20)
+        if (allowedOfficeIds.length > 0) accessQuery = accessQuery.in('office_id', allowedOfficeIds)
+        const { data: accessEvts } = await accessQuery
 
         const { data: inventory } = await supabase
           .from('device_inventory_read_model')
           .select('id, office_name, device_type')
+          .in('office_id', allowedOfficeIds)
 
         if (!isMounted) return
 
@@ -1734,12 +1800,12 @@ export default function NodeManager({ operatorMode = false }) {
           .slice(0, 50)
 
         if (isMounted) {
-          setAutomationEvents(sorted.length > 0 ? sorted : getMockTimelineEvents())
+          setAutomationEvents(sorted)
           setIsLoadingTimeline(false)
         }
       } catch {
         if (isMounted) {
-          setAutomationEvents(getMockTimelineEvents())
+          setAutomationEvents([])
           setIsLoadingTimeline(false)
         }
       }
@@ -1758,7 +1824,7 @@ export default function NodeManager({ operatorMode = false }) {
 
     const timelineTimer = setInterval(loadTimeline, 15_000)
     return () => { isMounted = false; clearInterval(timelineTimer); supabase.removeChannel(channel) }
-  }, [])
+  }, [allowedOfficeIds])
 
   const toggleNode = (id, val) => setNodeStates((prev) => ({ ...prev, [id]: val }))
 
