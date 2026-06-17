@@ -1,4 +1,4 @@
-﻿import { useEffect, useRef, useState } from 'react'
+﻿import { useEffect, useMemo, useRef, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
 import { callFlexiFunction } from '../lib/flexispaceApi'
@@ -61,38 +61,43 @@ function deriveIndoorReadings(env, deviceType) {
   return {}
 }
 
-async function injectTelemetryForAllDevices(inventory, env) {
-  if (!env || !inventory?.length) return
-  const eligible = inventory.filter(d =>
-    d.device_type === 'AIR_QUALITY_SENSOR' || d.device_type === 'ELECTRICITY_METER'
-  )
+function computeDerivedSnaps(freshInv, env) {
+  const snapsMap = {}
   const officeTypeSeen = {}
-  const tasks = eligible.map(device => {
+  for (const device of freshInv) {
     const key = `${device.office_id}:${device.device_type}`
     const isDupe = !!officeTypeSeen[key]
     officeTypeSeen[key] = true
     const base = deriveIndoorReadings(env, device.device_type)
-    let payload
-    if (device.device_type === 'AIR_QUALITY_SENSOR') {
-      payload = {
-        temperature_c:    isDupe ? parseFloat((base.temperature_c    + (Math.random() * 0.6 - 0.3)).toFixed(1)) : base.temperature_c,
-        humidity_percent: isDupe ? Math.round(base.humidity_percent + (Math.random() * 4 - 2))                   : base.humidity_percent,
-        co2_ppm:          base.co2_ppm,
-        pm25_ug_m3:       base.pm25_ug_m3,
-      }
-    } else {
-      payload = { ...base }
+    const readings = device.device_type === 'AIR_QUALITY_SENSOR' ? {
+      temperature_c:    isDupe ? parseFloat((base.temperature_c    + (Math.random() * 0.6 - 0.3)).toFixed(1)) : base.temperature_c,
+      humidity_percent: isDupe ? Math.round(base.humidity_percent + (Math.random() * 4 - 2))                   : base.humidity_percent,
+      co2_ppm:          base.co2_ppm,
+      pm25_ug_m3:       base.pm25_ug_m3,
+    } : { ...base }
+    snapsMap[device.id] = {
+      device_type: device.device_type,
+      office_id:   device.office_id,
+      office_name: device.office_name,
+      readings,
     }
-    return callFlexiFunction('iot/mock/telemetry', {
+  }
+  return snapsMap
+}
+
+async function injectTelemetryForAllDevices(snapsMap) {
+  if (!snapsMap || !Object.keys(snapsMap).length) return
+  const tasks = Object.entries(snapsMap).map(([deviceId, snap]) =>
+    callFlexiFunction('iot/mock/telemetry', {
       body: {
-        device_id:         device.id,
-        event_type:        device.device_type === 'AIR_QUALITY_SENSOR' ? 'AIR_QUALITY_READING' : 'ELECTRICITY_READING',
-        payload,
+        device_id:         deviceId,
+        event_type:        snap.device_type === 'AIR_QUALITY_SENSOR' ? 'AIR_QUALITY_READING' : 'ELECTRICITY_READING',
+        payload:           snap.readings,
         observed_at:       new Date().toISOString(),
         new_device_status: 'ONLINE',
       },
     })
-  })
+  )
   await Promise.allSettled(tasks)
 }
 
@@ -1470,6 +1475,7 @@ export default function NodeManager({ operatorMode = false }) {
   const [envLastFetched, setEnvLastFetched] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
   const [nodeTick, setNodeTick] = useState(0)
+  const [derivedSnaps, setDerivedSnaps] = useState({})
   const inventoryRef = useRef([])
 
   // Resolve which office IDs this user is allowed to see
@@ -1921,7 +1927,7 @@ export default function NodeManager({ operatorMode = false }) {
         fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon),
         supabase
           .from('device_inventory_read_model')
-          .select('id, office_id, device_type')
+          .select('id, office_id, office_name, device_type')
           .in('office_id', allowedOfficeIds)
           .in('device_type', ['AIR_QUALITY_SENSOR', 'ELECTRICITY_METER']),
       ])
@@ -1929,7 +1935,9 @@ export default function NodeManager({ operatorMode = false }) {
       inventoryRef.current = freshInv
       setLiveEnv(env)
       setEnvLastFetched(new Date())
-      await injectTelemetryForAllDevices(freshInv, env)
+      const snapsMap = computeDerivedSnaps(freshInv, env)
+      if (!cancelled) setDerivedSnaps(snapsMap)
+      await injectTelemetryForAllDevices(snapsMap)
       if (!cancelled) setNodeTick(t => t + 1)
     }
 
@@ -1946,7 +1954,7 @@ export default function NodeManager({ operatorMode = false }) {
         fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon),
         supabase
           .from('device_inventory_read_model')
-          .select('id, office_id, device_type')
+          .select('id, office_id, office_name, device_type')
           .in('office_id', allowedOfficeIds)
           .in('device_type', ['AIR_QUALITY_SENSOR', 'ELECTRICITY_METER']),
       ])
@@ -1954,7 +1962,9 @@ export default function NodeManager({ operatorMode = false }) {
         inventoryRef.current = freshInv
         setLiveEnv(env)
         setEnvLastFetched(new Date())
-        await injectTelemetryForAllDevices(freshInv, env)
+        const snapsMap = computeDerivedSnaps(freshInv, env)
+        setDerivedSnaps(snapsMap)
+        await injectTelemetryForAllDevices(snapsMap)
         setNodeTick(t => t + 1)
       }
     } finally {
@@ -1987,6 +1997,66 @@ export default function NodeManager({ operatorMode = false }) {
     })
     setSelectedNodeIds(new Set())
   }
+
+  const mergedFloorRooms = useMemo(() => {
+    if (!Object.keys(derivedSnaps).length) return floorRooms
+    return floorRooms.map(room => {
+      let { temperature, humidity, co2, powerKw } = room
+      for (const snap of Object.values(derivedSnaps)) {
+        if (snap.office_id !== room.officeId) continue
+        if (snap.device_type === 'AIR_QUALITY_SENSOR') {
+          if (temperature == null) temperature = snap.readings.temperature_c
+          if (humidity   == null) humidity    = snap.readings.humidity_percent
+          if (co2        == null) co2         = snap.readings.co2_ppm
+        } else if (snap.device_type === 'ELECTRICITY_METER') {
+          if (powerKw == null) powerKw = snap.readings.current_kw
+        }
+      }
+      return { ...room, temperature, humidity, co2, powerKw }
+    })
+  }, [floorRooms, derivedSnaps])
+
+  const derivedSensorRows = useMemo(() => {
+    const rows = []
+    for (const [devId, snap] of Object.entries(derivedSnaps)) {
+      const office = snap.office_name || 'Office'
+      if (snap.device_type === 'AIR_QUALITY_SENSOR') {
+        const r = snap.readings
+        if (r.temperature_c != null) rows.push({
+          id: `${devId}:temp`, icon: 'thermo',
+          name: `${office} — Temp`, sub: 'Updated just now',
+          value: `${Number(r.temperature_c).toFixed(1)}°C`, type: 'value',
+          iconStyle: { backgroundColor: 'rgba(71,85,105,0.10)', color: '#10B981' },
+        })
+        if (r.co2_ppm != null) rows.push({
+          id: `${devId}:co2`, icon: 'motion',
+          name: `${office} — CO₂`, sub: 'Updated just now',
+          value: `${Math.round(r.co2_ppm)} ppm`, type: 'value',
+          iconStyle: { backgroundColor: 'rgba(96,165,250,.12)', color: '#60a5fa' },
+        })
+      } else if (snap.device_type === 'ELECTRICITY_METER' && snap.readings.current_kw != null) {
+        rows.push({
+          id: `${devId}:kw`, icon: 'power',
+          name: `${office} — Power`, sub: 'Updated just now',
+          value: `${Number(snap.readings.current_kw).toFixed(2)} kW`, type: 'value',
+          iconStyle: { backgroundColor: 'rgba(234,179,8,.12)', color: '#facc15' },
+        })
+      }
+    }
+    return rows.slice(0, 8)
+  }, [derivedSnaps])
+
+  const effectiveSensors = sensors.length ? sensors : derivedSensorRows
+
+  const mergedNodes = useMemo(() => {
+    if (!Object.keys(derivedSnaps).length) return nodes
+    const derivedIds = new Set(Object.keys(derivedSnaps))
+    return nodes.map(node =>
+      derivedIds.has(String(node.id))
+        ? { ...node, status: 'nominal', lastSeen: 'just now', alertMsg: null }
+        : node
+    )
+  }, [nodes, derivedSnaps])
 
   const filteredLogs = logFilter === 'all' ? liveLogs : liveLogs.filter((e) => e.type === logFilter)
 
@@ -2271,7 +2341,7 @@ export default function NodeManager({ operatorMode = false }) {
                     )}
 
                     <div className="grid sm:grid-cols-2 gap-4">
-                      {nodes.map((node) => (
+                      {mergedNodes.map((node) => (
                         <div key={node.id}>
                           {rebootFeedback === node.id && (
                             <div className="mb-2 px-3 py-2 rounded-lg font-inter text-[11px] uppercase tracking-[.1em] text-center animate-fadeUp"
@@ -2337,7 +2407,7 @@ export default function NodeManager({ operatorMode = false }) {
 
                   {activeTab === 'floormap' && (
                     <FloorMapView
-                      rooms={floorRooms}
+                      rooms={mergedFloorRooms}
                       isLoading={isLoadingFloor}
                       onRoomClick={setSelectedRoom}
                     />
@@ -2370,9 +2440,9 @@ export default function NodeManager({ operatorMode = false }) {
                 )}
               </div>
               <div className="px-5 flex flex-col">
-                {sensors.length > 0
-                  ? sensors.map((sensor, i) => (
-                      <SensorRow key={sensor.id} sensor={sensor} isLast={i === sensors.length - 1} />
+                {effectiveSensors.length > 0
+                  ? effectiveSensors.map((sensor, i) => (
+                      <SensorRow key={sensor.id} sensor={sensor} isLast={i === effectiveSensors.length - 1} />
                     ))
                   : (
                       <p className="font-inter text-[12px] text-neutral py-6 text-center opacity-70">
