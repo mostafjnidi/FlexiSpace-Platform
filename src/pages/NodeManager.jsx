@@ -85,10 +85,11 @@ async function injectTelemetryForAllDevices(inventory, env) {
     }
     return callFlexiFunction('iot/mock/telemetry', {
       body: {
-        device_id:   device.id,
-        event_type:  device.device_type === 'AIR_QUALITY_SENSOR' ? 'AIR_QUALITY_READING' : 'ELECTRICITY_READING',
+        device_id:         device.id,
+        event_type:        device.device_type === 'AIR_QUALITY_SENSOR' ? 'AIR_QUALITY_READING' : 'ELECTRICITY_READING',
         payload,
-        observed_at: new Date().toISOString(),
+        observed_at:       new Date().toISOString(),
+        new_device_status: 'ONLINE',
       },
     })
   })
@@ -1468,6 +1469,7 @@ export default function NodeManager({ operatorMode = false }) {
   const [liveEnv, setLiveEnv] = useState(null)
   const [envLastFetched, setEnvLastFetched] = useState(null)
   const [isRefreshing, setIsRefreshing] = useState(false)
+  const [nodeTick, setNodeTick] = useState(0)
   const inventoryRef = useRef([])
 
   // Resolve which office IDs this user is allowed to see
@@ -1534,7 +1536,7 @@ export default function NodeManager({ operatorMode = false }) {
     loadDeviceInventory()
 
     return () => { isMounted = false }
-  }, [allowedOfficeIds])
+  }, [allowedOfficeIds, nodeTick])
 
   // Load live IoT metrics (total nodes, online %, power draw, alert count)
   useEffect(() => {
@@ -1919,6 +1921,7 @@ export default function NodeManager({ operatorMode = false }) {
       setLiveEnv(env)
       setEnvLastFetched(new Date())
       await injectTelemetryForAllDevices(inventoryRef.current, env)
+      setNodeTick(t => t + 1)
     }
 
     refreshEnv()
@@ -1935,6 +1938,7 @@ export default function NodeManager({ operatorMode = false }) {
         setLiveEnv(env)
         setEnvLastFetched(new Date())
         await injectTelemetryForAllDevices(inventoryRef.current, env)
+        setNodeTick(t => t + 1)
       }
     } finally {
       setIsRefreshing(false)
