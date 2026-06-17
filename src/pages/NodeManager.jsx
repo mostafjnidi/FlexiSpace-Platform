@@ -61,25 +61,41 @@ function deriveIndoorReadings(env, deviceType) {
   return {}
 }
 
+function officeVar(officeId, scale) {
+  const h = (officeId || '').split('').reduce((s, c) => s + c.charCodeAt(0), 0)
+  return ((h % 200) / 100 - 1) * scale
+}
+
 function computeDerivedSnaps(freshInv, env) {
   const snapsMap = {}
-  const officeTypeSeen = {}
   for (const device of freshInv) {
-    const key = `${device.office_id}:${device.device_type}`
-    const isDupe = !!officeTypeSeen[key]
-    officeTypeSeen[key] = true
-    const base = deriveIndoorReadings(env, device.device_type)
-    const readings = device.device_type === 'AIR_QUALITY_SENSOR' ? {
-      temperature_c:    isDupe ? parseFloat((base.temperature_c    + (Math.random() * 0.6 - 0.3)).toFixed(1)) : base.temperature_c,
-      humidity_percent: isDupe ? Math.round(base.humidity_percent + (Math.random() * 4 - 2))                   : base.humidity_percent,
-      co2_ppm:          base.co2_ppm,
-      pm25_ug_m3:       base.pm25_ug_m3,
-    } : { ...base }
-    snapsMap[device.id] = {
-      device_type: device.device_type,
-      office_id:   device.office_id,
-      office_name: device.office_name,
-      readings,
+    const ov = (s) => officeVar(device.office_id, s)
+
+    if (device.device_type === 'AIR_QUALITY_SENSOR') {
+      const hour = new Date().getHours()
+      const workFactor = (hour >= 8 && hour < 18) ? Math.min(1, (hour - 8) / 5) * 0.8 : 0
+      snapsMap[device.id] = {
+        device_type: device.device_type,
+        office_id:   device.office_id,
+        office_name: device.office_name,
+        readings: {
+          temperature_c:    parseFloat(clamp(env.outdoor_temp_c + 1.5 + ov(2.5), 18, 28).toFixed(1)),
+          humidity_percent: clamp(Math.round(env.outdoor_humidity * 0.75 + ov(8)), 30, 68),
+          co2_ppm:          Math.round(clamp(420 + workFactor * 580 + ov(120) + Math.random() * 40 - 20, 400, 1100)),
+          pm25_ug_m3:       env.pm25 != null ? parseFloat((env.pm25 * 0.4 * (1 + Math.abs(ov(0.3)))).toFixed(1)) : null,
+        },
+      }
+    } else if (device.device_type === 'ELECTRICITY_METER') {
+      const t = env.outdoor_temp_c
+      const hvac_load = t > 26 ? (t - 26) * 0.08 : t < 18 ? (18 - t) * 0.06 : 0
+      snapsMap[device.id] = {
+        device_type: device.device_type,
+        office_id:   device.office_id,
+        office_name: device.office_name,
+        readings: {
+          current_kw: parseFloat(clamp(1.1 + hvac_load + (isWorkHours() ? 0.4 : 0) + ov(0.4) + Math.random() * 0.15, 0.8, 4.2).toFixed(2)),
+        },
+      }
     }
   }
   return snapsMap
@@ -1945,6 +1961,15 @@ export default function NodeManager({ operatorMode = false }) {
     const timer = setInterval(refreshEnv, 30 * 60 * 1000)
     return () => { cancelled = true; clearInterval(timer) }
   }, [allowedOfficeIds])
+
+  useEffect(() => {
+    if (!liveEnv) return
+    const timer = setInterval(() => {
+      if (!inventoryRef.current?.length) return
+      setDerivedSnaps(computeDerivedSnaps(inventoryRef.current, liveEnv))
+    }, 3 * 60 * 1000)
+    return () => clearInterval(timer)
+  }, [liveEnv])
 
   const handleRefresh = async () => {
     if (isRefreshing || !allowedOfficeIds?.length) return
