@@ -417,15 +417,16 @@ function mapTaskRow(row) {
   const diffMin = Math.floor(diffMs / 60000)
   const ago = diffMin < 60 ? `${diffMin}m ago` : `${Math.floor(diffMin / 60)}h ago`
   return {
-    id:       row.id,
-    location: row.location || '—',
-    priority: row.priority === 'high' ? 'HIGH PRIORITY' : 'NORMAL',
-    title:    row.title,
+    id:        row.id,
+    location:  row.location || '—',
+    priority:  row.priority === 'high' ? 'HIGH PRIORITY' : 'NORMAL',
+    title:     row.title,
     ago,
-    team:     row.assigned_to || '',
-    taskType: row.task_type || 'other',
-    icon:     getTaskIcon(row.task_type),
-    status:   row.status,
+    createdAt: row.created_at,
+    team:      row.assigned_to || '',
+    taskType:  row.task_type || 'other',
+    icon:      getTaskIcon(row.task_type),
+    status:    row.status,
   }
 }
 
@@ -494,7 +495,7 @@ function TaskCard({ task, onAdvance, advanceInFlight, t }) {
         <TeamDropdown value={team} onChange={setTeam} />
         {task.status !== 'done' ? (
           <button
-            onClick={onAdvance}
+            onClick={() => onAdvance(team)}
             disabled={advanceInFlight?.has(task.id)}
             className={`flex items-center gap-1.5 px-4 py-2 rounded-xl font-inter text-[13px] font-medium transition-all duration-200 cursor-pointer border disabled:opacity-60 disabled:cursor-not-allowed ${
               currentStep === 2
@@ -570,8 +571,9 @@ export default function FacilityOpsHub({ operatorMode = false }) {
   const [priorityFilter, setPriorityFilter] = useState('all')
   const [notifOpen, setNotifOpen] = useState(false)
   const [notifications, setNotifications] = useState([])
+  const [markingAllRead, setMarkingAllRead] = useState(false)
   const [newTaskModal, setNewTaskModal] = useState(false)
-  const [newTaskForm, setNewTaskForm] = useState({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '' })
+  const [newTaskForm, setNewTaskForm] = useState({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '', officeId: '' })
   const [newTaskError, setNewTaskError] = useState('')
   const [newTaskSubmitting, setNewTaskSubmitting] = useState(false)
   const [managedOffices, setManagedOffices] = useState([])
@@ -670,18 +672,37 @@ export default function FacilityOpsHub({ operatorMode = false }) {
   })
   const toggleGroup = (id) => setOpenGroups((prev) => ({ ...prev, [id]: !prev[id] }))
 
-  const advanceStatus = async (task) => {
+  const advanceStatus = async (task, teamOverride) => {
     const steps = ['open', 'assigned', 'in_progress', 'done']
     const next = steps[steps.indexOf(task.status) + 1]
     if (!next) return
     setAdvanceInFlight((prev) => new Set([...prev, task.id]))
     try {
-      await advanceTaskStatus({ taskId: task.id, newStatus: next, assignedTo: task.team || null })
+      await advanceTaskStatus({ taskId: task.id, newStatus: next, assignedTo: teamOverride ?? task.team ?? null })
       setTaskReloadTick((v) => v + 1)
     } catch {
       // silently ignore — task list will not change
     } finally {
       setAdvanceInFlight((prev) => { const n = new Set(prev); n.delete(task.id); return n })
+    }
+  }
+
+  const handleMarkAllRead = async () => {
+    setMarkingAllRead(true)
+    try {
+      await supabase
+        .from('notifications')
+        .update({ read_at: new Date().toISOString() })
+        .is('read_at', null)
+      const { data } = await supabase
+        .from('notifications')
+        .select(NOTIFICATION_FIELDS)
+        .order('created_at', { ascending: false })
+        .limit(50)
+      setNotifications((data ?? []).map(mapNotificationRow))
+    } finally {
+      setMarkingAllRead(false)
+      setNotifOpen(false)
     }
   }
 
@@ -691,7 +712,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
     setNewTaskSubmitting(true)
     setNewTaskError('')
     try {
-      const officeId = managedOffices[0]?.id ?? null
+      const officeId = newTaskForm.officeId || managedOffices[0]?.id || null
       if (!officeId) { setNewTaskError('No office found for your account.'); setNewTaskSubmitting(false); return }
       await createMaintenanceTask({
         officeId,
@@ -702,7 +723,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
         assignedTo: newTaskForm.assignedTo.trim() || null,
       })
       setNewTaskModal(false)
-      setNewTaskForm({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '' })
+      setNewTaskForm({ title: '', taskType: 'other', priority: 'normal', location: '', assignedTo: '', officeId: '' })
       setTaskReloadTick((v) => v + 1)
     } catch (err) {
       setNewTaskError(err instanceof FlexiApiError ? err.message : 'Failed to create task.')
@@ -726,6 +747,10 @@ export default function FacilityOpsHub({ operatorMode = false }) {
 
   const activeCount = tasks.filter((t) => t.status !== 'done').length
   const highCount = tasks.filter((t) => t.priority === 'HIGH PRIORITY' && t.status !== 'done').length
+  const delayedCount = tasks.filter((t) => {
+    if (t.status === 'done') return false
+    return Date.now() - new Date(t.createdAt).getTime() > 48 * 60 * 60 * 1000
+  }).length
   const criticalNotifs = notifications.filter((n) => n.level === 'critical').length
 
   return (
@@ -888,7 +913,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
             </span>
             <span className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full border border-line bg-ink/[.06] font-inter text-[11px] uppercase tracking-[.1em] text-ink-2">
               <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
-              2 {t('facility.delayed')}
+              {delayedCount} {t('facility.delayed')}
             </span>
           </div>
 
@@ -965,7 +990,7 @@ export default function FacilityOpsHub({ operatorMode = false }) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {filteredTasks.map((task, i) => (
                 <div key={task.id} className="animate-fadeUp" style={{ '--delay': `${i * 80 + 200}ms` }}>
-                  <TaskCard task={task} onAdvance={() => advanceStatus(task)} advanceInFlight={advanceInFlight} t={t} />
+                  <TaskCard task={task} onAdvance={(currentTeam) => advanceStatus(task, currentTeam)} advanceInFlight={advanceInFlight} t={t} />
                 </div>
               ))}
             </div>
@@ -1007,6 +1032,21 @@ export default function FacilityOpsHub({ operatorMode = false }) {
                     className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink placeholder:text-neutral outline-none focus:border-accent"
                   />
                 </div>
+                {managedOffices.length > 1 && (
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Office *</label>
+                    <select
+                      value={newTaskForm.officeId}
+                      onChange={(e) => setNewTaskForm((f) => ({ ...f, officeId: e.target.value }))}
+                      className="w-full bg-bg-3 border border-line rounded-xl px-3 py-2.5 font-inter text-[13px] text-ink outline-none focus:border-accent"
+                    >
+                      <option value="">Select an office…</option>
+                      {managedOffices.map((o) => (
+                        <option key={o.id} value={o.id}>{o.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
                 <div className="grid grid-cols-2 gap-3">
                   <div>
                     <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Type</label>
@@ -1132,10 +1172,11 @@ export default function FacilityOpsHub({ operatorMode = false }) {
 
             <div className="p-3 border-t border-line">
               <button
-                onClick={() => setNotifOpen(false)}
-                className="w-full py-2 rounded-xl bg-bg-3 border border-line font-inter text-[13px] text-neutral-2 hover:text-ink hover:bg-ink/[.06] transition-all duration-200 cursor-pointer"
+                onClick={handleMarkAllRead}
+                disabled={markingAllRead}
+                className="w-full py-2 rounded-xl bg-bg-3 border border-line font-inter text-[13px] text-neutral-2 hover:text-ink hover:bg-ink/[.06] transition-all duration-200 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {t('facility.markAllRead')}
+                {markingAllRead ? '...' : t('facility.markAllRead')}
               </button>
             </div>
           </div>

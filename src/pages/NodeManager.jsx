@@ -1020,14 +1020,12 @@ function SensorRow({ sensor, isLast }) {
   )
 }
 
-function FloorRoomCard({ room, onClick, simTick }) {
+function FloorRoomCard({ room, onClick }) {
   const cfg = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
-  const noSensors = room.temperature == null && room.humidity == null && room.co2 == null
-  const sim = noSensors ? getSimulatedReadings(room.officeId, simTick) : null
-  const temperature = sim ? sim.temperature : room.temperature
-  const humidity    = sim ? sim.humidity    : room.humidity
-  const co2         = sim ? sim.co2         : room.co2
-  const powerKw     = sim ? sim.powerKw     : room.powerKw
+  const temperature = room.temperature
+  const humidity    = room.humidity
+  const co2         = room.co2
+  const powerKw     = room.powerKw
   const tempAlert  = temperature != null && temperature > 28
   const humidAlert = humidity    != null && (humidity < 30 || humidity > 70)
   const co2Alert   = co2         != null && co2 > 1000
@@ -1109,14 +1107,12 @@ function FloorRoomCard({ room, onClick, simTick }) {
   )
 }
 
-function RoomDetailModal({ room, onClose, simTick }) {
+function RoomDetailModal({ room, onClose }) {
   const cfg     = ROOM_STATUS_CONFIG[room.status] || ROOM_STATUS_CONFIG.AVAILABLE
-  const noSensors = room.temperature == null && room.humidity == null && room.co2 == null
-  const sim     = noSensors && room.status !== 'OFFLINE' ? getSimulatedReadings(room.officeId, simTick) : null
-  const temperature = sim ? sim.temperature : room.temperature
-  const humidity    = sim ? sim.humidity    : room.humidity
-  const co2         = sim ? sim.co2         : room.co2
-  const powerKw     = sim ? sim.powerKw     : room.powerKw
+  const temperature = room.temperature
+  const humidity    = room.humidity
+  const co2         = room.co2
+  const powerKw     = room.powerKw
   const details = [
     ['Temperature', temperature != null ? `${temperature}°C` : '—'],
     ['Humidity',    humidity    != null ? `${humidity}%`     : '—'],
@@ -1185,7 +1181,7 @@ function RoomDetailModal({ room, onClose, simTick }) {
   )
 }
 
-function FloorMapView({ rooms, isLoading, onRoomClick, simTick }) {
+function FloorMapView({ rooms, isLoading, onRoomClick }) {
   const statusCounts = {
     AVAILABLE:     rooms.filter(r => r.status === 'AVAILABLE').length,
     OCCUPIED:      rooms.filter(r => r.status === 'OCCUPIED').length,
@@ -1227,7 +1223,7 @@ function FloorMapView({ rooms, isLoading, onRoomClick, simTick }) {
       </div>
       <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {rooms.map(room => (
-          <FloorRoomCard key={room.officeId} room={room} onClick={() => onRoomClick(room)} simTick={simTick} />
+          <FloorRoomCard key={room.officeId} room={room} onClick={() => onRoomClick(room)} />
         ))}
       </div>
     </section>
@@ -1377,8 +1373,6 @@ export default function NodeManager({ operatorMode = false }) {
   const [selectedRoom, setSelectedRoom] = useState(null)
   const [automationEvents, setAutomationEvents] = useState([])
   const [isLoadingTimeline, setIsLoadingTimeline] = useState(true)
-  const [simTick, setSimTick] = useState(0)
-
   // null = not yet resolved, [] = no offices, [...ids] = scoped list
   const [allowedOfficeIds, setAllowedOfficeIds] = useState(null)
 
@@ -1661,11 +1655,6 @@ export default function NodeManager({ operatorMode = false }) {
   }, [allowedOfficeIds])
 
   useEffect(() => {
-    const ticker = setInterval(() => setSimTick(t => t + 1), 2_000)
-    return () => clearInterval(ticker)
-  }, [])
-
-  useEffect(() => {
     if (allowedOfficeIds === null) return
     let isMounted = true
 
@@ -1852,8 +1841,7 @@ export default function NodeManager({ operatorMode = false }) {
     setSelectedNodeIds(new Set())
   }
 
-  const logsSource = liveLogs.length > 0 ? liveLogs : LOG_ENTRIES
-  const filteredLogs = logFilter === 'all' ? logsSource : logsSource.filter((e) => e.type === logFilter)
+  const filteredLogs = logFilter === 'all' ? liveLogs : liveLogs.filter((e) => e.type === logFilter)
 
   return (
     <>
@@ -2205,7 +2193,6 @@ export default function NodeManager({ operatorMode = false }) {
                       rooms={floorRooms}
                       isLoading={isLoadingFloor}
                       onRoomClick={setSelectedRoom}
-                      simTick={simTick}
                     />
                   )}
 
@@ -2281,7 +2268,7 @@ export default function NodeManager({ operatorMode = false }) {
       </div>
 
       {alertNode && <AlertModal node={alertNode} onClose={() => setAlertNode(null)} t={t} />}
-      {selectedRoom && <RoomDetailModal room={selectedRoom} onClose={() => setSelectedRoom(null)} simTick={simTick} />}
+      {selectedRoom && <RoomDetailModal room={selectedRoom} onClose={() => setSelectedRoom(null)} />}
     </>
   )
 }

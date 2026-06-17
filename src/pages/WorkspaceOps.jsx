@@ -401,7 +401,14 @@ export default function WorkspaceOps() {
     }
 
     load()
-    return () => { isMounted = false }
+
+    const channel = supabase
+      .channel('workspace-ops-rt')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => { if (isMounted) load() })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'offices' },  () => { if (isMounted) load() })
+      .subscribe()
+
+    return () => { isMounted = false; supabase.removeChannel(channel) }
   }, [])
 
   // ── Derived floor filters from real offices ────────────────────────────
