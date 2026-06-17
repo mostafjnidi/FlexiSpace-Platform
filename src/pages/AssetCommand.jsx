@@ -572,6 +572,22 @@ const DEVICE_OPTIONS = [
   { value: 'ELECTRICITY_METER', label: 'Electricity Meter' },
 ]
 
+const OFFICE_TYPE_OPTIONS = [
+  { value: 'Private Office', label: 'Private Office' },
+  { value: 'Meeting Room',   label: 'Meeting Room' },
+  { value: 'Hot Desk',       label: 'Hot Desk' },
+  { value: 'Isolation Pod',  label: 'Isolation Pod' },
+]
+
+function formatHour(h) {
+  if (h === 0)  return '12:00 AM (Midnight)'
+  if (h < 12)   return `${h}:00 AM`
+  if (h === 12) return '12:00 PM (Noon)'
+  return `${h - 12}:00 PM`
+}
+
+const HOUR_OPTIONS = Array.from({ length: 25 }, (_, i) => ({ value: i, label: formatHour(i) }))
+
 const INITIAL_FORM = {
   name: '',
   description: '',
@@ -584,6 +600,9 @@ const INITIAL_FORM = {
   status: 'ACTIVE',
   imageUrl: '',
   deviceTypes: [],
+  officeType: '',
+  workingHoursStart: 8,
+  workingHoursEnd: 22,
 }
 
 const OFFICE_FALLBACK_IMAGES = [
@@ -622,6 +641,9 @@ function mapDbOffice(o) {
     _hourlyRateCents: o.hourly_rate_cents,
     _currency: o.currency || 'USD',
     _imageUrl: o.image_url || '',
+    _officeType: o.office_type || '',
+    _workingHoursStart: o.working_hours_start ?? 8,
+    _workingHoursEnd: o.working_hours_end ?? 22,
   }
 }
 
@@ -656,7 +678,7 @@ export default function AssetCommand() {
       if (!userId) { setLoadingOffices(false); return }
       const { data, error } = await supabase
         .from('offices')
-        .select('id,name,description,building,floor,room,capacity,hourly_rate_cents,currency,status,image_url,created_at')
+        .select('id,name,description,building,floor,room,capacity,hourly_rate_cents,currency,status,image_url,office_type,working_hours_start,working_hours_end,created_at')
         .eq('owner_id', userId)
         .is('deleted_at', null)
         .order('created_at', { ascending: false })
@@ -679,7 +701,7 @@ export default function AssetCommand() {
     if (!userId) return
     const { data } = await supabase
       .from('offices')
-      .select('id,name,description,building,floor,room,capacity,hourly_rate_cents,currency,status,image_url,created_at')
+      .select('id,name,description,building,floor,room,capacity,hourly_rate_cents,currency,status,image_url,office_type,working_hours_start,working_hours_end,created_at')
       .eq('owner_id', userId)
       .is('deleted_at', null)
       .order('created_at', { ascending: false })
@@ -761,6 +783,9 @@ export default function AssetCommand() {
       currency: office._currency,
       status: office._dbStatus,
       imageUrl: office._imageUrl,
+      officeType: office._officeType,
+      workingHoursStart: office._workingHoursStart,
+      workingHoursEnd: office._workingHoursEnd,
     })
     setEditFormErrors({})
     setEditSubmitError(null)
@@ -806,17 +831,20 @@ export default function AssetCommand() {
     setEditSubmitError(null)
     try {
       const { error } = await supabase.rpc('update_office_v1', {
-        p_office_id:         editingOffice.id,
-        p_name:              editForm.name.trim(),
-        p_description:       editForm.description.trim() || null,
-        p_building:          editForm.building.trim() || null,
-        p_floor:             editForm.floor.trim() || null,
-        p_room:              editForm.room.trim() || null,
-        p_capacity:          parseInt(editForm.capacityStr, 10),
-        p_hourly_rate_cents: Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
-        p_currency:          editForm.currency,
-        p_status:            editForm.status,
-        p_image_url:         editForm.imageUrl.trim() || null,
+        p_office_id:           editingOffice.id,
+        p_name:                editForm.name.trim(),
+        p_description:         editForm.description.trim() || null,
+        p_building:            editForm.building.trim() || null,
+        p_floor:               editForm.floor.trim() || null,
+        p_room:                editForm.room.trim() || null,
+        p_capacity:            parseInt(editForm.capacityStr, 10),
+        p_hourly_rate_cents:   Math.round(parseFloat(editForm.hourlyPriceStr) * 100),
+        p_currency:            editForm.currency,
+        p_status:              editForm.status,
+        p_image_url:           editForm.imageUrl.trim() || null,
+        p_office_type:         editForm.officeType || null,
+        p_working_hours_start: editForm.workingHoursStart,
+        p_working_hours_end:   editForm.workingHoursEnd,
       })
       if (error) throw new Error(error.message)
       await reloadOffices()
@@ -908,6 +936,9 @@ export default function AssetCommand() {
         imageUrl: finalImageUrl,
         deviceTypes: form.deviceTypes,
         idempotencyKey,
+        officeType: form.officeType || null,
+        workingHoursStart: form.workingHoursStart,
+        workingHoursEnd: form.workingHoursEnd,
       })
       setSubmitResult(result.data)
       await reloadOffices()
@@ -1543,6 +1574,53 @@ export default function AssetCommand() {
                   </div>
                 </div>
 
+                {/* Office Type + Working Hours */}
+                <div className="grid grid-cols-3 gap-3 mb-4">
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
+                      Office Type
+                    </label>
+                    <select
+                      value={form.officeType}
+                      onChange={(e) => setField('officeType', e.target.value)}
+                      className={`${inputCls('officeType')} cursor-pointer`}
+                    >
+                      <option value="">— Not specified —</option>
+                      {OFFICE_TYPE_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
+                      Opening Hour
+                    </label>
+                    <select
+                      value={form.workingHoursStart}
+                      onChange={(e) => setField('workingHoursStart', parseInt(e.target.value, 10))}
+                      className={`${inputCls('workingHoursStart')} cursor-pointer`}
+                    >
+                      {HOUR_OPTIONS.filter((o) => o.value < 24).map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
+                      Closing Hour
+                    </label>
+                    <select
+                      value={form.workingHoursEnd}
+                      onChange={(e) => setField('workingHoursEnd', parseInt(e.target.value, 10))}
+                      className={`${inputCls('workingHoursEnd')} cursor-pointer`}
+                    >
+                      {HOUR_OPTIONS.filter((o) => o.value > 0).map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
                 {/* Device checklist */}
                 <div className="mb-5">
                   <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-2">
@@ -1763,7 +1841,7 @@ export default function AssetCommand() {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3 mb-5">
+                <div className="grid grid-cols-2 gap-3 mb-4">
                   <div>
                     <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">Status</label>
                     <select
@@ -1785,6 +1863,53 @@ export default function AssetCommand() {
                       placeholder="https://..."
                       className={editInputCls('imageUrl')}
                     />
+                  </div>
+                </div>
+
+                {/* Office Type + Working Hours */}
+                <div className="grid grid-cols-3 gap-3 mb-5">
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
+                      Office Type
+                    </label>
+                    <select
+                      value={editForm.officeType || ''}
+                      onChange={(e) => setEditField('officeType', e.target.value)}
+                      className={`${editInputCls('officeType')} cursor-pointer`}
+                    >
+                      <option value="">— Not specified —</option>
+                      {OFFICE_TYPE_OPTIONS.map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
+                      Opening Hour
+                    </label>
+                    <select
+                      value={editForm.workingHoursStart ?? 8}
+                      onChange={(e) => setEditField('workingHoursStart', parseInt(e.target.value, 10))}
+                      className={`${editInputCls('workingHoursStart')} cursor-pointer`}
+                    >
+                      {HOUR_OPTIONS.filter((o) => o.value < 24).map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block font-inter text-[11px] uppercase tracking-[.1em] text-neutral mb-1.5">
+                      Closing Hour
+                    </label>
+                    <select
+                      value={editForm.workingHoursEnd ?? 22}
+                      onChange={(e) => setEditField('workingHoursEnd', parseInt(e.target.value, 10))}
+                      className={`${editInputCls('workingHoursEnd')} cursor-pointer`}
+                    >
+                      {HOUR_OPTIONS.filter((o) => o.value > 0).map((o) => (
+                        <option key={o.value} value={o.value}>{o.label}</option>
+                      ))}
+                    </select>
                   </div>
                 </div>
 

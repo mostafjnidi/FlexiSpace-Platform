@@ -211,7 +211,9 @@ export function confirmUsagePayment({ bookingId, idempotencyKey, simulateSuccess
 export function createOffice({
   name, description, building, floor, room,
   capacity, hourlyRateCents, currency, status,
-  imageUrl, deviceTypes, idempotencyKey, signal,
+  imageUrl, deviceTypes, idempotencyKey,
+  officeType, workingHoursStart, workingHoursEnd,
+  signal,
 }) {
   return callFlexiFunction('offices/create', {
     signal,
@@ -228,11 +230,14 @@ export function createOffice({
       image_url: imageUrl,
       device_types: deviceTypes,
       idempotency_key: idempotencyKey,
+      office_type: officeType ?? null,
+      working_hours_start: workingHoursStart ?? 8,
+      working_hours_end: workingHoursEnd ?? 22,
     },
   })
 }
 
-export function updateOffice({ officeId, name, description, building, floor, room, capacity, hourlyRateCents, currency, status, imageUrl, signal }) {
+export function updateOffice({ officeId, name, description, building, floor, room, capacity, hourlyRateCents, currency, status, imageUrl, officeType, workingHoursStart, workingHoursEnd, signal }) {
   return callFlexiPatch(`offices/${officeId}`, {
     signal,
     body: {
@@ -246,6 +251,9 @@ export function updateOffice({ officeId, name, description, building, floor, roo
       currency,
       status,
       image_url: imageUrl,
+      office_type: officeType ?? null,
+      working_hours_start: workingHoursStart,
+      working_hours_end: workingHoursEnd,
     },
   })
 }

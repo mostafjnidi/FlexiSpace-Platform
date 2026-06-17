@@ -82,8 +82,19 @@ function formatOfficePrice(cents, currency) {
   }
 }
 
+function computeAvailableSlots(start, end) {
+  const slots = []
+  if (start <= 8  && end >= 12) slots.push('morning')
+  if (start <= 12 && end >= 17) slots.push('afternoon')
+  if (start <= 17 && end >= 22) slots.push('evening')
+  if (start <= 8  && end >= 22) slots.push('all-day')
+  return slots.length > 0 ? slots : ['morning', 'afternoon', 'evening', 'all-day']
+}
+
 function mapOfficeToWorkspace(office, index) {
   const fallback = workspaces[index % workspaces.length]
+  const wStart = office.working_hours_start ?? 8
+  const wEnd   = office.working_hours_end   ?? 22
   return {
     id: office.id,
     name: office.name,
@@ -94,9 +105,9 @@ function mapOfficeToWorkspace(office, index) {
     capacity: `${office.capacity} ${office.capacity === 1 ? 'Person' : 'Persons'}`,
     price: formatOfficePrice(office.hourly_rate_cents, office.currency),
     status: office.status === 'ACTIVE',
-    type: 'Private Office',
+    type: office.office_type || 'Private Office',
     availableDates: ['today', 'tomorrow', 'this-week'],
-    availableSlots: ['morning', 'afternoon', 'evening', 'all-day'],
+    availableSlots: computeAvailableSlots(wStart, wEnd),
   }
 }
 
@@ -455,7 +466,7 @@ export default function FindWorkspace() {
 
       const { data, error } = await supabase
         .from('offices')
-        .select('id,name,description,building,floor,room,capacity,hourly_rate_cents,currency,status,image_url')
+        .select('id,name,description,building,floor,room,capacity,hourly_rate_cents,currency,status,image_url,office_type,working_hours_start,working_hours_end')
         .order('name', { ascending: true })
 
       if (!mounted) return

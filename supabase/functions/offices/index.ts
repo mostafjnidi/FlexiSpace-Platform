@@ -8,6 +8,7 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 const CURRENCY_RE = /^[A-Z]{3}$/
 const VALID_OFFICE_STATUS = new Set(['ACTIVE', 'INACTIVE', 'MAINTENANCE'])
 const VALID_DEVICE_TYPES = new Set(['SMART_LOCK', 'AIR_QUALITY_SENSOR', 'ELECTRICITY_METER'])
+const VALID_OFFICE_TYPES = new Set(['Private Office', 'Meeting Room', 'Hot Desk', 'Isolation Pod'])
 
 function isValidUuid(s: string): boolean {
   return UUID_RE.test(s)
@@ -98,6 +99,35 @@ async function handleCreateOffice(req: Request): Promise<Response> {
     ? (typeof body.image_url === 'string' ? body.image_url : null)
     : null
 
+  // ── office_type ────────────────────────────────────────────────────────────
+  const officeType = body.office_type != null
+    ? (typeof body.office_type === 'string' ? body.office_type : null)
+    : null
+  if (officeType !== null && !VALID_OFFICE_TYPES.has(officeType)) {
+    throw new FlexiError(
+      'BAD_REQUEST',
+      `office_type must be one of: ${[...VALID_OFFICE_TYPES].join(', ')}`,
+      400,
+    )
+  }
+
+  // ── working_hours ──────────────────────────────────────────────────────────
+  const workingHoursStart = body.working_hours_start !== undefined && body.working_hours_start !== null
+    ? (body.working_hours_start as number)
+    : 8
+  const workingHoursEnd = body.working_hours_end !== undefined && body.working_hours_end !== null
+    ? (body.working_hours_end as number)
+    : 22
+  if (!Number.isInteger(workingHoursStart) || workingHoursStart < 0 || workingHoursStart > 23) {
+    throw new FlexiError('BAD_REQUEST', 'working_hours_start must be an integer between 0 and 23', 400)
+  }
+  if (!Number.isInteger(workingHoursEnd) || workingHoursEnd < 1 || workingHoursEnd > 24) {
+    throw new FlexiError('BAD_REQUEST', 'working_hours_end must be an integer between 1 and 24', 400)
+  }
+  if (workingHoursEnd <= workingHoursStart) {
+    throw new FlexiError('BAD_REQUEST', 'working_hours_end must be greater than working_hours_start', 400)
+  }
+
   // ── device_types ───────────────────────────────────────────────────────────
   let deviceTypes: string[] = []
   if (body.device_types != null) {
@@ -133,21 +163,24 @@ async function handleCreateOffice(req: Request): Promise<Response> {
 
   const supabase = createServiceClient()
   const { data, error } = await supabase.rpc('create_office_with_devices_v1', {
-    p_trusted_actor_id:   profile.id,
-    p_trusted_actor_type: deriveActorType(profile.role),
-    p_request_id:         requestId,
-    p_name:               name,
-    p_description:        description,
-    p_building:           building,
-    p_floor:              floor,
-    p_room:               room,
-    p_capacity:           capacity,
-    p_hourly_rate_cents:  hourlyRateCents,
-    p_currency:           currency,
-    p_status:             status,
-    p_image_url:          imageUrl,
-    p_device_types:       deviceTypes,
-    p_idempotency_key:    idempotencyKey,
+    p_trusted_actor_id:    profile.id,
+    p_trusted_actor_type:  deriveActorType(profile.role),
+    p_request_id:          requestId,
+    p_name:                name,
+    p_description:         description,
+    p_building:            building,
+    p_floor:               floor,
+    p_room:                room,
+    p_capacity:            capacity,
+    p_hourly_rate_cents:   hourlyRateCents,
+    p_currency:            currency,
+    p_status:              status,
+    p_image_url:           imageUrl,
+    p_device_types:        deviceTypes,
+    p_idempotency_key:     idempotencyKey,
+    p_office_type:         officeType,
+    p_working_hours_start: workingHoursStart,
+    p_working_hours_end:   workingHoursEnd,
   })
 
   if (error) throw error
@@ -222,6 +255,35 @@ async function handleUpdateOffice(req: Request, officeId: string): Promise<Respo
       throw new FlexiError('BAD_REQUEST', `status must be one of: ${[...VALID_OFFICE_STATUS].join(', ')}`, 400)
     }
     updateData.status = body.status
+  }
+  if (body.office_type !== undefined) {
+    if (body.office_type !== null && (typeof body.office_type !== 'string' || !VALID_OFFICE_TYPES.has(body.office_type as string))) {
+      throw new FlexiError('BAD_REQUEST', `office_type must be one of: ${[...VALID_OFFICE_TYPES].join(', ')}`, 400)
+    }
+    updateData.office_type = body.office_type ?? null
+  }
+  if (body.working_hours_start !== undefined) {
+    const whs = body.working_hours_start as number
+    if (!Number.isInteger(whs) || whs < 0 || whs > 23) {
+      throw new FlexiError('BAD_REQUEST', 'working_hours_start must be an integer between 0 and 23', 400)
+    }
+    updateData.working_hours_start = whs
+  }
+  if (body.working_hours_end !== undefined) {
+    const whe = body.working_hours_end as number
+    if (!Number.isInteger(whe) || whe < 1 || whe > 24) {
+      throw new FlexiError('BAD_REQUEST', 'working_hours_end must be an integer between 1 and 24', 400)
+    }
+    updateData.working_hours_end = whe
+  }
+  const finalStart = (updateData.working_hours_start ?? 0) as number
+  const finalEnd = (updateData.working_hours_end ?? 24) as number
+  if (
+    updateData.working_hours_start !== undefined &&
+    updateData.working_hours_end !== undefined &&
+    finalEnd <= finalStart
+  ) {
+    throw new FlexiError('BAD_REQUEST', 'working_hours_end must be greater than working_hours_start', 400)
   }
 
   const { error } = await supabase.from('offices').update(updateData).eq('id', officeId)
