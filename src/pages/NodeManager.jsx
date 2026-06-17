@@ -1,10 +1,99 @@
-﻿import { useEffect, useState } from 'react'
+﻿import { useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
+import { callFlexiFunction } from '../lib/flexispaceApi'
 import BrandLogo from '../components/BrandLogo'
 import LanguageSwitcher from '../components/LanguageSwitcher'
 import { useI18n } from '../i18n'
 import { translateNavGroup, translateNavLabel, translateNavItem } from '../components/navigation'
+
+const DEFAULT_COORDS = { lat: 33.51, lon: 36.29 }
+
+function clamp(v, min, max) { return Math.min(max, Math.max(min, v)) }
+
+function isWorkHours() { const h = new Date().getHours(); return h >= 8 && h < 18 }
+
+function computeCO2() {
+  const hour = new Date().getHours()
+  const workFactor = (hour >= 8 && hour < 18)
+    ? Math.min(1, (hour - 8) / 5) * 0.8
+    : 0
+  return Math.round(clamp(420 + workFactor * 580, 420, 1000))
+}
+
+async function fetchLiveEnvironment(lat, lon) {
+  try {
+    const [weatherRes, aqRes] = await Promise.all([
+      fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,relative_humidity_2m&timezone=auto`),
+      fetch(`https://air-quality-api.open-meteo.com/v1/air-quality?latitude=${lat}&longitude=${lon}&current=pm2_5,european_aqi&timezone=auto`),
+    ])
+    const [weather, aq] = await Promise.all([weatherRes.json(), aqRes.json()])
+    return {
+      outdoor_temp_c:   weather.current?.temperature_2m      ?? null,
+      outdoor_humidity: weather.current?.relative_humidity_2m ?? null,
+      pm25:             aq.current?.pm2_5                     ?? null,
+      aqi:              aq.current?.european_aqi              ?? null,
+    }
+  } catch {
+    return null
+  }
+}
+
+function deriveIndoorReadings(env, deviceType) {
+  if (deviceType === 'AIR_QUALITY_SENSOR') {
+    return {
+      temperature_c:    parseFloat(clamp(env.outdoor_temp_c + 1.5, 19, 26).toFixed(1)),
+      humidity_percent: clamp(Math.round(env.outdoor_humidity * 0.75), 35, 62),
+      co2_ppm:          computeCO2(),
+      pm25_ug_m3:       env.pm25 != null ? parseFloat((env.pm25 * 0.4).toFixed(1)) : null,
+    }
+  }
+  if (deviceType === 'ELECTRICITY_METER') {
+    const t = env.outdoor_temp_c
+    const hvac_load = t > 26 ? (t - 26) * 0.08 : t < 18 ? (18 - t) * 0.06 : 0
+    const time_factor = isWorkHours() ? 0.4 : 0.0
+    return {
+      current_kw: parseFloat(
+        clamp(1.1 + hvac_load + time_factor + Math.random() * 0.15, 0.8, 4.2).toFixed(2)
+      ),
+    }
+  }
+  return {}
+}
+
+async function injectTelemetryForAllDevices(inventory, env) {
+  if (!env || !inventory?.length) return
+  const eligible = inventory.filter(d =>
+    d.device_type === 'AIR_QUALITY_SENSOR' || d.device_type === 'ELECTRICITY_METER'
+  )
+  const officeTypeSeen = {}
+  const tasks = eligible.map(device => {
+    const key = `${device.office_id}:${device.device_type}`
+    const isDupe = !!officeTypeSeen[key]
+    officeTypeSeen[key] = true
+    const base = deriveIndoorReadings(env, device.device_type)
+    let payload
+    if (device.device_type === 'AIR_QUALITY_SENSOR') {
+      payload = {
+        temperature_c:    isDupe ? parseFloat((base.temperature_c    + (Math.random() * 0.6 - 0.3)).toFixed(1)) : base.temperature_c,
+        humidity_percent: isDupe ? Math.round(base.humidity_percent + (Math.random() * 4 - 2))                   : base.humidity_percent,
+        co2_ppm:          base.co2_ppm,
+        pm25_ug_m3:       base.pm25_ug_m3,
+      }
+    } else {
+      payload = { ...base }
+    }
+    return callFlexiFunction('iot/mock/telemetry', {
+      body: {
+        device_id:   device.id,
+        event_type:  device.device_type === 'AIR_QUALITY_SENSOR' ? 'AIR_QUALITY_READING' : 'ELECTRICITY_READING',
+        payload,
+        observed_at: new Date().toISOString(),
+      },
+    })
+  })
+  await Promise.allSettled(tasks)
+}
 
 // Sidebar Icons
 function GridSquaresIcon({ size = 16 }) {
@@ -1376,6 +1465,11 @@ export default function NodeManager({ operatorMode = false }) {
   // null = not yet resolved, [] = no offices, [...ids] = scoped list
   const [allowedOfficeIds, setAllowedOfficeIds] = useState(null)
 
+  const [liveEnv, setLiveEnv] = useState(null)
+  const [envLastFetched, setEnvLastFetched] = useState(null)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const inventoryRef = useRef([])
+
   // Resolve which office IDs this user is allowed to see
   useEffect(() => {
     let isMounted = true
@@ -1429,6 +1523,7 @@ export default function NodeManager({ operatorMode = false }) {
         return
       }
 
+      inventoryRef.current = data
       const mappedNodes = data.map(mapInventoryRowToNode)
       setNodes(mappedNodes)
       setUsingFallbackNodes(false)
@@ -1814,6 +1909,37 @@ export default function NodeManager({ operatorMode = false }) {
     const timelineTimer = setInterval(loadTimeline, 15_000)
     return () => { isMounted = false; clearInterval(timelineTimer); supabase.removeChannel(channel) }
   }, [allowedOfficeIds])
+
+  useEffect(() => {
+    if (!allowedOfficeIds?.length) return
+
+    async function refreshEnv() {
+      const env = await fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon)
+      if (!env) return
+      setLiveEnv(env)
+      setEnvLastFetched(new Date())
+      await injectTelemetryForAllDevices(inventoryRef.current, env)
+    }
+
+    refreshEnv()
+    const timer = setInterval(refreshEnv, 30 * 60 * 1000)
+    return () => clearInterval(timer)
+  }, [allowedOfficeIds])
+
+  const handleRefresh = async () => {
+    if (isRefreshing) return
+    setIsRefreshing(true)
+    try {
+      const env = await fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon)
+      if (env) {
+        setLiveEnv(env)
+        setEnvLastFetched(new Date())
+        await injectTelemetryForAllDevices(inventoryRef.current, env)
+      }
+    } finally {
+      setIsRefreshing(false)
+    }
+  }
 
   const toggleNode = (id, val) => setNodeStates((prev) => ({ ...prev, [id]: val }))
 
@@ -2208,10 +2334,19 @@ export default function NodeManager({ operatorMode = false }) {
             <aside className="hidden lg:flex flex-col w-[260px] shrink-0 border-l border-line bg-bg-2 sticky top-14 h-[calc(100dvh-3.5rem)] overflow-y-auto">
               <div className="flex items-center justify-between px-5 py-4 border-b border-line">
                 <h2 className="font-inter text-[16px] font-semibold text-ink">{t('nodeManager.activeSensors')}</h2>
-                <button aria-label={t('nodeManager.activeSensors')}
+                <button aria-label="Refresh sensor data" onClick={handleRefresh}
                   className="w-7 h-7 rounded-lg flex items-center justify-center text-accent hover:text-accent-2 transition-colors cursor-pointer bg-transparent border-0 focus:ring-2 focus:ring-accent/40">
-                  <RefreshSmIcon />
+                  <span className={isRefreshing ? 'animate-spin' : ''}><RefreshSmIcon /></span>
                 </button>
+              </div>
+              <div className="px-5 py-2 border-b border-line">
+                {liveEnv ? (
+                  <p className="font-inter text-[11px] text-neutral opacity-70">
+                    Damascus · {liveEnv.outdoor_temp_c}°C · Updated {envLastFetched ? `${Math.floor((Date.now() - envLastFetched.getTime()) / 60000)}m ago` : 'just now'}
+                  </p>
+                ) : (
+                  <p className="font-inter text-[11px] text-neutral opacity-70">Connecting to weather feed…</p>
+                )}
               </div>
               <div className="px-5 flex flex-col">
                 {sensors.length > 0
