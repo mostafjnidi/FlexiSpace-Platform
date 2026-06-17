@@ -1914,30 +1914,47 @@ export default function NodeManager({ operatorMode = false }) {
 
   useEffect(() => {
     if (!allowedOfficeIds?.length) return
+    let cancelled = false
 
     async function refreshEnv() {
-      const env = await fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon)
-      if (!env) return
+      const [env, { data: freshInv }] = await Promise.all([
+        fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon),
+        supabase
+          .from('device_inventory_read_model')
+          .select('id, office_id, device_type')
+          .in('office_id', allowedOfficeIds)
+          .in('device_type', ['AIR_QUALITY_SENSOR', 'ELECTRICITY_METER']),
+      ])
+      if (cancelled || !env || !freshInv?.length) return
+      inventoryRef.current = freshInv
       setLiveEnv(env)
       setEnvLastFetched(new Date())
-      await injectTelemetryForAllDevices(inventoryRef.current, env)
-      setNodeTick(t => t + 1)
+      await injectTelemetryForAllDevices(freshInv, env)
+      if (!cancelled) setNodeTick(t => t + 1)
     }
 
     refreshEnv()
     const timer = setInterval(refreshEnv, 30 * 60 * 1000)
-    return () => clearInterval(timer)
+    return () => { cancelled = true; clearInterval(timer) }
   }, [allowedOfficeIds])
 
   const handleRefresh = async () => {
-    if (isRefreshing) return
+    if (isRefreshing || !allowedOfficeIds?.length) return
     setIsRefreshing(true)
     try {
-      const env = await fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon)
-      if (env) {
+      const [env, { data: freshInv }] = await Promise.all([
+        fetchLiveEnvironment(DEFAULT_COORDS.lat, DEFAULT_COORDS.lon),
+        supabase
+          .from('device_inventory_read_model')
+          .select('id, office_id, device_type')
+          .in('office_id', allowedOfficeIds)
+          .in('device_type', ['AIR_QUALITY_SENSOR', 'ELECTRICITY_METER']),
+      ])
+      if (env && freshInv?.length) {
+        inventoryRef.current = freshInv
         setLiveEnv(env)
         setEnvLastFetched(new Date())
-        await injectTelemetryForAllDevices(inventoryRef.current, env)
+        await injectTelemetryForAllDevices(freshInv, env)
         setNodeTick(t => t + 1)
       }
     } finally {
